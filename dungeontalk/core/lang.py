@@ -9,7 +9,7 @@ class Lang(object):
 	Coldwar scripting language	
 	"""
 
-	delimiters = "[\"\':!,;+*^&@#$%&\-\\/\|=$()?<>\s\[\]]"
+	delimiters = r"[\"\':!,;+*^&@#$%&\-\\/\|=$()?<>\s\[\]]"
 	
 	r_space 		= r'[ ]'
 	r_newline		= r'[\n]'
@@ -651,7 +651,10 @@ class Lang(object):
 			return [self, self.text]
 		
 		def eval(self, interp, expression):
-			print(interp.eval(self.text))
+			result = interp.eval(expression)
+			while isinstance(result, list) and len(result) == 1:
+				result = result[0]
+			print(result)
 
 		def __repr__(self):
 			return '<prnt>'

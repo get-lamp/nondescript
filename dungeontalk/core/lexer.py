@@ -1,4 +1,4 @@
-from io import StringIO
+from io import StringIO, BytesIO
 import re
 
 
@@ -19,7 +19,14 @@ class Lexer(object):
 			return "Token(line=(%s)%s, char=(%s)%s, word=(%s)'%s'" % (type(self.line), self.line, type(self.char), self.char, type(self.word), self.word)
 
 	def __init__(self, syntax, source, is_file=False):
-		self.src = open(source) if is_file else StringIO(source)
+		if is_file:
+			with open(source, 'rb') as f:
+				self.src = BytesIO(f.read())
+		else:
+			if source is None:
+				self.src = BytesIO(b'')
+			else:
+				self.src = BytesIO(source.encode('utf-8'))
 		self.syntax	= syntax
 		self.token	= []
 		self.nline	= 0
@@ -39,16 +46,18 @@ class Lexer(object):
 			return None
 		
 		self.token = []
+		char = ''
 
 		while True:
 			# read character
-			char = self.src.read(1)
+			char_bytes = self.src.read(1)
 			
-			if not char:
+			if not char_bytes:
 				# EOF
 				#self.src.close()
 				break
 			
+			char = char_bytes.decode('utf-8')
 			c = re.match(self.syntax.delimiters, char)
 			
 			# no delimiter found. Keep reading

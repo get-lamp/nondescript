@@ -31,7 +31,7 @@ class Interpreter(object):
 	
 		def __str__(self):
 			# one-liner aligning with spaces
-			return '\n' + '\n'.join(['%s %s %s' % (k, ' ' * (16 - len(k)), v) for k,v in self.iteritems()])
+			return '\n' + '\n'.join(['%s %s %s' % (k, ' ' * (16 - len(k)), v) for k,v in self.items()])
 		
 	"""
 	Reads language and executes it, handling values stored in memory, etc
