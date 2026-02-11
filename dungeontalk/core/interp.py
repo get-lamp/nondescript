@@ -1,5 +1,5 @@
-from parser import Parser
-from lang import Lang
+from .parser import Parser
+from .lang import Lang
 
 OPERAND_L	= 0
 OPERATOR 	= 1
@@ -92,7 +92,7 @@ class Interpreter(object):
 		Executes one line at a time
 		"""
 		try:
-			print Interpreter.Snapshot(self)
+			print(Interpreter.Snapshot(self))
 			# eval the instructions	
 			r = self.eval(self.memory.instr[self.pntr])
 			self.last = r
@@ -157,7 +157,7 @@ class Interpreter(object):
 		"""
 		Handle procedure calls
 		"""
-		print 'Calling routine %s' % (routine.get_identifier())
+		print('Calling routine %s' % (routine.get_identifier()))
 
 		# push block
 		self.push_block(routine)
@@ -180,7 +180,7 @@ class Interpreter(object):
 		# is function. Return last statement eval
 		if isinstance(routine, self.lang.Def):
 			ret = self.exec_all(routine.block)
-			#print ret
+			#print(ret)
 			self.endcall()
 			return ret
 		# is procedure. Return nothing. Move instruction pointer

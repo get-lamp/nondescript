@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import tty, termios, sys
-from dungeontalk import DM
+from dungeontalk.core.interp import Interpreter
+
 
 class Terminal:
 	def __init__(self, filename=None):
-		self.interp = DM()
+		self.interp = Interpreter()
 
 		"""
 		self.source = None
@@ -34,7 +35,7 @@ class Terminal:
 			instr = self.interp.exec_next()
 			
 			if instr is False:
-				print 'EOF'
+				print('EOF')
 				break
 
 			#print '-' * 80

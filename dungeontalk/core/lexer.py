@@ -1,4 +1,6 @@
-import StringIO, re
+from io import StringIO
+import re
+
 
 class Lexer(object):
 	"""
@@ -17,7 +19,7 @@ class Lexer(object):
 			return "Token(line=(%s)%s, char=(%s)%s, word=(%s)'%s'" % (type(self.line), self.line, type(self.char), self.char, type(self.word), self.word)
 
 	def __init__(self, syntax, source, is_file=False):
-		self.src = open(source) if is_file else StringIO.StringIO(source)	
+		self.src = open(source) if is_file else StringIO(source)
 		self.syntax	= syntax
 		self.token	= []
 		self.nline	= 0
@@ -110,8 +112,8 @@ class Lexer(object):
 						break
 				
 				except TypeError as err:
-					print token
-					print err
+					print(token)
+					print(err)
 					exit(1)
 	
 			if match is not None:

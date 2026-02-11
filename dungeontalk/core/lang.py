@@ -432,7 +432,7 @@ class Lang(object):
 			return '<procedure>'
 		
 		def parse(self, parser, **kwargs):	
-			print 'Procedure is being parsed'
+			print('Procedure is being parsed')
 
 			# parse identifier
 			i = parser.next()
@@ -451,7 +451,7 @@ class Lang(object):
 			return [self, self.identifier, self.signature]
 		
 		def eval(self, interp, signature):
-			print "Procedure is being eval'd"
+			print("Procedure is being eval'd")
 
 			# store procedure address
 			self.address = interp.pntr
@@ -582,13 +582,13 @@ class Lang(object):
 			if isinstance(block, Lang.If):
 				interp.endif()
 			elif isinstance(block, Lang.Procedure):
-				print 'Ending procedure block'
+				print('Ending procedure block')
 				interp.endcall()
 			elif isinstance(block, Lang.Def):
-				print 'Ending def block'
+				print('Ending def block')
 				interp.endcall()
 			else:
-				print interp.block_stack
+				print(interp.block_stack)
 				raise Exception('Unknown block type')
 	
 	class Parameter(Lexeme):
@@ -636,7 +636,7 @@ class Lang(object):
 		def eval(self, interp, expression):
 			c = interp.eval(self.condition)
 			u = interp.eval(self.until)
-			print "WAITING %s UNTIL %s" % (c, u)
+			print("WAITING %s UNTIL %s" % (c, u))
 
 		def __repr__(self):
 			return '<wait>'
@@ -651,7 +651,7 @@ class Lang(object):
 			return [self, self.text]
 		
 		def eval(self, interp, expression):
-			print interp.eval(self.text)
+			print(interp.eval(self.text))
 
 		def __repr__(self):
 			return '<prnt>'
@@ -694,7 +694,7 @@ class Lang(object):
 			return [self, src]
 
 		def eval(self, interp, source):
-			print source
+			print(source)
 			exit(1)
 		
 	# entity
@@ -766,7 +766,7 @@ class Lang(object):
 				self.legal = self.grammar
 				
 			l = self.can_push(i)
-			#print 'Is legal %s? %s %s %s' % (self.__class__.__name__, i.type(), self.hint(), l)
+			#print('Is legal %s? %s %s %s' % (self.__class__.__name__, i.type(), self.hint(), l))
 			# push term
 			if l:
 				# climb up in grammar tree

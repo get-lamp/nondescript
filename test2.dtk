@@ -16,11 +16,11 @@ def func x,y,z
 	prnt x
 	prnt y
 	prnt z
-	
+
 	x+y+z
 end
 
-r = func [1,2,3] 
+r = func [1,2,3]
 
 prnt 'Ack!'
 prnt r
@@ -32,7 +32,7 @@ prnt 'Begin'
 
 z = ((1+3) * 100) / 5
 
-procedure a_test_procedure	
+procedure a_test_procedure
 
 	procedure nested_procedure
 		prnt 'Im defining a procedure here'
@@ -51,7 +51,7 @@ procedure a_test_procedure
 	end
 	prnt 'leaving now. But before that...'
 	exec nested_procedure
-end 
+end
 
 if True
 	exec a_test_procedure
@@ -67,16 +67,16 @@ prnt 'Well...'
 a = (1 + 2) / 3
 b = 1
 
-if (a + b) == 2 
+if (a + b) == 2
 	prnt 'yes'
 	z = 1
-	
+
 	if z == 1
 		prnt 'Also yes'
 	end
-	
+
 	prnt 'Anyways I say this'
-	
+
 else
 	prnt 'no'
 	x = 99

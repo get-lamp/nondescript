@@ -1,4 +1,4 @@
-from lexer import Lexer
+from .lexer import Lexer
 
 class Parser(object):
 	"""
