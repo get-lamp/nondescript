@@ -81,11 +81,9 @@ class Lang:
         },
         r_not: lambda w, t: Lang.Not(w, t),
         r_identifier: lambda w, t: Lang.identifier(w, t),
-        r_atsign: {
-            r_identifier: lambda w, t: Lang.Character(w, t),
-            None: lambda w, t: Lang.Ego(w, t),
-        },
     }
+
+    builtins = {}
 
     keywords = {
         "prnt": lambda w, t: Lang.Prnt(w, t),
@@ -97,18 +95,12 @@ class Lang:
         "exec": lambda w, t: Lang.Exec(w, t),
         "include": lambda w, t: Lang.Include(w, t),
         "WAIT": lambda w, t: Lang.Wait(w, t),
-        "FAILSAFE": lambda w, t: Lang.Failsafe(w, t),
     }
 
     parameters = {
         "UNTIL": lambda w, t: Lang.Until(w, t),
         "BY": lambda w, t: Lang.By(w, t),
-        "TUNE": lambda w, t: Lang.Tune(w, t),
     }
-
-    bindings = {"TAILED": None}
-
-    builtins = {"TAILED": lambda w, t: Lang.Tailed(w, t, Lang.bindings[w])}
 
     clause = {r"<parameter>": lambda: Lang.expression}
 
@@ -146,7 +138,8 @@ class Lang:
         pass
 
     class Callable:
-        pass
+        def get_signature(self):
+            return self.signature
 
     # keywords
     class Block:
@@ -577,10 +570,6 @@ class Lang:
     class By(Parameter):
         def __init__(self, *args, **kwargs):
             super(Lang.By, self).__init__(*args, **kwargs)
-
-    class Tune(Parameter):
-        def __init__(self, *args, **kwargs):
-            super(Lang.Tune, self).__init__(*args, **kwargs)
 
     class Wait(Keyword):
         def type(self):
