@@ -5,10 +5,7 @@ import re
 # check for Evaluable & Callable classes
 
 
-class Lang(object):
-    """
-    Coldwar scripting language
-    """
+class Lang:
 
     delimiters = r"[\"\':!,;+*^&@#$%&\-\\/\|=$()?<>\s\[\]]"
 
@@ -145,23 +142,22 @@ class Lang(object):
     def bind_keyword(keyword, cls):
         Lang.keywords["keyword"] = lambda w, t: cls(w, t)
 
-    class Evaluable(object):
+    class Evaluable:
         pass
 
-    class Callable(object):
-        def get_signature(self):
-            return self.signature
+    class Callable:
+        pass
 
     # keywords
-    class Block(object):
+    class Block:
         def __init__(self, *args, **kwargs):
             self.length = 0
             self.owner = None
 
-    class Control(object):
+    class Control:
         pass
 
-    class Lexeme(object):
+    class Lexeme:
         """
         Base class for every language word
         """
@@ -173,7 +169,7 @@ class Lang(object):
 
         def set(self, kwargs):
             """
-            Convenience method for setting properties dinamically
+            Convenience method for setting properties dynamically
             """
             for i in kwargs:
                 setattr(self, i, kwargs[i])
@@ -214,7 +210,7 @@ class Lang(object):
             return "<const>"
 
         def __repr__(self):
-            return "<const %s>" % (self.word)
+            return "<const %s>" % self.word
 
     class String(str, Constant):
         def __init__(self, string, pos=(None, None)):
@@ -250,8 +246,8 @@ class Lang(object):
             return self
 
     class List(list, Vector):
-        def __init__(self, l=[]):
-            list.__init__(self, l)
+        def __init__(self, lst=None):
+            list.__init__(self, lst if lst else [])
 
         def type(self):
             return "<list>"
@@ -275,7 +271,7 @@ class Lang(object):
             return "<op>"
 
         def __repr__(self):
-            return "<op %s>" % (self.word)
+            return "<op %s>" % self.word
 
         def eval(self, left, right):
             raise NotImplementedError
@@ -285,7 +281,7 @@ class Lang(object):
             return "<unary-op>"
 
         def __repr__(self):
-            return "<unary-op %s>" % (self.word)
+            return "<unary-op %s>" % self.word
 
         def eval(self, operand):
             raise NotImplementedError
@@ -634,10 +630,9 @@ class Lang(object):
             super(Lang.Tailed, self).__init__(token, pos, **kwargs)
 
     """
-	PREPROCESSOR
-	
-	"""
-
+    PREPROCESSOR
+    
+    """
     class Preprocessor(Lexeme):
         pass
 
@@ -651,7 +646,7 @@ class Lang(object):
         def type(self):
             return "<include>"
 
-        def parse(self, parser):
+        def parse(self, parser, **kwargs):
             src = parser.expression()
             return [self, src]
 

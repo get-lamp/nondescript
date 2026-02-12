@@ -2,12 +2,12 @@ from io import BytesIO
 import re
 
 
-class Lexer(object):
+class Lexer:
     """
     Spit out tokens
     """
 
-    class Token(object):
+    class Token:
         """
         The words
         """

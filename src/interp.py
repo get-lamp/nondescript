@@ -6,7 +6,7 @@ OPERATOR = 1
 OPERAND_R = 2
 
 
-class Interpreter(object):
+class Interpreter:
     lang = Lang()
 
     class Snapshot(dict):
@@ -37,10 +37,9 @@ class Interpreter(object):
             )
 
     """
-	Reads language and executes it, handling values stored in memory, etc
-	"""
-
-    class Memory(object):
+    Reads language and executes it, handling values stored in memory, etc
+    """
+    class Memory:
         def __init__(self):
             self.instr = []
             self.stack = []
@@ -288,9 +287,8 @@ class Interpreter(object):
         return self.ctrl_stack.pop()
 
     """
-	Eval variables, lists. Handle references
-	"""
-
+    Eval variables, lists. Handle references
+    """
     def getval(self, i, **kwargs):
 
         # it's nested
@@ -317,9 +315,8 @@ class Interpreter(object):
             return i
 
     """
-	Eval sentences
-	"""
-
+    Eval sentences
+    """
     def eval(self, i, ref=False):
 
         if isinstance(i, self.lang.List):

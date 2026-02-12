@@ -1,7 +1,7 @@
 from .lexer import Lexer
 
 
-class Parser(object):
+class Parser:
     """
     The parser
     """
