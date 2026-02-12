@@ -1,13 +1,14 @@
-#!/usr/bin/python
-import tty, termios, sys
-from dungeontalk.core.interp import Interpreter
+import tty
+import termios
+import sys
+from src.core.interp import Interpreter
 
 
 class Terminal:
-	def __init__(self, filename=None):
-		self.interp = Interpreter()
+    def __init__(self, filename=None):
+        self.interp = Interpreter()
 
-		"""
+        """
 		self.source = None
 		
 		if filename is not None:
@@ -16,45 +17,42 @@ class Terminal:
 				self.interp.read(self.source)
 		"""
 
-	def begin(self):
+    def begin(self):
+        """
+        if not self.source:
+                self.interp.load();
+        """
 
-		"""
-		if not self.source:
-			self.interp.load();
-		"""
+        self.interp.read("test2.dtk", is_file=True)
 
-		self.interp.read('test2.dtk', is_file=True)
+        while True:
+            ch = self.getchar()
+
+            if ch == "q":
+                break
+
+            instr = self.interp.exec_next()
+
+            if instr is False:
+                print("EOF")
+                break
+
+            # print '-' * 80
+
+    def getchar(self):
+        # Returns a single character from standard input
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            return ch
 
 
-		while True:
-			ch = self.getchar()
-
-			if ch == 'q':
-				break
-				
-			instr = self.interp.exec_next()
-			
-			if instr is False:
-				print('EOF')
-				break
-
-			#print '-' * 80
-		
-	
-	def getchar(self):
-		#Returns a single character from standard input
-		fd = sys.stdin.fileno()
-		old_settings = termios.tcgetattr(fd)
-		try:
-			tty.setraw(sys.stdin.fileno())
-			ch = sys.stdin.read(1)
-		finally:
-			termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-			return ch
-   
 T = Terminal()
 T.begin()
-
 
 
 """
