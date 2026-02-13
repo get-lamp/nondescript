@@ -1,5 +1,5 @@
-from io import BytesIO
 import re
+from io import BytesIO
 
 
 class Lexer:
@@ -38,17 +38,28 @@ class Lexer:
                 self.src = BytesIO(source.encode("utf-8"))
         self.syntax = syntax
         self.token = []
-        self.nline = 0
-        self.nchar = 0
+        self.num_line = 0
+        self.num_char = 0
 
     def __exit__(self):
         self.src.close()
 
-    def backtrack(self, n=1):
+    def _backtrack(self, n=1):
         self.src.seek(-n, 1)
         return self
 
-    def scan(self):
+    def _is_newline(self, char):
+        return bool(re.match(self.syntax.r_newline, char))
+
+    def _track_line_and_char(self, char, word):
+        # char is newline
+        if self._is_newline(char) and char == word:
+            self.num_char = 0
+            self.num_line += 1
+        else:
+            self.num_char += len(word)
+
+    def _scan(self):
 
         if self.src.closed:
             # already at EOF
@@ -80,57 +91,60 @@ class Lexer:
                 # a multichar token to return.
                 # backtrack 1 to leave pointer in position for next reading
                 else:
-                    self.backtrack(1)
+                    self._backtrack(1)
                     break
 
-        # char is newline
-        # TODO: fix newlines getting tangled with numbers
-        if re.match(self.syntax.r_newline, char):
-            self.nchar = 0
-            self.nline = self.nline + 1
-        else:
-            self.nchar = self.nchar + 1
-
+        # return None on empty word
         word = "".join(self.token) if len(self.token) > 0 else None
-
         if word is None:
             return None
 
-        return self.Token(word, line=self.nline, char=self.nchar)
+        # keep current values before checks for new char & line
+        num_char = self.num_char
+        num_line = self.num_line
+
+        self._track_line_and_char(char, word)
+
+        return self.Token(word, line=num_line, char=num_char)
 
     def next(self):
 
+        match = None
         tree = self.syntax.symbols
-        word = []
+        tokens = []
 
         while True:
             # get next symbol
-            token = self.scan()
-            # info,symbol = self.scan()
+            token = self._scan()
 
             # EOF
             if token is None:
-                return False
+                if len(tokens) == 0:
+                    return False
+
+                elif token in tree.keys():
+                    return tree[token]([t.word for t in tokens], (tokens[0].line, tokens[0].char))
+
+                raise SyntaxError(
+                    f'SyntaxError: '
+                    f'"{"".join([t.word for t in tokens])}" is unexpected ({self.num_line}:{self.num_char})'
+                )
 
             # search in syntax tree
             for regexp in tree:
+                # Can't move this out of the loop. Not sure why yet.
                 match = None
+
                 if regexp is None:
-                    self.backtrack(1)
+                    self._backtrack(1)
                     continue
 
-                try:
-                    if re.match(regexp, token.word):
-                        word.append(token.word)
-                        # move forward in tree
-                        tree = tree[regexp]
-                        match = token.word
-                        break
-
-                except TypeError as err:
-                    print(token)
-                    print(err)
-                    exit(1)
+                if re.match(regexp, token.word):
+                    tokens.append(token)
+                    # move forward in tree
+                    tree = tree[regexp]
+                    match = token.word
+                    break
 
             if match is not None:
                 # there is a possible continuation to this symbol
@@ -139,12 +153,12 @@ class Lexer:
             else:
                 tree = tree.get(None)
 
-            if len(word) == 0:
+            if len(tokens) == 0:
                 # move to tree root
                 tree = self.syntax.symbols
                 continue
 
-            token.word = "".join(word)
+            token.word = "".join([t.word for t in tokens])
 
             # return a typed lexeme
             return tree(token.word, (token.line, token.char))

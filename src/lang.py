@@ -6,11 +6,10 @@ import re
 
 
 class Lang:
-
     delimiters = r"[\"\':!,;+*^&@#$%&\-\\/\|=$()?<>\s\[\]]"
 
     r_space = r"[ ]"
-    r_newline = r"[\n]"
+    r_newline = r"[\n;]"
     r_tab = r"[\t]"
     r_slash = r"[/]"
     r_asterisk = r"[*]"
@@ -33,6 +32,7 @@ class Lang:
     r_identifier = r"[_a-zA-Z][_a-zA-Z0-9]*"
     r_atsign = r"[@]"
 
+    # Will try to match greedily
     symbols = {
         r_space: lambda w, t: Lang.Space(w, t),
         r_newline: lambda w, t: Lang.NewLine(w, t),
@@ -55,14 +55,14 @@ class Lang:
         r_comma: lambda w, t: Lang.Comma(w, t),
         r_bang: {
             r_equal: {
-                r_equal: lambda w, t: Lang.InequalStrict(w, t),
+                r_equal: {None: lambda w, t: Lang.InequalStrict(w, t)},
                 None: lambda w, t: Lang.Inequal(w, t),
             },
-            None: lambda w, t: Lang.Assign(w, t),
+            None: lambda w, t: Lang.UnaryOperator(w, t),
         },
         r_equal: {
             r_equal: {
-                r_equal: lambda w, t: Lang.EqualStrict(w, t),
+                r_equal: {None: lambda w, t: Lang.EqualStrict(w, t)},
                 None: lambda w, t: Lang.Equal(w, t),
             },
             None: lambda w, t: Lang.Assign(w, t),
@@ -622,6 +622,7 @@ class Lang:
     PREPROCESSOR
     
     """
+
     class Preprocessor(Lexeme):
         pass
 

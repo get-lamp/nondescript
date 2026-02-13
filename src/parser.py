@@ -25,7 +25,8 @@ class Parser:
 
         return False
 
-    def unnest(self, s, stop):
+    @staticmethod
+    def unnest(s, stop):
         n = []
         while True and len(s) > 0:
             i = s.pop(-1)
@@ -34,7 +35,7 @@ class Parser:
             else:
                 n.insert(0, i)
 
-        return (s, n)
+        return s, n
 
     def push_block(self, block):
         self.blocks.append(block)

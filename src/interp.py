@@ -39,6 +39,7 @@ class Interpreter:
     """
     Reads language and executes it, handling values stored in memory, etc
     """
+
     class Memory:
         def __init__(self):
             self.instr = []
@@ -289,6 +290,7 @@ class Interpreter:
     """
     Eval variables, lists. Handle references
     """
+
     def getval(self, i, **kwargs):
 
         # it's nested
@@ -317,6 +319,7 @@ class Interpreter:
     """
     Eval sentences
     """
+
     def eval(self, i, ref=False):
 
         if isinstance(i, self.lang.List):
