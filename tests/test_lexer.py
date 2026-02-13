@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.parametrize("char", ["\n", ";"])
 def test_is_newline(char):
-    lexer = Lexer(Lang(), None)
+    lexer = Lexer(Lang, None)
     assert lexer._is_newline(char) is True
 
 
@@ -76,7 +76,7 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
 
     _WORD, _LINE, _CHAR = (0, 1, 2)
 
-    lexer = Lexer(Lang(), source)
+    lexer = Lexer(Lang, source)
 
     for e in expected:
         token = lexer._scan()
@@ -88,7 +88,7 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
 
 
 def test_scan_at_end_of_source():
-    lexer = Lexer(Lang(), "foo=bar")
+    lexer = Lexer(Lang, "foo=bar")
     assert (lexer._scan()).word == "foo"
     assert (lexer._scan()).word == "="
     assert (lexer._scan()).word == "bar"
@@ -96,42 +96,83 @@ def test_scan_at_end_of_source():
 
 
 @pytest.mark.parametrize(
-    ("source", "expected"),
+    ("source", "words", "types"),
     [
-        ('foo=bar', [Lang.Identifier, Lang.Assign, Lang.Identifier]),
-        ('foo=123', [Lang.Identifier, Lang.Assign, Lang.Integer]),
-        ('foo="abc"', [Lang.Identifier, Lang.Assign, Lang.DoubleQuote, Lang.Identifier, Lang.DoubleQuote]),
-        ("foo[0]", [Lang.Identifier, Lang.Bracket, Lang.Integer, Lang.Bracket]),
-        ("!foo", [Lang.UnaryOperator, Lang.Identifier]),
-        ('NOT', [Lang.Not]),
-        ('prnt 123', [Lang.Prnt, Lang.Space, Lang.Integer]),
-        ('   ', [Lang.Space, Lang.Space, Lang.Space]),
-        ("a=", [Lang.Identifier, Lang.Assign]),
-        ('==', [Lang.Equal]),
-        ('===', [Lang.EqualStrict]),
-        ('!', [Lang.UnaryOperator]),
-        ('!=', [Lang.Inequal]),
-        ('!==', [Lang.InequalStrict]),
+        [(
+            "foo=bar",
+            ["foo", "=", "bar"],
+            [Lang.Identifier, Lang.Assign, Lang.Identifier]
+        ),
+        (
+            "foo=123",
+            ["foo", "=", "123"],
+            [Lang.Identifier, Lang.Assign, Lang.Integer]),
+        (
+            'foo="abc"',
+            ["foo", "=", '"', 'abc', '"'],
+            [Lang.Identifier, Lang.Assign, Lang.DoubleQuote, Lang.Identifier, Lang.DoubleQuote],
+        ),
+        (
+            "foo[0]",
+            ['foo', '[', '0', ']'],
+            [Lang.Identifier, Lang.Bracket, Lang.Integer, Lang.Bracket]
+        ),
+        (
+            "!foo",
+            ['!', 'foo'],
+            [Lang.UnaryOperator, Lang.Identifier]
+        ),
+        (
+            "NOT",
+            ["NOT"],
+            [Lang.Not]
+        ),
+        (
+            "prnt 123",
+            ["prnt", "123"],
+            [Lang.Prnt, Lang.Space, Lang.Integer]
+        ),
+        (
+            "   ",
+            [   ],
+            [Lang.Space, Lang.Space, Lang.Space]
+        ),
+        (
+            "a=",
+            ['a', '='],
+            [Lang.Identifier, Lang.Assign]
+        ),
+        (
+            "==",
+            ['=='],
+            [Lang.Equal]
+        ),
+        (
+            "===",
+            ['==='],
+            [Lang.EqualStrict]
+        ),
+        (
+            "!",
+            ['!'],
+            [Lang.UnaryOperator]
+        ),
+        (
+            "!=",
+            ['!='],
+            [Lang.Inequal]
+        ),
+        (
+            "!==",
+            ['!=='],
+            [Lang.InequalStrict]
+        )][0]
     ],
 )
-def test_next(source, expected):
-    lexer = Lexer(Lang(), source)
+def test_next(source, words, types):
+    lexer = Lexer(Lang, source)
 
-    for e in expected:
+    for i in range(len(types)):
         token = lexer.next()
-        assert type(token) is e
-
-
-"""
-@pytest.mark.parametrize(
-    ("raises", "sources"),
-    [
-        (SyntaxError, ["=", "==", "===", "!", "!=", "!==", "=a", "+", "-", "*"]),
-    ],
-)
-def test_next_raises(raises, sources):
-    for source in sources:
-        lexer = Lexer(Lang(), source)
-        with pytest.raises(raises):
-            lexer.next()
-"""
+        assert token.word == words[i]
+        assert type(token) is types[i]

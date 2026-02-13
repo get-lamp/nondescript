@@ -612,12 +612,6 @@ class Lang:
         def eval(self, interp, signature):
             return self.bind(signature)
 
-    class Tailed(BuiltIn):
-        def __init__(self, token, pos=(None, None), binding=None, **kwargs):
-            # function binding
-            self.bind = binding
-            super(Lang.Tailed, self).__init__(token, pos, **kwargs)
-
     """
     PREPROCESSOR
     
@@ -643,20 +637,6 @@ class Lang:
         def eval(self, interp, source):
             print(source)
             exit(1)
-
-    # entity
-    class GameObject(Lexeme):
-        pass
-
-    class Character(GameObject):
-        def type(self):
-            return "<ident>"
-
-        def __repr__(self):
-            return "<character>"
-
-    class Ego(Character):
-        pass
 
     class Grammar(list):
         def __init__(self, rules):

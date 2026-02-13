@@ -123,19 +123,22 @@ class Lexer:
                     return False
 
                 elif token in tree.keys():
-                    return tree[token]([t.word for t in tokens], (tokens[0].line, tokens[0].char))
+                    return tree[token](
+                        [t.word for t in tokens], (tokens[0].line, tokens[0].char)
+                    )
 
                 raise SyntaxError(
-                    f'SyntaxError: '
+                    f"SyntaxError: "
                     f'"{"".join([t.word for t in tokens])}" is unexpected ({self.num_line}:{self.num_char})'
                 )
 
             # search in syntax tree
             for regexp in tree:
-                # Can't move this out of the loop. Not sure why yet.
+
                 match = None
 
                 if regexp is None:
+                    breakpoint()
                     self._backtrack(1)
                     continue
 

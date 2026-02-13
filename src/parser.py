@@ -1,6 +1,9 @@
 from .lexer import Lexer
 
 
+BLOCK_MAIN = "<main>"
+
+
 class Parser:
     """
     The parser
@@ -12,12 +15,12 @@ class Parser:
         self.lexer = Lexer(lang, source, is_file)
         self.tree = []
         self.pending = []
-        self.blocks = ["<main>"]
+        self.blocks = [BLOCK_MAIN]
 
     def set_source(self, source, is_file=False):
         self.lexer = Lexer(self.lang, source, is_file)
 
-    def EOF(self):
+    def _EOF(self):
         if len(self.blocks) > 1:
             pass
             # print self.blocks
@@ -26,7 +29,7 @@ class Parser:
         return False
 
     @staticmethod
-    def unnest(s, stop):
+    def _unnest(s, stop):
         n = []
         while True and len(s) > 0:
             i = s.pop(-1)
@@ -45,7 +48,7 @@ class Parser:
             raise Exception("Cannot pull main block")
         return self.blocks.pop()
 
-    def verbatim(self, stop, **kwargs):
+    def _verbatim(self, stop, **kwargs):
         verbatim = []
 
         while True:
@@ -90,12 +93,12 @@ class Parser:
             if isinstance(lexeme, self.lang.Preprocessor):
                 if isinstance(lexeme, self.lang.CommentLine):
                     # skips until newline
-                    self.verbatim(self.lang.NewLine)
+                    self._verbatim(self.lang.NewLine)
                     continue
 
                 if isinstance(lexeme, self.lang.CommentBlock):
                     # skips until closed comment block
-                    self.verbatim(self.lang.CommentBlock, open=False)
+                    self._verbatim(self.lang.CommentBlock, open=False)
                     continue
 
             if isinstance(lexeme, ignore):
@@ -148,7 +151,6 @@ class Parser:
                     return False
             # stop at delimiter
             if isinstance(i, until):
-                self.delimiter = i
                 # leave delimiter for further parsing
                 if leave is True:
                     self.pending.append(i)
@@ -182,9 +184,9 @@ class Parser:
             # literals
             if isinstance(lexeme, (self.lang.DoubleQuote, self.lang.SingleQuote)):
                 if isinstance(lexeme, self.lang.DoubleQuote):
-                    string = "".join(self.verbatim(self.lang.DoubleQuote))
+                    string = "".join(self._verbatim(self.lang.DoubleQuote))
                 else:
-                    string = "".join(self.verbatim(self.lang.SingleQuote))
+                    string = "".join(self._verbatim(self.lang.SingleQuote))
 
                 l = self.lang.String(string, (lexeme.line, lexeme.char))
                 expression.push(l)
@@ -229,8 +231,10 @@ class Parser:
 
         lexeme = self.next()
 
+        breakpoint()
+
         if lexeme is False:
-            return self.EOF()
+            return self._EOF()
 
         if until is not None and isinstance(lexeme, until):
             return lexeme
@@ -254,7 +258,7 @@ class Parser:
             # add to instruction counter
             self.count += 1
             return self.expression()
-        elif isinstance(lexeme, (self.lang.Parameter)):
+        elif isinstance(lexeme, self.lang.Parameter):
             raise Exception("Misplaced parameter")
         else:
             # newline, tab & beyond
@@ -275,11 +279,11 @@ class Parser:
             if isinstance(i, self.lang.Parentheses):
                 if i.open:
                     # n is the i(n)ner node while s is the remaining (i)nstruction
-                    n, s = self.unnest(s, self.lang.Parentheses)
+                    n, s = self._unnest(s, self.lang.Parentheses)
                     if len(n) > 0:
                         n = self.build(n)
                 else:
-                    raise Exception("Unexpected parentheses at %s" % (i.token.line))
+                    raise Exception("Unexpected parentheses at %s" % i.token.line)
 
             # list without brackets. Like arguments list
             elif isinstance(i, self.lang.Comma):
@@ -291,14 +295,14 @@ class Parser:
                     n.append(self.lang.List(self.list(s)))
                 # closing brackets are dispossed by self.list, so they shouldn't come up here
                 else:
-                    raise Exception("Unexpected bracket at %s" % (i.token.line))
+                    raise Exception("Unexpected bracket at %s" % i.token.line)
 
             # parameter
             elif isinstance(i, self.lang.Parameter):
                 return [i, self.build(s)]
 
             # operator delimits terms
-            elif isinstance(i, (self.lang.Operator)):
+            elif isinstance(i, self.lang.Operator):
                 # unary operator
                 if isinstance(i, self.lang.UnaryOperator):
                     return [i, self.build(s)]

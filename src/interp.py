@@ -7,7 +7,7 @@ OPERAND_R = 2
 
 
 class Interpreter:
-    lang = Lang()
+    lang = Lang
 
     class Snapshot(dict):
         """
