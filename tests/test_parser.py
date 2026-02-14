@@ -7,9 +7,24 @@ import pytest
     ("source", "words", "types"),
     [
         (
+                "!==!==!==",
+                ["!==", "!==", "!=="],
+                [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
+        ),
+        (
             "foo=bar",
             ["foo", "=", "bar"],
             [Lang.Identifier, Lang.Assign, Lang.Identifier],
+        ),
+        (
+                "foo!=bar",
+                ["foo", "!=", "bar"],
+                [Lang.Identifier, Lang.Inequal, Lang.Identifier],
+        ),
+        (
+                "foo!=bar",
+                ["foo", "!==", "bar"],
+                [Lang.Identifier, Lang.Inequal, Lang.Identifier],
         )
     ],
 )
@@ -26,6 +41,11 @@ def test_next(source, words, types):
 @pytest.mark.parametrize(
     ("source", "words", "types"),
     [
+        (
+                "!==!==!==",
+                ["!==", "!==", "!=="],
+                [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
+        ),
         (
             "foo=bar",
             ["foo", "=", "bar"],
