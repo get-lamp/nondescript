@@ -98,7 +98,7 @@ def test_scan_at_end_of_source():
 @pytest.mark.parametrize(
     ("source", "words", "types"),
     [
-        [(
+        (
             "foo=bar",
             ["foo", "=", "bar"],
             [Lang.Identifier, Lang.Assign, Lang.Identifier]
@@ -129,12 +129,12 @@ def test_scan_at_end_of_source():
         ),
         (
             "prnt 123",
-            ["prnt", "123"],
+            ["prnt", ' ', "123"],
             [Lang.Prnt, Lang.Space, Lang.Integer]
         ),
         (
             "   ",
-            [   ],
+            [' ', ' ', ' '],
             [Lang.Space, Lang.Space, Lang.Space]
         ),
         (
@@ -166,7 +166,7 @@ def test_scan_at_end_of_source():
             "!==",
             ['!=='],
             [Lang.InequalStrict]
-        )][0]
+        )
     ],
 )
 def test_next(source, words, types):
@@ -174,5 +174,5 @@ def test_next(source, words, types):
 
     for i in range(len(types)):
         token = lexer.next()
-        assert token.word == words[i]
         assert type(token) is types[i]
+        assert token.word == words[i]

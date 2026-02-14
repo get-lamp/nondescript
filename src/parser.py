@@ -231,8 +231,6 @@ class Parser:
 
         lexeme = self.next()
 
-        breakpoint()
-
         if lexeme is False:
             return self._EOF()
 

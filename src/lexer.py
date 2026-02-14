@@ -109,13 +109,60 @@ class Lexer:
 
     def next(self):
 
-        match = None
         tree = self.syntax.symbols
         tokens = []
+        queued = []
 
+        while True:
+
+            match = None
+
+            if len(queued) > 0:
+                token = queued.pop(0)
+            else:
+                token = self._scan()
+
+            if token is None:
+                if len(tokens) == 0:
+                    return False
+                else:
+                    return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+
+            for regexp in [t for t in tree if t is not None]:
+
+                if re.match(regexp, token.word):
+                    tokens.append(token)
+                    # move forward in tree
+                    tree = tree[regexp]
+
+                    if callable(tree):
+                        # It's a terminal symbol. Wrap it up.
+                        return tree(''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                    elif len(tree) == 1 and None in tree.keys():
+                        # Also a terminal
+                        return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+
+                    match = token.word
+                    break
+
+            if match:
+                # found something. Collected it in tokens. Get one more and try to match greedily
+                continue
+
+            elif not match and len(tokens) > 0 and isinstance(tree, dict) and None in tree.keys():
+                self._backtrack(len(token.word))
+                return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+            else:
+                breakpoint()
+
+
+
+        """
         while True:
             # get next symbol
             token = self._scan()
+
+            breakpoint()
 
             # EOF
             if token is None:
@@ -123,9 +170,7 @@ class Lexer:
                     return False
 
                 elif token in tree.keys():
-                    return tree[token](
-                        [t.word for t in tokens], (tokens[0].line, tokens[0].char)
-                    )
+                    return tree[token](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
 
                 raise SyntaxError(
                     f"SyntaxError: "
@@ -133,27 +178,34 @@ class Lexer:
                 )
 
             # search in syntax tree
-            for regexp in tree:
+            for regexp in [t for t in tree if t is not None]:
 
                 match = None
-
-                if regexp is None:
-                    breakpoint()
-                    self._backtrack(1)
-                    continue
 
                 if re.match(regexp, token.word):
                     tokens.append(token)
                     # move forward in tree
                     tree = tree[regexp]
+
+                    # it's a terminator symbol. Wrap it up.
+                    if callable(tree):
+                        return tree(''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+
                     match = token.word
                     break
 
-            if match is not None:
+            if match is not None and isinstance(tree, dict):
                 # there is a possible continuation to this symbol
-                if isinstance(tree, dict):
-                    continue
+                continue
+            elif match is None and None in tree.keys():
+                return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+            elif match is None:
+                breakpoint()
+                self._backtrack(1)
+                continue
             else:
+                breakpoint()
+                # no continuation. Pick the terminal
                 tree = tree.get(None)
 
             if len(tokens) == 0:
@@ -165,3 +217,4 @@ class Lexer:
 
             # return a typed lexeme
             return tree(token.word, (token.line, token.char))
+        """

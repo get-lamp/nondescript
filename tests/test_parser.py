@@ -19,9 +19,8 @@ def test_next(source, words, types):
 
     for i, word in enumerate(words):
         token = parser.lexer.next()
-        breakpoint()
-        # assert token.word == words[i]
-        # assert type(token) is types[i]
+        assert token.word == words[i]
+        assert type(token) is types[i]
 
 
 @pytest.mark.parametrize(
