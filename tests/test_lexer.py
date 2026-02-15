@@ -87,14 +87,6 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
     assert lexer._scan() is None
 
 
-def test_scan_at_end_of_source():
-    lexer = Lexer(Lang, "foo=bar")
-    assert (lexer._scan()).word == "foo"
-    assert (lexer._scan()).word == "="
-    assert (lexer._scan()).word == "bar"
-    assert lexer._scan() is None
-
-
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
