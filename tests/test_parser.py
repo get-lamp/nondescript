@@ -1,4 +1,4 @@
-from src.parser import Parser, BLOCK_MAIN
+from src.parser import Parser
 from src.lang import Lang
 import pytest
 from unittest.mock import ANY
@@ -11,9 +11,9 @@ ANY_POS = (ANY, ANY)
     ("source", "words", "types"),
     [
         (
-                "!==!==!==",
-                ["!==", "!==", "!=="],
-                [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
+            "!==!==!==",
+            ["!==", "!==", "!=="],
+            [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
         ),
         (
             "foo=bar",
@@ -21,15 +21,15 @@ ANY_POS = (ANY, ANY)
             [Lang.Identifier, Lang.Assign, Lang.Identifier],
         ),
         (
-                "foo!=bar",
-                ["foo", "!=", "bar"],
-                [Lang.Identifier, Lang.Inequal, Lang.Identifier],
+            "foo!=bar",
+            ["foo", "!=", "bar"],
+            [Lang.Identifier, Lang.Inequal, Lang.Identifier],
         ),
         (
-                "foo!==bar",
-                ["foo", "!==", "bar"],
-                [Lang.Identifier, Lang.InequalStrict, Lang.Identifier],
-        )
+            "foo!==bar",
+            ["foo", "!==", "bar"],
+            [Lang.Identifier, Lang.InequalStrict, Lang.Identifier],
+        ),
     ],
 )
 def test_next(source, words, types):
@@ -47,12 +47,24 @@ def test_next(source, words, types):
     [
         (
             "foo=bar",
-            [Lang.Identifier('foo', ANY_POS), Lang.Assign('=', ANY_POS), Lang.Identifier('bar', ANY_POS)],
+            [Lang.Identifier("foo", ANY_POS), Lang.Assign("=", ANY_POS), Lang.Identifier("bar", ANY_POS)],
         ),
         (
-                "if True:",
-                [Lang.Keyword('if', ANY_POS), [Lang.Identifier('True', ANY_POS)]],
-        )
+            "if True:",
+            [Lang.Keyword("if", ANY_POS), [Lang.Identifier("True", ANY_POS)]],
+        ),
+        (
+            "[]",
+            [Lang.Bracket("[", ANY_POS, open=True), Lang.Bracket("]", ANY_POS, open=False)],
+        ),
+        (
+            "[foo]",
+            [
+                Lang.Bracket("[", ANY_POS, open=True),
+                Lang.Identifier("foo", ANY_POS),
+                Lang.Bracket("]", ANY_POS, open=False),
+            ],
+        ),
     ],
 )
 def test_parse(source, expected):
@@ -60,12 +72,14 @@ def test_parse(source, expected):
     parser = Parser(Lang, source)
     sentence = parser.parse()
 
+    # breakpoint()
+
     assert sentence == expected
 
 
 @pytest.mark.parametrize(
     "source",
-    ('!==', '+', '!', '/', ':'),
+    ("!==", "+", "!", "/", ":", "{", "}"),
 )
-def test_parse_raises_syntax_error(source):
+def test_parse_returns_false(source):
     assert Parser(Lang, source).parse() is False

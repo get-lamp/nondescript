@@ -32,9 +32,7 @@ class Interpreter:
 
         def __str__(self):
             # one-liner aligning with spaces
-            return "\n" + "\n".join(
-                ["%s %s %s" % (k, " " * (16 - len(k)), v) for k, v in self.items()]
-            )
+            return "\n" + "\n".join(["%s %s %s" % (k, " " * (16 - len(k)), v) for k, v in self.items()])
 
     """
     Reads language and executes it, handling values stored in memory, etc
@@ -171,10 +169,7 @@ class Interpreter:
 
         # check signature match with arguments
         if len(signature) != len(arguments):
-            raise Exception(
-                "Function expects %s arguments. Given %s"
-                % (len(signature), len(arguments))
-            )
+            raise Exception("Function expects %s arguments. Given %s" % (len(signature), len(arguments)))
 
         self.push_scope()
 
@@ -355,14 +350,10 @@ class Interpreter:
 
             # assign operations
             if isinstance(i[OPERATOR], self.lang.Assign):
-                return i[OPERATOR].eval(
-                    i[OPERAND_L], self.getval(i[OPERAND_R]), self.scope()
-                )
+                return i[OPERATOR].eval(i[OPERAND_L], self.getval(i[OPERAND_R]), self.scope())
             # any other binary operation
             else:
-                return i[OPERATOR].eval(
-                    self.getval(i[OPERAND_L]), self.getval(i[OPERAND_R]), self.scope()
-                )
+                return i[OPERATOR].eval(self.getval(i[OPERAND_L]), self.getval(i[OPERAND_R]), self.scope())
 
         else:
             return i

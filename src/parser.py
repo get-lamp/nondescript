@@ -249,9 +249,7 @@ class Parser:
             self.count += 1
             return lexeme.parse(self)
 
-        elif isinstance(
-            lexeme, (self.lang.Delimiter, self.lang.Constant, self.lang.Identifier)
-        ):
+        elif isinstance(lexeme, (self.lang.Delimiter, self.lang.Constant, self.lang.Identifier)):
             self.pending.append(lexeme)
 
             # add to instruction counter
@@ -292,7 +290,7 @@ class Parser:
             elif isinstance(i, self.lang.Bracket):
                 if i.open:
                     n.append(self.lang.List(self.list(s)))
-                # closing brackets are dispossed by self.list, so they shouldn't come up here
+                # closing brackets are disposed by self.list, so they shouldn't come up here
                 else:
                     raise Exception("Unexpected bracket at %s" % i.token.line)
 

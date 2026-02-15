@@ -108,13 +108,9 @@ class Lang:
         r"<unary-op>": lambda: Lang.expression,
         r"<delim>|<bracket>": lambda: Lang.expression,
         r"<const>|<ident>|<built-in>": {
-            r"<bracket>|<const>|<ident>|<built-in>": lambda: Lang.expression[
-                r"<const>|<ident>|<built-in>"
-            ],
+            r"<bracket>|<const>|<ident>|<built-in>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
             "<op>": lambda: Lang.expression,
-            "</delim>|</bracket>": lambda: Lang.expression[
-                r"<const>|<ident>|<built-in>"
-            ],
+            "</delim>|</bracket>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
             "<comma>": lambda: Lang.expression,
         },
     }
@@ -177,11 +173,13 @@ class Lang:
             return "<%s><%s>" % (self.__class__.__name__, self.word)
 
         def __eq__(self, other):
-            return all([
-                self.word == other.word,
-                self.line == other.line,
-                self.char == other.char,
-            ])
+            return all(
+                [
+                    self.word == other.word,
+                    self.line == other.line,
+                    self.char == other.char,
+                ]
+            )
 
     class WhiteSpace(Lexeme):
         """
@@ -704,9 +702,7 @@ class Lang:
             # push term
             if l:
                 # climb up in grammar tree
-                self.legal = (
-                    self.legal[l] if not callable(self.legal[l]) else self.legal[l]()
-                )
+                self.legal = self.legal[l] if not callable(self.legal[l]) else self.legal[l]()
                 super(Lang.Grammar, self).append(i)
                 return self
 

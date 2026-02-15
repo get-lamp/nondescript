@@ -23,7 +23,7 @@ class Terminal:
                 self.interp.load();
         """
 
-        self.interp.read("tests/sample/sample.dtk", is_file=True)
+        self.interp.read("tests/sample/sample.ns", is_file=True)
 
         while True:
             ch = self.getchar()

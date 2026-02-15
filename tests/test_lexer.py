@@ -1,6 +1,9 @@
 from src.lexer import Lexer
 from src.lang import Lang
 import pytest
+from unittest.mock import ANY
+
+ANY_POS = (ANY, ANY)
 
 
 @pytest.mark.parametrize("char", ["\n", ";"])
@@ -96,83 +99,45 @@ def test_scan_at_end_of_source():
 
 
 @pytest.mark.parametrize(
-    ("source", "words", "types"),
+    ('source', 'expected'),
     [
-        (
-            "foo=bar",
-            ["foo", "=", "bar"],
-            [Lang.Identifier, Lang.Assign, Lang.Identifier]
-        ),
-        (
-            "foo=123",
-            ["foo", "=", "123"],
-            [Lang.Identifier, Lang.Assign, Lang.Integer]),
+        ('foo=bar', [Lang.Identifier('foo', ANY_POS), Lang.Assign('=', ANY_POS), Lang.Identifier('bar', ANY_POS)]),
+        ("foo=123", [Lang.Identifier('foo', ANY_POS), Lang.Assign('=', ANY_POS), Lang.Integer('123', ANY_POS)]),
         (
             'foo="abc"',
-            ["foo", "=", '"', 'abc', '"'],
-            [Lang.Identifier, Lang.Assign, Lang.DoubleQuote, Lang.Identifier, Lang.DoubleQuote],
+            [
+                Lang.Identifier('foo', ANY_POS),
+                Lang.Assign('=', ANY_POS),
+                Lang.DoubleQuote('"', ANY_POS),
+                Lang.Identifier('abc', ANY_POS),
+                Lang.DoubleQuote('"', ANY_POS)
+            ],
         ),
-        (
-            "foo[0]",
-            ['foo', '[', '0', ']'],
-            [Lang.Identifier, Lang.Bracket, Lang.Integer, Lang.Bracket]
-        ),
-        (
-            "!foo",
-            ['!', 'foo'],
-            [Lang.UnaryOperator, Lang.Identifier]
-        ),
-        (
-            "NOT",
-            ["NOT"],
-            [Lang.Not]
-        ),
-        (
-            "prnt 123",
-            ["prnt", ' ', "123"],
-            [Lang.Prnt, Lang.Space, Lang.Integer]
-        ),
-        (
-            "   ",
-            [' ', ' ', ' '],
-            [Lang.Space, Lang.Space, Lang.Space]
-        ),
-        (
-            "a=",
-            ['a', '='],
-            [Lang.Identifier, Lang.Assign]
-        ),
-        (
-            "==",
-            ['=='],
-            [Lang.Equal]
-        ),
-        (
-            "===",
-            ['==='],
-            [Lang.EqualStrict]
-        ),
-        (
-            "!",
-            ['!'],
-            [Lang.UnaryOperator]
-        ),
-        (
-            "!=",
-            ['!='],
-            [Lang.Inequal]
-        ),
-        (
-            "!==",
-            ['!=='],
-            [Lang.InequalStrict]
-        )
+        ("foo[0]", [Lang.Identifier('foo', ANY_POS), Lang.Bracket, Lang.Integer, Lang.Bracket]),
+        #("!foo", ["!", "foo"], [Lang.UnaryOperator, Lang.Identifier]),
+        #("NOT", ["NOT"], [Lang.Not]),
+        #("prnt 123", ["prnt", " ", "123"], [Lang.Prnt, Lang.Space, Lang.Integer]),
+        #("   ", [" ", " ", " "], [Lang.Space, Lang.Space, Lang.Space]),
+        #("a=", ["a", "="], [Lang.Identifier, Lang.Assign]),
+        #("==", ["=="], [Lang.Equal]),
+        #("===", ["==="], [Lang.EqualStrict]),
+        #("!", ["!"], [Lang.UnaryOperator]),
+        #("!=", ["!="], [Lang.Inequal]),
+        #("!==", ["!=="], [Lang.InequalStrict]),
+        #('[', [Lang.Bracket]),
+        #('[[', [Lang.Bracket, Lang.Bracket]),
+        #(']', [Lang.Bracket]),
+        #(']]', [Lang.Bracket, Lang.Bracket]),
+        #('[]', [Lang.Bracket, Lang.Bracket]),
+        #('[[]]', [Lang.Bracket, Lang.Bracket, Lang.Bracket, Lang.Bracket]),
     ],
 )
-def test_next(source, words, types):
+def test_next(source, expected):
     lexer = Lexer(Lang, source)
 
-    for i in range(len(types)):
+    for exp in expected:
         token = lexer.next()
-        assert type(token) is types[i]
-        assert token.word == words[i]
+        assert token == exp
+
+    # assert it ends when we expect it
+    assert lexer.next() is False

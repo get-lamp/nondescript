@@ -114,7 +114,6 @@ class Lexer:
         queued = []
 
         while True:
-
             match = None
 
             if len(queued) > 0:
@@ -126,10 +125,9 @@ class Lexer:
                 if len(tokens) == 0:
                     return False
                 else:
-                    return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                    return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
 
             for regexp in [t for t in tree if t is not None]:
-
                 if re.match(regexp, token.word):
                     tokens.append(token)
                     # move forward in tree
@@ -137,10 +135,10 @@ class Lexer:
 
                     if callable(tree):
                         # It's a terminal symbol. Wrap it up.
-                        return tree(''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                        return tree("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
                     elif len(tree) == 1 and None in tree.keys():
                         # Also a terminal
-                        return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                        return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
 
                     match = token.word
                     break
@@ -151,11 +149,9 @@ class Lexer:
 
             elif not match and len(tokens) > 0 and isinstance(tree, dict) and None in tree.keys():
                 self._backtrack(len(token.word))
-                return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
             else:
                 continue
-
-
 
         """
         while True:
