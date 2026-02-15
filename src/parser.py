@@ -1,5 +1,6 @@
 from .lexer import Lexer
-from .exc import UnexpectedEOF
+from .exc import UnexpectedEOF, UnexpectedSymbol
+from .lang import Lang
 
 
 BLOCK_MAIN = "<main>"
@@ -79,7 +80,7 @@ class Parser:
 
         return False
 
-    def next(self, ignore=None):
+    def next(self, ignore=None) -> Lang.Lexeme:
 
         ignore = (self.lang.Space, self.lang.Tab) if ignore is None else ignore
 
@@ -196,11 +197,8 @@ class Parser:
             if self.lang.Grammar.is_legal(expression + [lexeme], self.lang.expression):
                 expression.push(lexeme)
             else:
-                self.pending.append(lexeme)
-                # print 'Expression rejected %s' % (lexeme)
-                # print 'Expecting %s' % (expression.hint())
-                # raise Exception('Unexpected %s' % (lexeme))
-                break
+                raise UnexpectedSymbol(f'Unexpected "{lexeme.word}". Expecting: {', '.join(expression.hint())}')
+
         return expression
 
     def clause(self, expecting):

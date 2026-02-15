@@ -149,6 +149,7 @@ class Lexer:
 
             elif not match and len(tokens) > 0 and isinstance(tree, dict) and None in tree.keys():
                 self._backtrack(len(token.word))
+                self.num_char -= len(token.word)
                 return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
             else:
                 continue

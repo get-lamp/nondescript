@@ -106,7 +106,8 @@ class Lang:
 
     expression = {
         r"<unary-op>": lambda: Lang.expression,
-        r"<delim>|<bracket>": lambda: Lang.expression,
+        r"<delim>": lambda: Lang.expression,
+        r"<bracket>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
         r"<const>|<ident>|<built-in>": {
             r"<bracket>|<const>|<ident>|<built-in>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
             "<op>": lambda: Lang.expression,

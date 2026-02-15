@@ -1,3 +1,4 @@
+from src.exc import UnexpectedSymbol
 from src.parser import Parser
 from src.lang import Lang
 import pytest
@@ -83,3 +84,13 @@ def test_parse(source, expected):
 )
 def test_parse_returns_false(source):
     assert Parser(Lang, source).parse() is False
+
+
+@pytest.mark.parametrize(
+    "source",
+    ("]",),
+)
+def test_parse_raises_unexpected_symbol(source):
+    with pytest.raises(UnexpectedSymbol):
+        Parser(Lang, source).parse()
+
