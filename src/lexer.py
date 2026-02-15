@@ -153,7 +153,7 @@ class Lexer:
                 self._backtrack(len(token.word))
                 return tree[None](''.join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
             else:
-                breakpoint()
+                continue
 
 
 

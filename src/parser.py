@@ -1,4 +1,5 @@
 from .lexer import Lexer
+from .exc import UnexpectedEOF
 
 
 BLOCK_MAIN = "<main>"
@@ -143,7 +144,7 @@ class Parser:
             if i is False:
                 # EOF before expected delimiter
                 if until is not None:
-                    raise Exception("Unexpected EOF")
+                    raise UnexpectedEOF(f"Unexpected EOF at block {block}")
                 # return last statement
                 elif len(block) > 0:
                     return block

@@ -1,0 +1,2 @@
+class UnexpectedEOF(SyntaxError):
+    pass

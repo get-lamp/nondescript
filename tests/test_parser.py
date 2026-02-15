@@ -1,6 +1,10 @@
 from src.parser import Parser, BLOCK_MAIN
 from src.lang import Lang
 import pytest
+from unittest.mock import ANY
+
+
+ANY_POS = (ANY, ANY)
 
 
 @pytest.mark.parametrize(
@@ -22,9 +26,9 @@ import pytest
                 [Lang.Identifier, Lang.Inequal, Lang.Identifier],
         ),
         (
-                "foo!=bar",
+                "foo!==bar",
                 ["foo", "!==", "bar"],
-                [Lang.Identifier, Lang.Inequal, Lang.Identifier],
+                [Lang.Identifier, Lang.InequalStrict, Lang.Identifier],
         )
     ],
 )
@@ -39,31 +43,29 @@ def test_next(source, words, types):
 
 
 @pytest.mark.parametrize(
-    ("source", "words", "types"),
+    ("source", "expected"),
     [
         (
-                "!==!==!==",
-                ["!==", "!==", "!=="],
-                [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
+            "foo=bar",
+            [Lang.Identifier('foo', ANY_POS), Lang.Assign('=', ANY_POS), Lang.Identifier('bar', ANY_POS)],
         ),
         (
-            "foo=bar",
-            ["foo", "=", "bar"],
-            [Lang.Identifier, Lang.Assign, Lang.Identifier],
+                "if True:",
+                [Lang.Keyword('if', ANY_POS), [Lang.Identifier('True', ANY_POS)]],
         )
     ],
 )
-def test_parse(source, words, types):
+def test_parse(source, expected):
 
     parser = Parser(Lang, source)
-
-    assert parser.count == 0
-    assert parser.tree == []
-    assert parser.pending == []
-    assert parser.blocks == [BLOCK_MAIN]
-
     sentence = parser.parse()
 
-    for i, word in enumerate(sentence):
-        assert sentence[i].word == words[i]
-        assert type(sentence[i]) is types[i]
+    assert sentence == expected
+
+
+@pytest.mark.parametrize(
+    "source",
+    ('!==', '+', '!', '/', ':'),
+)
+def test_parse_raises_syntax_error(source):
+    assert Parser(Lang, source).parse() is False

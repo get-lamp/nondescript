@@ -176,6 +176,13 @@ class Lang:
         def __repr__(self):
             return "<%s><%s>" % (self.__class__.__name__, self.word)
 
+        def __eq__(self, other):
+            return all([
+                self.word == other.word,
+                self.line == other.line,
+                self.char == other.char,
+            ])
+
     class WhiteSpace(Lexeme):
         """
         Spaces and tabs
