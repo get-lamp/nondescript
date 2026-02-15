@@ -28,11 +28,13 @@ class Lexer:
             )
 
         def __eq__(self, other):
-            return all([
-                self.word == other.word,
-                self.line == other.line,
-                self.char == other.char,
-            ])
+            return all(
+                [
+                    self.word == other.word,
+                    self.line == other.line,
+                    self.char == other.char,
+                ]
+            )
 
     def __init__(self, syntax, source, is_file=False):
         if is_file:

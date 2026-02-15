@@ -93,4 +93,3 @@ def test_parse_returns_false(source):
 def test_parse_raises_unexpected_symbol(source):
     with pytest.raises(UnexpectedSymbol):
         Parser(Lang, source).parse()
-

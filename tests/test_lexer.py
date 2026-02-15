@@ -98,53 +98,53 @@ def test_scan_at_end_of_source():
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("foo=bar", [Lexer.Token("foo", 0, 0), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))]),
-        ("foo=123", [Lang.Identifier("foo", ANY_POS), Lang.Assign("=", ANY_POS), Lang.Integer("123", ANY_POS)]),
+        ("foo=bar", [Lexer.Token("foo", 0, 0), Lexer.Token("=", 0, 3), Lexer.Token("bar", 0, 4)]),
+        ("foo=123", [Lexer.Token("foo", ANY_POS), Lexer.Token("=", ANY_POS), Lexer.Token("123", ANY_POS)]),
         (
             'foo="abc"',
             [
-                Lang.Identifier("foo", ANY_POS),
-                Lang.Assign("=", ANY_POS),
-                Lang.DoubleQuote('"', ANY_POS),
-                Lang.Identifier("abc", ANY_POS),
-                Lang.DoubleQuote('"', ANY_POS),
+                Lexer.Token("foo", ANY_POS),
+                Lexer.Token("=", ANY_POS),
+                Lexer.Token('"', ANY_POS),
+                Lexer.Token("abc", ANY_POS),
+                Lexer.Token('"', ANY_POS),
             ],
         ),
         (
             "foo[0]",
             [
-                Lang.Identifier("foo", ANY_POS),
-                Lang.Bracket("[", ANY_POS),
-                Lang.Integer("0", ANY_POS),
-                Lang.Bracket("]", ANY_POS),
+                Lexer.Token("foo", ANY_POS),
+                Lexer.Token("[", ANY_POS),
+                Lexer.Token("0", ANY_POS),
+                Lexer.Token("]", ANY_POS),
             ],
         ),
-        ("!foo", [Lang.UnaryOperator("!", ANY_POS), Lang.Identifier("foo", ANY_POS)]),
-        ("NOT", [Lang.Not("NOT", ANY_POS)]),
-        ("prnt 123", [Lang.Prnt("prnt", ANY_POS), Lang.Space(" ", ANY_POS), Lang.Integer("123", ANY_POS)]),
-        ("   ", [Lang.Space(" ", ANY_POS), Lang.Space(" ", ANY_POS), Lang.Space(" ", ANY_POS)]),
-        ("a=", [Lang.Identifier("a", ANY_POS), Lang.Assign("=", ANY_POS)]),
-        ("==", [Lang.Equal("==", ANY_POS)]),
-        ("===", [Lang.EqualStrict("===", ANY_POS)]),
-        ("!", [Lang.UnaryOperator("!", ANY_POS)]),
-        ("!=", [Lang.Inequal("!=", ANY_POS)]),
-        ("!==", [Lang.InequalStrict("!==", ANY_POS)]),
-        ("[", [Lang.Bracket("[", ANY_POS)]),
-        ("[[", [Lang.Bracket("[", ANY_POS), Lang.Bracket("[", ANY_POS)]),
-        ("]", [Lang.Bracket("]", ANY_POS)]),
-        ("]]", [Lang.Bracket("]", ANY_POS), Lang.Bracket("]", ANY_POS)]),
-        ("[]", [Lang.Bracket("[", ANY_POS), Lang.Bracket("]", ANY_POS)]),
+        ("!foo", [Lexer.Token("!", ANY_POS), Lexer.Token("foo", ANY_POS)]),
+        ("NOT", [Lexer.Token("NOT", ANY_POS)]),
+        ("prnt 123", [Lexer.Token("prnt", ANY_POS), Lexer.Token(" ", ANY_POS), Lexer.Token("123", ANY_POS)]),
+        ("   ", [Lexer.Token(" ", ANY_POS), Lexer.Token(" ", ANY_POS), Lexer.Token(" ", ANY_POS)]),
+        ("a=", [Lexer.Token("a", ANY_POS), Lexer.Token("=", ANY_POS)]),
+        ("==", [Lexer.Token("==", ANY_POS)]),
+        ("===", [Lexer.Token("===", ANY_POS)]),
+        ("!", [Lexer.Token("!", ANY_POS)]),
+        ("!=", [Lexer.Token("!=", ANY_POS)]),
+        ("!==", [Lexer.Token("!==", ANY_POS)]),
+        ("[", [Lexer.Token("[", ANY_POS)]),
+        ("[[", [Lexer.Token("[", ANY_POS), Lexer.Token("[", ANY_POS)]),
+        ("]", [Lexer.Token("]", ANY_POS)]),
+        ("]]", [Lexer.Token("]", ANY_POS), Lexer.Token("]", ANY_POS)]),
+        ("[]", [Lexer.Token("[", ANY_POS), Lexer.Token("]", ANY_POS)]),
         (
             "[[]]",
             [
-                Lang.Bracket("[", ANY_POS),
-                Lang.Bracket("[", ANY_POS),
-                Lang.Bracket("]", ANY_POS),
-                Lang.Bracket("]", ANY_POS),
+                Lexer.Token("[", ANY_POS),
+                Lexer.Token("[", ANY_POS),
+                Lexer.Token("]", ANY_POS),
+                Lexer.Token("]", ANY_POS),
             ],
         ),
-        #("{", [Lang.Bracket("{", ANY_POS, open=True)]),
-        #("{}", [Lang.Bracket("{", ANY_POS, open=True), Lang.Bracket("}", ANY_POS, open=False)]),
+        # ("{", [Lang.Bracket("{", ANY_POS, open=True)]),
+        # ("{}", [Lang.Bracket("{", ANY_POS, open=True), Lang.Bracket("}", ANY_POS, open=False)]),
     ],
 )
 def test_next(source, expected):
@@ -156,6 +156,7 @@ def test_next(source, expected):
         assert token.line == exp.line
         assert token.char == exp.char
         assert token == exp
+        assert type(token) is type(exp)
 
     # assert it ends when we expect it
     assert lexer.next() is False
