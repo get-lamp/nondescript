@@ -31,6 +31,31 @@ ANY_POS = (ANY, ANY)
             ["foo", "!==", "bar"],
             [Lang.Identifier, Lang.InequalStrict, Lang.Identifier],
         ),
+        (
+            "prnt 'hello'",
+            ["prnt", " ", "'", "hello", "'"],
+            [Lang.Prnt, Lang.Space, Lang.SingleQuote, Lang.Identifier, Lang.SingleQuote],
+        ),
+        (
+            "if foo==bar",
+            ["if", " ", "foo", "==", "bar"],
+            [Lang.If, Lang.Space, Lang.Identifier, Lang.Equal, Lang.Identifier],
+        ),
+        (
+            "procedure my_proc",
+            ["procedure", " ", "my_proc"],
+            [Lang.Procedure, Lang.Space, Lang.Identifier],
+        ),
+        (
+            "exec my_proc",
+            ["exec", " ", "my_proc"],
+            [Lang.Exec, Lang.Space, Lang.Identifier],
+        ),
+        (
+            "1+2",
+            ["1", "+", "2"],
+            [Lang.Integer, Lang.Add, Lang.Integer],
+        ),
     ],
 )
 def test_next(source, words, types):
@@ -65,6 +90,22 @@ def test_next(source, words, types):
                 Lang.Identifier("foo", ANY_POS),
                 Lang.Bracket("]", ANY_POS, open=False),
             ],
+        ),
+        (
+            "prnt 'hello'",
+            [Lang.Prnt("prnt", ANY_POS), [Lang.String("hello", ANY_POS)]],
+        ),
+        (
+            "1+2",
+            [Lang.Integer("1", ANY_POS), Lang.Add("+", ANY_POS), Lang.Integer("2", ANY_POS)],
+        ),
+        (
+            "(1+2)",
+            [Lang.Parentheses("(", ANY_POS, open=True),
+             Lang.Integer("1", ANY_POS),
+             Lang.Add("+", ANY_POS),
+             Lang.Integer("2", ANY_POS),
+             Lang.Parentheses(")", ANY_POS, open=False)],
         ),
     ],
 )
