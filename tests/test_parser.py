@@ -9,63 +9,94 @@ ANY_POS = (ANY, ANY)
 
 
 @pytest.mark.parametrize(
-    ("source", "words", "types"),
+    ("source", "expected"),
     [
         (
             "!==!==!==",
-            ["!==", "!==", "!=="],
-            [Lang.InequalStrict, Lang.InequalStrict, Lang.InequalStrict],
+            [
+                Lang.InequalStrict("!==", ANY_POS),
+                Lang.InequalStrict("!==", ANY_POS),
+                Lang.InequalStrict("!==", ANY_POS),
+            ],
         ),
         (
             "foo=bar",
-            ["foo", "=", "bar"],
-            [Lang.Identifier, Lang.Assign, Lang.Identifier],
+            [
+                Lang.Identifier("foo", ANY_POS),
+                Lang.Assign("=", ANY_POS),
+                Lang.Identifier("bar", ANY_POS),
+            ],
         ),
         (
             "foo!=bar",
-            ["foo", "!=", "bar"],
-            [Lang.Identifier, Lang.Inequal, Lang.Identifier],
+            [
+                Lang.Identifier("foo", ANY_POS),
+                Lang.Inequal("!=", ANY_POS),
+                Lang.Identifier("bar", ANY_POS),
+            ],
         ),
         (
             "foo!==bar",
-            ["foo", "!==", "bar"],
-            [Lang.Identifier, Lang.InequalStrict, Lang.Identifier],
+            [
+                Lang.Identifier("foo", ANY_POS),
+                Lang.InequalStrict("!==", ANY_POS),
+                Lang.Identifier("bar", ANY_POS),
+            ],
         ),
         (
             "prnt 'hello'",
-            ["prnt", " ", "'", "hello", "'"],
-            [Lang.Prnt, Lang.Space, Lang.SingleQuote, Lang.Identifier, Lang.SingleQuote],
+            [
+                Lang.Prnt("prnt", ANY_POS),
+                Lang.Space(" ", ANY_POS),
+                Lang.SingleQuote("'", ANY_POS),
+                Lang.Identifier("hello", ANY_POS),
+                Lang.SingleQuote("'", ANY_POS),
+            ],
         ),
         (
             "if foo==bar",
-            ["if", " ", "foo", "==", "bar"],
-            [Lang.If, Lang.Space, Lang.Identifier, Lang.Equal, Lang.Identifier],
+            [
+                Lang.If("if", ANY_POS),
+                Lang.Space(" ", ANY_POS),
+                Lang.Identifier("foo", ANY_POS),
+                Lang.Equal("==", ANY_POS),
+                Lang.Identifier("bar", ANY_POS),
+            ],
         ),
         (
             "procedure my_proc",
-            ["procedure", " ", "my_proc"],
-            [Lang.Procedure, Lang.Space, Lang.Identifier],
+            [
+                Lang.Procedure("procedure", ANY_POS),
+                Lang.Space(" ", ANY_POS),
+                Lang.Identifier("my_proc", ANY_POS),
+            ],
         ),
         (
             "exec my_proc",
-            ["exec", " ", "my_proc"],
-            [Lang.Exec, Lang.Space, Lang.Identifier],
+            [
+                Lang.Exec("exec", ANY_POS),
+                Lang.Space(" ", ANY_POS),
+                Lang.Identifier("my_proc", ANY_POS),
+            ],
         ),
         (
             "1+2",
-            ["1", "+", "2"],
-            [Lang.Integer, Lang.Add, Lang.Integer],
+            [
+                Lang.Integer("1", ANY_POS),
+                Lang.Add("+", ANY_POS),
+                Lang.Integer("2", ANY_POS),
+            ],
         ),
     ],
 )
-def test_next(source, words, types):
+def test_next(source, expected):
 
     parser = Parser(Lang, source)
 
-    for i, word in enumerate(words):
+    for exp in expected:
         token = parser.lexer.next()
-        assert token.word == words[i]
-        assert type(token) is types[i]
+        assert token == exp
+        assert type(token) is type(exp)
 
 
 @pytest.mark.parametrize(
