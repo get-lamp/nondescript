@@ -199,7 +199,7 @@ class Parser:
             else:
                 raise UnexpectedSymbol(
                     f'Unexpected "{lexeme.word}" at ({lexeme.line}:{lexeme.char}). '
-                    f'Expecting: {", ".join(expression.hint())}'
+                    f"Expecting: {', '.join(expression.hint())}"
                 )
 
         return expression

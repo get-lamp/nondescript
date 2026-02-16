@@ -112,13 +112,7 @@ def test_next(source, words, types):
     ],
 )
 def test_parse(source, expected):
-
-    parser = Parser(Lang, source)
-    sentence = parser.parse()
-
-    # breakpoint()
-
-    assert sentence == expected
+    assert Parser(Lang, source).parse() == expected
 
 
 @pytest.mark.parametrize(
@@ -136,3 +130,47 @@ def test_parse_returns_false(source):
 def test_parse_raises_unexpected_symbol(source):
     with pytest.raises(UnexpectedSymbol):
         Parser(Lang, source).parse()
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("1+2", [[Lang.Integer("1", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
+        ("a * b", [[Lang.Identifier("a", ANY_POS)], Lang.Multiply("*", ANY_POS), [Lang.Identifier("b", ANY_POS)]]),
+        (
+            "a + b * c",  # Testing operator precedence
+            [
+                [Lang.Identifier("a", ANY_POS)],
+                Lang.Add("+", ANY_POS),
+                [[Lang.Identifier("b", ANY_POS)], Lang.Multiply("*", ANY_POS), [Lang.Identifier("c", ANY_POS)]],
+            ],
+        ),
+        (
+            "(a + b) * c",  # Testing parentheses grouping
+            [
+                [[Lang.Identifier("a", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Identifier("b", ANY_POS)]],
+                Lang.Multiply("*", ANY_POS),
+                [Lang.Identifier("c", ANY_POS)],
+            ],
+        ),
+        (
+            "'Hello' + ' ' + who",  # Testing right-associativity (adjusting based on previous failure)
+            [
+                [Lang.String("Hello", ANY_POS)],
+                Lang.Add("+", ANY_POS),
+                [[Lang.String(" ", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Identifier("who", ANY_POS)]],
+            ],
+        ),
+        ("1", [Lang.Integer("1", ANY_POS)]),
+        ("foo", [Lang.Identifier("foo", ANY_POS)]),
+        ("!foo", [Lang.UnaryOperator("!", ANY_POS), [Lang.Identifier("foo", ANY_POS)]]),
+        ("NOT bar", [Lang.Not("NOT", ANY_POS), [Lang.Identifier("bar", ANY_POS)]]),
+        ("1 == 2", [[Lang.Integer("1", ANY_POS)], Lang.Equal("==", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
+        ("1 != 2", [[Lang.Integer("1", ANY_POS)], Lang.Inequal("!=", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
+    ],
+)
+def test_build(source, expected):
+
+    parser = Parser(Lang, source)
+    ast = parser.build(parser.expression())
+    assert ast == expected
