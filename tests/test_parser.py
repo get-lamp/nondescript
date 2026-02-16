@@ -104,41 +104,45 @@ def test_next(source, expected):
     [
         (
             "foo=bar",
-            [Lang.Identifier("foo", ANY_POS), Lang.Assign("=", ANY_POS), Lang.Identifier("bar", ANY_POS)],
+            [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))],
         ),
         (
             "if True:",
-            [Lang.Keyword("if", ANY_POS), [Lang.Identifier("True", ANY_POS)]],
+            [Lang.Keyword("if", (0, 0)), [Lang.Identifier("True", (0, 3))]],
         ),
         (
             "[]",
-            [Lang.Bracket("[", ANY_POS, open=True), Lang.Bracket("]", ANY_POS, open=False)],
+            [Lang.Bracket("[", (0, 0), open=True), Lang.Bracket("]", (0, 1), open=False)],
         ),
         (
             "[foo]",
             [
-                Lang.Bracket("[", ANY_POS, open=True),
-                Lang.Identifier("foo", ANY_POS),
-                Lang.Bracket("]", ANY_POS, open=False),
+                Lang.Bracket("[", (0, 0), open=True),
+                Lang.Identifier("foo", (0, 1)),
+                Lang.Bracket("]", (0, 4), open=False),
             ],
         ),
         (
             "prnt 'hello'",
-            [Lang.Prnt("prnt", ANY_POS), [Lang.String("hello", ANY_POS)]],
+            [Lang.Prnt("prnt", (0, 0)), [Lang.String("hello", (0, 6))]],
         ),
         (
             "1+2",
-            [Lang.Integer("1", ANY_POS), Lang.Add("+", ANY_POS), Lang.Integer("2", ANY_POS)],
+            [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 1)), Lang.Integer("2", (0, 2))],
         ),
         (
             "(1+2)",
             [
-                Lang.Parentheses("(", ANY_POS, open=True),
-                Lang.Integer("1", ANY_POS),
-                Lang.Add("+", ANY_POS),
-                Lang.Integer("2", ANY_POS),
-                Lang.Parentheses(")", ANY_POS, open=False),
+                Lang.Parentheses("(", (0, 0), open=True),
+                Lang.Integer("1", (0, 1)),
+                Lang.Add("+", (0, 2)),
+                Lang.Integer("2", (0, 3)),
+                Lang.Parentheses(")", (0, 4), open=False),
             ],
+        ),
+        (
+                "1       +       2",
+                [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))],
         ),
     ],
 )
