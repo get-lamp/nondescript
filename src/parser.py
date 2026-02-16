@@ -197,7 +197,10 @@ class Parser:
             if self.lang.Grammar.is_legal(expression + [lexeme], self.lang.expression):
                 expression.push(lexeme)
             else:
-                raise UnexpectedSymbol(f'Unexpected "{lexeme.word}". Expecting: {", ".join(expression.hint())}')
+                raise UnexpectedSymbol(
+                    f'Unexpected "{lexeme.word}" at ({lexeme.line}:{lexeme.char}). '
+                    f'Expecting: {", ".join(expression.hint())}'
+                )
 
         return expression
 

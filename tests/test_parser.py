@@ -101,11 +101,13 @@ def test_next(source, words, types):
         ),
         (
             "(1+2)",
-            [Lang.Parentheses("(", ANY_POS, open=True),
-             Lang.Integer("1", ANY_POS),
-             Lang.Add("+", ANY_POS),
-             Lang.Integer("2", ANY_POS),
-             Lang.Parentheses(")", ANY_POS, open=False)],
+            [
+                Lang.Parentheses("(", ANY_POS, open=True),
+                Lang.Integer("1", ANY_POS),
+                Lang.Add("+", ANY_POS),
+                Lang.Integer("2", ANY_POS),
+                Lang.Parentheses(")", ANY_POS, open=False),
+            ],
         ),
     ],
 )
