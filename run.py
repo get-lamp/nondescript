@@ -25,10 +25,8 @@ class Terminal:
 
         self.interp.read("tests/sample/sample.ns", is_file=True)
 
-        with open('output.txt', 'w') as output:
-
+        with open("output.txt", "w") as output:
             while True:
-
                 """
                 ch = self.getchar()
 
@@ -37,7 +35,7 @@ class Terminal:
                 """
 
                 try:
-                    output.write(str(Interpreter.Snapshot(self.interp)) + '/n')
+                    output.write(str(Interpreter.Snapshot(self.interp)) + "/n")
                 except IndexError:
                     pass
 

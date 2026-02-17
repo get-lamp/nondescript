@@ -24,7 +24,7 @@ class Interpreter:
                 "Scope": interp.memory.scope,
                 "Stack": interp.memory.stack,
                 "Ctrl stack": interp.ctrl_stack,
-                "Instruction": interp.memory.instr[interp.pntr],
+                "Instruction": interp.memory.instr[interp.pntr] if interp.pntr < len(interp.memory.instr) else None,
                 "Last result": interp.last,
             }
 

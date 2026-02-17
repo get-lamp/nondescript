@@ -141,8 +141,8 @@ def test_next(source, expected):
             ],
         ),
         (
-                "1       +       2",
-                [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))],
+            "1       +       2",
+            [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))],
         ),
     ],
 )
