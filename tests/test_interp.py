@@ -1,4 +1,5 @@
 from src.interp import Interpreter
+from src.lang import Lang
 
 # --- Constants for sample file paths ---
 ASSIGNMENT_AND_PRINT = "tests/sample/assignment_and_print.ns"
@@ -24,11 +25,16 @@ def _run_test(filepath):
 
 def test_assignment_and_print():
     """Tests variable assignment and printing."""
-
     interpreter = _run_test(ASSIGNMENT_AND_PRINT)
     snapshot = Interpreter.Snapshot(interpreter)
-
+    assert snapshot["Pointer"] == 2
     assert snapshot["Scope"][0]["who"] == "World"
+    assert snapshot["Last result"] is None
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    # After exec_all, the last instruction is what's checked
+    assert snapshot["Instruction"] is None
 
 
 def test_procedure():
@@ -43,7 +49,14 @@ def test_function_with_return():
     interpreter = _run_test(FUNCTION_WITH_RETURN)
     snapshot = Interpreter.Snapshot(interpreter)
 
+    assert snapshot["Pointer"] == len(interpreter.memory.instr)
     assert snapshot["Scope"][0]["r"] == 6
+    assert isinstance(snapshot["Scope"][0]["func"], Lang.Def)
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    assert snapshot["Instruction"] is None
+    assert snapshot["Last result"] is None
 
 
 def test_arithmetic_expressions():
@@ -52,7 +65,13 @@ def test_arithmetic_expressions():
     interpreter = _run_test(ARITHMETIC_EXPRESSIONS)
     snapshot = Interpreter.Snapshot(interpreter)
 
+    assert snapshot["Pointer"] == len(interpreter.memory.instr)
     assert snapshot["Scope"][0]["z"] == 80.0
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    assert snapshot["Instruction"] is None
+    assert snapshot["Last result"] is None
 
 
 def test_if_else():
@@ -73,28 +92,47 @@ def test_step_by_step_execution():
     interpreter = Interpreter()
     interpreter.read(ARITHMETIC_EXPRESSIONS, is_file=True)
 
-    # Before any execution
+    # State before any execution (corresponds to Pointer 13 in the larger sample, but here it's Pointer 0)
     snapshot = Interpreter.Snapshot(interpreter)
 
     assert snapshot["Pointer"] == 0
-    assert not snapshot["Scope"][0]  # Scope should be empty
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Scope"] == [{}]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    # Instruction for 5 + -10
+    assert isinstance(snapshot["Instruction"][1], Lang.Add)
+    assert snapshot["Last result"] is None
 
     # Execute first instruction: 5 + -10
-
     interpreter.exec_next()
     snapshot = Interpreter.Snapshot(interpreter)
 
     assert snapshot["Pointer"] == 1
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Scope"] == [{}]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    # Instruction for z = ((1+3) * 100) / 5
+    assert isinstance(snapshot["Instruction"][1], Lang.Assign)
     assert snapshot["Last result"] == -5
 
     # Execute second instruction: z = ((1+3) * 100) / 5
-
     interpreter.exec_next()
     snapshot = Interpreter.Snapshot(interpreter)
 
     assert snapshot["Pointer"] == 2
     assert snapshot["Scope"][0]["z"] == 80.0
     assert snapshot["Last result"].word == "z"
+
+    # Execute final instruction: prnt z
+    interpreter.exec_next()
+    snapshot = Interpreter.Snapshot(interpreter)
+    assert snapshot["Pointer"] == 3
+    # After the last instruction, the 'Instruction' in snapshot will be None
+    assert snapshot["Instruction"] is None
+    # The last result would be from the prnt statement, which is None
+    assert snapshot["Last result"] is None
 
 
 def test_full_sample_final_state():
@@ -105,7 +143,13 @@ def test_full_sample_final_state():
 
     scope = snapshot["Scope"][0]
 
+    assert snapshot["Pointer"] == len(interpreter.memory.instr)
     assert scope["a"] == 1.0
     assert scope["b"] == 1
     assert scope["z"] == 1
     assert "x" not in scope
+    assert snapshot["Block stack"] == ["<main>"]
+    assert snapshot["Stack"] == []
+    assert snapshot["Ctrl stack"] == [True]
+    assert snapshot["Instruction"] is None
+    assert snapshot["Last result"] is None
