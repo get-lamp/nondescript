@@ -170,30 +170,30 @@ def test_parse_raises_unexpected_symbol(source):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("1+2", [[Lang.Integer("1", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
-        ("a * b", [[Lang.Identifier("a", ANY_POS)], Lang.Multiply("*", ANY_POS), [Lang.Identifier("b", ANY_POS)]]),
+        ("1+2", [[Lang.Integer("1", (0, 0))], Lang.Add("+", (0, 1)), [Lang.Integer("2", (0, 2))]]),
+        ("a * b", [[Lang.Identifier("a", (0, 0))], Lang.Multiply("*", (0, 2)), [Lang.Identifier("b", (0, 4))]]),
         (
             "a + b * c",  # Testing operator precedence
             [
-                [Lang.Identifier("a", ANY_POS)],
-                Lang.Add("+", ANY_POS),
-                [[Lang.Identifier("b", ANY_POS)], Lang.Multiply("*", ANY_POS), [Lang.Identifier("c", ANY_POS)]],
+                [Lang.Identifier("a", (0, 0))],
+                Lang.Add("+", (0, 2)),
+                [[Lang.Identifier("b", (0, 4))], Lang.Multiply("*", (0, 6)), [Lang.Identifier("c", (0, 8))]],
             ],
         ),
         (
             "(a + b) * c",  # Testing parentheses grouping
             [
-                [[Lang.Identifier("a", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Identifier("b", ANY_POS)]],
-                Lang.Multiply("*", ANY_POS),
-                [Lang.Identifier("c", ANY_POS)],
+                [[Lang.Identifier("a", (0, 1))], Lang.Add("+", (0, 3)), [Lang.Identifier("b", (0, 5))]],
+                Lang.Multiply("*", (0, 8)),
+                [Lang.Identifier("c", (0, 10))],
             ],
         ),
         (
             "'Hello' + ' ' + who",  # Testing right-associativity (adjusting based on previous failure)
             [
-                [Lang.String("Hello", ANY_POS)],
-                Lang.Add("+", ANY_POS),
-                [[Lang.String(" ", ANY_POS)], Lang.Add("+", ANY_POS), [Lang.Identifier("who", ANY_POS)]],
+                [Lang.String("Hello", (0, 0))],
+                Lang.Add("+", (0, 8)),
+                [[Lang.String(" ", (0, 10))], Lang.Add("+", (0, 14)), [Lang.Identifier("who", (0, 16))]],
             ],
         ),
         ("1", [Lang.Integer("1", ANY_POS)]),
