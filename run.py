@@ -25,19 +25,29 @@ class Terminal:
 
         self.interp.read("tests/sample/sample.ns", is_file=True)
 
-        while True:
-            ch = self.getchar()
+        with open('output.txt', 'w') as output:
 
-            if ch == "q":
-                break
+            while True:
 
-            instr = self.interp.exec_next()
+                """
+                ch = self.getchar()
 
-            if instr is False:
-                print("EOF")
-                break
+                if ch == "q":
+                    break
+                """
 
-            # print '-' * 80
+                try:
+                    output.write(str(Interpreter.Snapshot(self.interp)) + '/n')
+                except IndexError:
+                    pass
+
+                instr = self.interp.exec_next()
+
+                if instr is False:
+                    print("EOF")
+                    break
+
+                # print '-' * 80
 
     def getchar(self):
         # Returns a single character from standard input

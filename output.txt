@@ -1,0 +1,400 @@
+
+Pointer           0
+Block stack       ['<main>']
+Scope             [{}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['A procedure']]
+Last result       None/n
+Pointer           1
+Block stack       ['<main>']
+Scope             [{}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword procedure>, [<Identifier><test>], []]
+Last result       None/n
+Pointer           6
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword exec>, [<Identifier><test>], []]
+Last result       None/n
+Pointer           2
+Block stack       ['<main>', <keyword procedure>]
+Scope             [{'test': <keyword procedure>}, {'test': <keyword procedure>}]
+Stack             [{'ret_addr': 6}]
+Ctrl stack        [True]
+Instruction       [<prnt>, [9]]
+Last result       None/n
+Pointer           3
+Block stack       ['<main>', <keyword procedure>]
+Scope             [{'test': <keyword procedure>}, {'test': <keyword procedure>}]
+Stack             [{'ret_addr': 6}]
+Ctrl stack        [True]
+Instruction       [<prnt>, [5]]
+Last result       None/n
+Pointer           4
+Block stack       ['<main>', <keyword procedure>]
+Scope             [{'test': <keyword procedure>}, {'test': <keyword procedure>}]
+Stack             [{'ret_addr': 6}]
+Ctrl stack        [True]
+Instruction       [<prnt>, [2]]
+Last result       None/n
+Pointer           5
+Block stack       ['<main>', <keyword procedure>]
+Scope             [{'test': <keyword procedure>}, {'test': <keyword procedure>}]
+Stack             [{'ret_addr': 6}]
+Ctrl stack        [True]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           7
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['Now a function']]
+Last result       None/n
+Pointer           8
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword def>, [<Identifier><func>], [[<Identifier><x>], [<Identifier><y>], [<Identifier><z>]]]
+Last result       None/n
+Pointer           9
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [[<Identifier><r>], <op =>, [<Identifier><func>, [[1], [2], [3]]]]
+Last result       None/n
+Pointer           10
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['Ack!']]
+Last result       <Identifier><r>/n
+Pointer           11
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, [<Identifier><r>]]
+Last result       None/n
+Pointer           12
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['Begin']]
+Last result       None/n
+Pointer           13
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [[5], <op +>, [-10]]
+Last result       None/n
+Pointer           14
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [[<Identifier><z>], <op =>, [[[[1], <op +>, [3]], <op *>, [100]], <op />, [5]]]
+Last result       -5/n
+Pointer           15
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword procedure>, [<Identifier><a_test_procedure>], []]
+Last result       <Identifier><z>/n
+Pointer           34
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword if>, [<Identifier><True>]]
+Last result       None/n
+Pointer           35
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<keyword exec>, [<Identifier><a_test_procedure>], []]
+Last result       None/n
+Pointer           16
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<keyword procedure>, [<Identifier><nested_procedure>], []]
+Last result       None/n
+Pointer           23
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['Im working']]
+Last result       None/n
+Pointer           24
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [[<Identifier><j>], <op =>, [2]]
+Last result       None/n
+Pointer           25
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['Im working too']]
+Last result       <Identifier><j>/n
+Pointer           26
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<keyword if>, [[<Identifier><j>], <op ==>, [2]]]
+Last result       None/n
+Pointer           27
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True, True]
+Instruction       [<prnt>, [<Identifier><j>]]
+Last result       None/n
+Pointer           28
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True, True]
+Instruction       [<keyword else>]
+Last result       None/n
+Pointer           29
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True, False]
+Instruction       [<prnt>, ['j is not 2']]
+Last result       None/n
+Pointer           30
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True, False]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           31
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['leaving now. But before that...']]
+Last result       None/n
+Pointer           32
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<keyword exec>, [<Identifier><nested_procedure>], []]
+Last result       None/n
+Pointer           17
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['Im defining a procedure here']]
+Last result       None/n
+Pointer           18
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True]
+Instruction       [<keyword if>, [<Identifier><True>]]
+Last result       None/n
+Pointer           19
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True, True]
+Instruction       [<prnt>, ["Can't believe this is working"]]
+Last result       None/n
+Pointer           20
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True, True]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           21
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['Nested procedure ends here']]
+Last result       None/n
+Pointer           22
+Block stack       ['<main>', <keyword if>, <keyword procedure>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}, {'ret_addr': 32}]
+Ctrl stack        [True, True]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           33
+Block stack       ['<main>', <keyword if>, <keyword procedure>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}, {'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'nested_procedure': <keyword procedure>, 'j': 2}]
+Stack             [{'ret_addr': 35}]
+Ctrl stack        [True, True]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           36
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['And so the function was executed']]
+Last result       None/n
+Pointer           37
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<keyword else>]
+Last result       None/n
+Pointer           38
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True, False]
+Instruction       [<prnt>, ['Function was not executed']]
+Last result       None/n
+Pointer           39
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True, False]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           40
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['Ok']]
+Last result       None/n
+Pointer           41
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['Well...']]
+Last result       None/n
+Pointer           42
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [[<Identifier><a>], <op =>, [[[1], <op +>, [2]], <op />, [3]]]
+Last result       None/n
+Pointer           43
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'a': 1.0}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [[<Identifier><b>], <op =>, [1]]
+Last result       <Identifier><a>/n
+Pointer           44
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<keyword if>, [[[<Identifier><a>], <op +>, [<Identifier><b>]], <op ==>, [2]]]
+Last result       <Identifier><b>/n
+Pointer           45
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['yes']]
+Last result       None/n
+Pointer           46
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 80.0, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [[<Identifier><z>], <op =>, [1]]
+Last result       None/n
+Pointer           47
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<keyword if>, [[<Identifier><z>], <op ==>, [1]]]
+Last result       <Identifier><z>/n
+Pointer           48
+Block stack       ['<main>', <keyword if>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True, True]
+Instruction       [<prnt>, ['Also yes']]
+Last result       None/n
+Pointer           49
+Block stack       ['<main>', <keyword if>, <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True, True]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           50
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<prnt>, ['Anyways I say this']]
+Last result       None/n
+Pointer           51
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, True]
+Instruction       [<keyword else>]
+Last result       None/n
+Pointer           52
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, False]
+Instruction       [<prnt>, ['no']]
+Last result       None/n
+Pointer           53
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, False]
+Instruction       [[<Identifier><x>], <op =>, [99]]
+Last result       None/n
+Pointer           54
+Block stack       ['<main>', <keyword if>]
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True, False]
+Instruction       [<keyword end>]
+Last result       None/n
+Pointer           55
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, [<Identifier><x>]]
+Last result       None/n
+Pointer           56
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True]
+Instruction       [<prnt>, ['And this is finally over']]
+Last result       None/n

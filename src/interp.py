@@ -58,9 +58,9 @@ class Interpreter:
         Feeds parser with command
         """
         self.parser.set_source(source, is_file)
-        self.load()
+        self._load()
 
-    def load(self):
+    def _load(self):
         """
         Build grammar tree for all instructions loaded in parser and stores
         it into memory for later execution
@@ -78,11 +78,13 @@ class Interpreter:
             # append to instruction memory block
             self.memory.instr.append(gtree)
 
-    def exec_all(self, source=[], build=True):
+    def _exec_all(self, source=None, build=True):
         """
         Execute all lines in source code
         """
-        for i in source:
+        r = None
+
+        for i in source or []:
             r = self.eval(i) if build is None else self.eval(self.parser.build(i))
             self.last = r
 
@@ -93,7 +95,6 @@ class Interpreter:
         Executes one line at a time
         """
         try:
-            print(Interpreter.Snapshot(self))
             # eval the instructions
             r = self.eval(self.memory.instr[self.pntr])
             self.last = r
@@ -180,7 +181,7 @@ class Interpreter:
 
         # is function. Return last statement eval
         if isinstance(routine, self.lang.Def):
-            ret = self.exec_all(routine.block)
+            ret = self._exec_all(routine.block)
             # print(ret)
             self.endcall()
             return ret
