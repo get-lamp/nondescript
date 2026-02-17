@@ -1,0 +1,10 @@
+def func x,y,z
+	prnt x
+	prnt y
+	prnt z
+
+	x+y+z
+end
+
+r = func [1,2,3]
+prnt r

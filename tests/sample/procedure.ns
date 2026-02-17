@@ -1,0 +1,7 @@
+procedure test
+	prnt 9
+	prnt 5
+	prnt 2
+end
+
+exec test

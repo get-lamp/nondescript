@@ -1,0 +1,15 @@
+procedure a_test_procedure
+	procedure nested_procedure
+		prnt 'Im defining a procedure here'
+		if True:
+			prnt "Can't believe this is working"
+		end
+		prnt 'Nested procedure ends here'
+	end
+
+	exec nested_procedure
+end
+
+if True
+	exec a_test_procedure
+end
