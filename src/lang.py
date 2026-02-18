@@ -111,6 +111,7 @@ class Lang:
         r"<const>|<ident>|<built-in>": {
             r"<bracket>|<const>|<ident>|<built-in>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
             "<op>": lambda: Lang.expression,
+            r"<unary-post-op>": lambda: Lang.expression,
             "</delim>|</bracket>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
             "<comma>": lambda: Lang.expression,
         },
@@ -237,8 +238,9 @@ class Lang:
         def __init__(self, number, pos=(None, None)):
             super(Lang.Integer, self).__init__(number, pos)
 
-        def __new__(cls, *args, **kw):
-            number, pos = args
+        def __new__(cls, *args, **kwarg):
+            # allow for not instantiating with the position tuple
+            number, pos = args if len(args) == 2 else (*args, None)
             return super(Lang.Integer, cls).__new__(cls, number)
 
         def eval(self):
@@ -272,7 +274,7 @@ class Lang:
         def __repr__(self):
             return "<op %s>" % self.word
 
-        def eval(self, left, right):
+        def eval(self, *args):
             raise NotImplementedError
 
     class UnaryOperator(Operator):
@@ -282,12 +284,32 @@ class Lang:
         def __repr__(self):
             return "<unary-op %s>" % self.word
 
-        def eval(self, operand):
+        def eval(self, *arg):
             raise NotImplementedError
 
     class Not(UnaryOperator):
         def eval(self, scope, arguments=None, interp=None):
             return not interp.getval(interp.eval(arguments))
+
+    class UnaryPostOperator(Operator):
+        def type(self):
+            return "<unary-post-op>"
+
+        def __repr__(self):
+            return "<unary-post-op %s>" % self.word
+
+        def eval(self, *arg):
+            raise NotImplementedError
+
+    class Increment(UnaryPostOperator):
+        def eval(self, scope, arguments=None, interp=None):
+            scope[arguments.word] += 1
+            return scope[arguments.word]
+
+    class Decrement(UnaryPostOperator):
+        def eval(self, scope, arguments=None, interp=None):
+            scope[arguments.word] -= 1
+            return scope[arguments.word]
 
     class Assign(Operator):
         def eval(self, left, right, heap):
@@ -316,14 +338,6 @@ class Lang:
         def eval(self, left, right, scope):
             return left + right
 
-    class Increment(Operator):
-        def eval(self, left):
-            pass
-
-    class Decrement(Operator):
-        def eval(self, left):
-            pass
-
     class Divide(Operator):
         def eval(self, left, right, scope):
             return left / right
@@ -338,6 +352,10 @@ class Lang:
 
     # expression delimiters
     class Parentheses(Delimiter):
+        def __init__(self, *args, open: bool = True, **kwargs):
+            self.open = open
+            super().__init__(*args, **kwargs)
+
         def type(self):
             return "<delim>" if self.open else "</delim>"
 
@@ -345,6 +363,10 @@ class Lang:
             return "<delim>" if self.open else "</delim>"
 
     class Bracket(Delimiter):
+        def __init__(self, *args, open: bool = True, **kwargs):
+            self.open = open
+            super().__init__(*args, **kwargs)
+
         def type(self):
             return "<bracket>" if self.open else "</bracket>"
 
@@ -441,12 +463,12 @@ class Lang:
             interp.move(self.length + 1)
 
         def call(self):
-            return interp.call(self, arguments)
+            raise NotImplemented()
 
     class Def(Procedure):
         def __init__(self, word, pos=(None, None), **kwargs):
+            super().__init__(word, pos=(None, None), **kwargs)
             self.block = []
-            super(Lang.Procedure, self).__init__(word, pos=(None, None), **kwargs)
 
         def parse(self, parser, **kwargs):
             # parse identifier

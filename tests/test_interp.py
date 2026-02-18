@@ -1,6 +1,6 @@
-import pytest
 from src.interp import Interpreter
 from src.lang import Lang
+import pytest
 
 # --- Constants for sample file paths ---
 ASSIGNMENT_AND_PRINT = "tests/sample/assignment_and_print.ns"
@@ -161,3 +161,34 @@ def test_full_sample_final_state():
     assert scope["b"] == 1
     assert scope["z"] == 1
     assert "x" not in scope
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("a=1;b=2;a++;b++", {"a": 2, "b": 3}),
+    ],
+)
+def test_increment(source, expected):
+
+    interpreter = Interpreter()
+    interpreter.read(source)
+
+    while interpreter.exec_next():
+        pass
+
+    assert interpreter.scope() == expected
+
+
+def test_decrement():
+    interpreter = Interpreter()
+    interpreter.read("a=2;a--")
+
+    interpreter.exec_next()
+    snapshot = Interpreter.Snapshot(interpreter)
+
+    assert snapshot["Scope"][0]["a"] == 2
+
+    interpreter.exec_next()
+
+    assert snapshot["Scope"][0]["a"] == 1

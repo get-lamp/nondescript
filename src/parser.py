@@ -250,7 +250,9 @@ class Parser:
             self.count += 1
             return lexeme.parse(self)
 
-        elif isinstance(lexeme, (self.lang.Delimiter, self.lang.Constant, self.lang.Identifier)):
+        elif isinstance(
+            lexeme, (self.lang.Delimiter, self.lang.Constant, self.lang.Identifier, self.lang.UnaryOperator)
+        ):
             self.pending.append(lexeme)
 
             # add to instruction counter
@@ -304,6 +306,8 @@ class Parser:
                 # unary operator
                 if isinstance(i, self.lang.UnaryOperator):
                     return [i, self.build(s)]
+                elif isinstance(i, self.lang.UnaryPostOperator):
+                    return [i, n]
                 # binary operator
                 else:
                     return [n, i, self.build(s)]

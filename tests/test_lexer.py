@@ -116,6 +116,11 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
         ("prnt 123", [Lang.Prnt("prnt", (0, 0)), Lang.Space(" ", (0, 4)), Lang.Integer("123", (0, 5))]),
         ("   ", [Lang.Space(" ", (0, 0)), Lang.Space(" ", (0, 1)), Lang.Space(" ", (0, 2))]),
         ("a=", [Lang.Identifier("a", (0, 0)), Lang.Assign("=", (0, 1))]),
+        ("--", [Lang.Decrement("--", (0, 0))]),
+        ("----", [Lang.Decrement("--", (0, 0)), Lang.Decrement("--", (0, 2))]),
+        ("--++", [Lang.Decrement("--", (0, 0)), Lang.Increment("++", (0, 2))]),
+        ("++++", [Lang.Increment("++", (0, 0)), Lang.Increment("++", (0, 2))]),
+        ("++--", [Lang.Increment("++", (0, 0)), Lang.Decrement("--", (0, 2))]),
         ("==", [Lang.Equal("==", (0, 0))]),
         ("===", [Lang.EqualStrict("===", (0, 0))]),
         ("!", [Lang.UnaryOperator("!", (0, 0))]),
@@ -183,8 +188,8 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
             [Lang.Increment("++", (0, 0)), Lang.Identifier("foo", (0, 2))],
         ),
         (
-            "--bar",
-            [Lang.Decrement("--", (0, 0)), Lang.Identifier("bar", (0, 2))],
+            "foo++",
+            [Lang.Identifier("foo", (0, 0)), Lang.Increment("++", (0, 3))],
         ),
         (
             "(a + b)",

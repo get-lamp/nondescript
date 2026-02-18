@@ -102,18 +102,9 @@ def test_next(source, expected):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        (
-            "foo=bar",
-            [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))],
-        ),
-        (
-            "if True:",
-            [Lang.Keyword("if", (0, 0)), [Lang.Identifier("True", (0, 3))]],
-        ),
-        (
-            "[]",
-            [Lang.Bracket("[", (0, 0), open=True), Lang.Bracket("]", (0, 1), open=False)],
-        ),
+        ("foo=bar", [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))]),
+        ("if True:", [Lang.Keyword("if", (0, 0)), [Lang.Identifier("True", (0, 3))]]),
+        ("[]", [Lang.Bracket("[", (0, 0), open=True), Lang.Bracket("]", (0, 1), open=False)]),
         (
             "[foo]",
             [
@@ -122,14 +113,8 @@ def test_next(source, expected):
                 Lang.Bracket("]", (0, 4), open=False),
             ],
         ),
-        (
-            "prnt 'hello'",
-            [Lang.Prnt("prnt", (0, 0)), [Lang.String("hello", (0, 6))]],
-        ),
-        (
-            "1+2",
-            [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 1)), Lang.Integer("2", (0, 2))],
-        ),
+        ("prnt 'hello'", [Lang.Prnt("prnt", (0, 0)), [Lang.String("hello", (0, 6))]]),
+        ("1+2", [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 1)), Lang.Integer("2", (0, 2))]),
         (
             "(1+2)",
             [
@@ -140,10 +125,9 @@ def test_next(source, expected):
                 Lang.Parentheses(")", (0, 4), open=False),
             ],
         ),
-        (
-            "1       +       2",
-            [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))],
-        ),
+        ("1       +       2", [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))]),
+        ("a++", [Lang.Identifier("a", (0, 0)), Lang.Increment("++", (0, 1))]),
+        ("!a", [Lang.Not("!", (0, 0)), Lang.Identifier("a", (0, 1))]),
     ],
 )
 def test_parse(source, expected):
@@ -152,7 +136,7 @@ def test_parse(source, expected):
 
 @pytest.mark.parametrize(
     "source",
-    ("!==", "+", "!", "/", ":", "{", "}"),
+    ("!==", "+", "/", ":", "{", "}"),
 )
 def test_parse_returns_false(source):
     assert Parser(Lang, source).parse() is False
@@ -196,16 +180,36 @@ def test_parse_raises_unexpected_symbol(source):
                 [[Lang.String(" ", (0, 10))], Lang.Add("+", (0, 14)), [Lang.Identifier("who", (0, 16))]],
             ],
         ),
-        ("1", [Lang.Integer("1", ANY_POS)]),
-        ("foo", [Lang.Identifier("foo", ANY_POS)]),
-        ("!foo", [Lang.UnaryOperator("!", ANY_POS), [Lang.Identifier("foo", ANY_POS)]]),
-        ("NOT bar", [Lang.Not("NOT", ANY_POS), [Lang.Identifier("bar", ANY_POS)]]),
-        ("1 == 2", [[Lang.Integer("1", ANY_POS)], Lang.Equal("==", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
-        ("1 != 2", [[Lang.Integer("1", ANY_POS)], Lang.Inequal("!=", ANY_POS), [Lang.Integer("2", ANY_POS)]]),
+        ("1", [Lang.Integer("1", (0, 0))]),
+        ("foo", [Lang.Identifier("foo", (0, 0))]),
+        ("!foo", [Lang.UnaryOperator("!", (0, 0)), [Lang.Identifier("foo", (0, 1))]]),
+        ("foo++", [Lang.Increment("++", (0, 3)), [Lang.Identifier("foo", (0, 0))]]),
+        (
+            "1+2++",
+            [
+                [Lang.Integer("1", (0, 0))],
+                Lang.Add("+", (0, 1)),
+                [Lang.Increment("++", (0, 3)), [Lang.Integer("2", (0, 2))]],
+            ],
+        ),
+        ("NOT bar", [Lang.Not("NOT", (0, 0)), [Lang.Identifier("bar", (0, 4))]]),
+        ("1 == 2", [[Lang.Integer("1", (0, 0))], Lang.Equal("==", (0, 2)), [Lang.Integer("2", (0, 5))]]),
+        ("1 != 2", [[Lang.Integer("1", (0, 0))], Lang.Inequal("!=", (0, 2)), [Lang.Integer("2", (0, 5))]]),
     ],
 )
 def test_build(source, expected):
 
     parser = Parser(Lang, source)
     ast = parser.build(parser.expression())
+
     assert ast == expected
+
+
+@pytest.mark.parametrize(
+    "source",
+    ("]", "--", "++", "--foo", "++foo"),
+)
+def test_build_raises_unexpected_symbol(source):
+    parser = Parser(Lang, source)
+    with pytest.raises(UnexpectedSymbol):
+        parser.build(parser.expression())
