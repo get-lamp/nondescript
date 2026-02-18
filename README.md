@@ -1,3 +1,3 @@
 # NonDeScript
-Yet another tiny language just for kicks
+Yet another tiny language and interpreter just for kicks
 

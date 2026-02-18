@@ -398,3 +398,10 @@ Stack             []
 Ctrl stack        [True]
 Instruction       [<prnt>, ['And this is finally over']]
 Last result       None/n
+Pointer           57
+Block stack       ['<main>']
+Scope             [{'test': <keyword procedure>, 'func': <keyword def>, 'r': 6, 'z': 1, 'a_test_procedure': <keyword procedure>, 'a': 1.0, 'b': 1}]
+Stack             []
+Ctrl stack        [True]
+Instruction       None
+Last result       None/n
