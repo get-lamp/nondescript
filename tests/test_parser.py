@@ -14,9 +14,9 @@ ANY_POS = (ANY, ANY)
         (
             "!==!==!==",
             [
-                Lang.InequalStrict("!==", (0, 0)),
-                Lang.InequalStrict("!==", (0, 3)),
-                Lang.InequalStrict("!==", (0, 6)),
+                Lang.UnequalStrict("!==", (0, 0)),
+                Lang.UnequalStrict("!==", (0, 3)),
+                Lang.UnequalStrict("!==", (0, 6)),
             ],
         ),
         (
@@ -31,7 +31,7 @@ ANY_POS = (ANY, ANY)
             "foo!=bar",
             [
                 Lang.Identifier("foo", (0, 0)),
-                Lang.Inequal("!=", (0, 3)),
+                Lang.Unequal("!=", (0, 3)),
                 Lang.Identifier("bar", (0, 5)),
             ],
         ),
@@ -39,7 +39,7 @@ ANY_POS = (ANY, ANY)
             "foo!==bar",
             [
                 Lang.Identifier("foo", (0, 0)),
-                Lang.InequalStrict("!==", (0, 3)),
+                Lang.UnequalStrict("!==", (0, 3)),
                 Lang.Identifier("bar", (0, 6)),
             ],
         ),
@@ -194,7 +194,7 @@ def test_parse_raises_unexpected_symbol(source):
         ),
         ("NOT bar", [Lang.Not("NOT", (0, 0)), [Lang.Identifier("bar", (0, 4))]]),
         ("1 == 2", [[Lang.Integer("1", (0, 0))], Lang.Equal("==", (0, 2)), [Lang.Integer("2", (0, 5))]]),
-        ("1 != 2", [[Lang.Integer("1", (0, 0))], Lang.Inequal("!=", (0, 2)), [Lang.Integer("2", (0, 5))]]),
+        ("1 != 2", [[Lang.Integer("1", (0, 0))], Lang.Unequal("!=", (0, 2)), [Lang.Integer("2", (0, 5))]]),
     ],
 )
 def test_build(source, expected):

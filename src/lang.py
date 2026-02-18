@@ -55,8 +55,8 @@ class Lang:
         r_comma: lambda w, t: Lang.Comma(w, t),
         r_bang: {
             r_equal: {
-                r_equal: {None: lambda w, t: Lang.InequalStrict(w, t)},
-                None: lambda w, t: Lang.Inequal(w, t),
+                r_equal: {None: lambda w, t: Lang.UnequalStrict(w, t)},
+                None: lambda w, t: Lang.Unequal(w, t),
             },
             None: lambda w, t: Lang.UnaryOperator(w, t),
         },
@@ -320,14 +320,14 @@ class Lang:
         def eval(self, left, right, scope):
             return left == right
 
-    class Inequal(Operator):
+    class Unequal(Operator):
         def eval(self, left, right, scope):
             return left != right
 
     class EqualStrict(Operator):
         pass
 
-    class InequalStrict(Operator):
+    class UnequalStrict(Operator):
         pass
 
     class Subtract(Operator):
