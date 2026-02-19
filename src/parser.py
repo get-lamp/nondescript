@@ -303,10 +303,13 @@ class Parser:
 
             # operator delimits terms
             elif isinstance(i, self.lang.Operator):
-                # unary operator
+
                 if isinstance(i, self.lang.UnaryOperator):
+                    # unary operator
                     return [i, self.build(s)]
+
                 elif isinstance(i, self.lang.UnaryPostOperator):
+                    # unary post operator
                     return [i, n]
                 # binary operator
                 else:

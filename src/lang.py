@@ -90,6 +90,7 @@ class Lang:
         "if": lambda w, t: Lang.If(w, t),
         "else": lambda w, t: Lang.Else(w, t),
         "end": lambda w, t: Lang.End(w, t),
+        "for": lambda w, t: Lang.For(w, t),
         "procedure": lambda w, t: Lang.Procedure(w, t),
         "def": lambda w, t: Lang.Def(w, t),
         "exec": lambda w, t: Lang.Exec(w, t),
@@ -577,6 +578,24 @@ class Lang:
             else:
                 print(interp.block_stack)
                 raise Exception("Unknown block type")
+
+    class For(Keyword, Block, Control):
+        def type(self):
+            return "<for>"
+
+        def parse(self, parser, **kwargs):
+            # store condition pre-built
+            breakpoint()
+            initializer = parser.build(parser.expression(until=Lang.NewLine))
+            condition = parser.build(parser.expression(until=Lang.NewLine))
+            increment = parser.build(parser.expression(until=Lang.NewLine))
+            return [self, initializer, condition, increment]
+
+        def eval(self, interp, expr):
+            # if condition is truthly, interpreter executes the following block
+            breakpoint()
+            interp.push_read_enabled(bool(interp.eval(expr)))
+            interp.push_block(self)
 
     class Parameter(Lexeme):
         def __init__(self, *args, **kwargs):

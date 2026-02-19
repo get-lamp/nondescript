@@ -180,15 +180,15 @@ def test_increment(source, expected):
     assert interpreter.scope() == expected
 
 
-def test_decrement():
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("a=1;b=2;a--;b--", {"a": 0, "b": 1})
+    ],
+)
+def test_decrement(source, expected):
     interpreter = Interpreter()
-    interpreter.read("a=2;a--")
-
-    interpreter.exec_next()
-    snapshot = Interpreter.Snapshot(interpreter)
-
-    assert snapshot["Scope"][0]["a"] == 2
-
-    interpreter.exec_next()
-
-    assert snapshot["Scope"][0]["a"] == 1
+    interpreter.read(source)
+    while interpreter.exec_next():
+        pass
+    assert interpreter.scope() == expected
