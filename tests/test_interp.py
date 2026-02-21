@@ -1,5 +1,6 @@
 from src.interp import Interpreter
 from src.lang import Lang
+from src.exc import EOF
 import pytest
 
 # --- Constants for sample file paths ---
@@ -16,9 +17,13 @@ def test_assignment_and_print():
     """Tests variable assignment and printing."""
     interpreter = Interpreter()
     interpreter.read(ASSIGNMENT_AND_PRINT, is_file=True)
-    while interpreter.exec_next() is not False:
-        pass
 
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
+        pass
+    
     snapshot = Interpreter.Snapshot(interpreter)
     assert snapshot["Pointer"] == len(interpreter.memory.instr)
     assert snapshot["Scope"][0]["who"] == "World"
@@ -55,7 +60,11 @@ def test_function_with_return():
     """Tests a function with parameters and a return value."""
     interpreter = Interpreter()
     interpreter.read(FUNCTION_WITH_RETURN, is_file=True)
-    while interpreter.exec_next() is not False:
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
         pass
 
     snapshot = Interpreter.Snapshot(interpreter)
@@ -70,7 +79,11 @@ def test_arithmetic_expressions():
     """Tests simple and complex arithmetic expressions."""
     interpreter = Interpreter()
     interpreter.read(ARITHMETIC_EXPRESSIONS, is_file=True)
-    while interpreter.exec_next() is not False:
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
         pass
 
     snapshot = Interpreter.Snapshot(interpreter)
@@ -84,7 +97,11 @@ def test_if_else():
     """Tests a basic if/else control flow example."""
     interpreter = Interpreter()
     interpreter.read(IF_ELSE, is_file=True)
-    while interpreter.exec_next() is not False:
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
         pass
 
     snapshot = Interpreter.Snapshot(interpreter)
@@ -151,7 +168,11 @@ def test_full_sample_final_state():
     """Tests the final state of the original complex sample.ns."""
     interpreter = Interpreter()
     interpreter.read(SAMPLE, is_file=True)
-    while interpreter.exec_next() is not False:
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
         pass
 
     snapshot = Interpreter.Snapshot(interpreter)
@@ -174,10 +195,11 @@ def test_increment(source, expected):
     interpreter = Interpreter()
     interpreter.read(source)
 
-    while interpreter.exec_next():
-        pass
-
-    assert interpreter.scope() == expected
+    try:
+        while interpreter.exec_next():
+            pass
+    except EOF:
+        assert interpreter.scope() == expected
 
 
 @pytest.mark.parametrize(
@@ -189,6 +211,9 @@ def test_increment(source, expected):
 def test_decrement(source, expected):
     interpreter = Interpreter()
     interpreter.read(source)
-    while interpreter.exec_next():
-        pass
-    assert interpreter.scope() == expected
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
+        assert interpreter.scope() == expected

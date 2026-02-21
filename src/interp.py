@@ -1,5 +1,6 @@
 from .parser import Parser
 from .lang import Lang
+from .exc import EOF
 
 OPERAND_L = 0
 OPERATOR = 1
@@ -100,7 +101,7 @@ class Interpreter:
             self.last = r
 
         except IndexError:
-            return False
+            raise EOF
 
         self.pntr += 1
         return r

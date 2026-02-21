@@ -4,3 +4,7 @@ class UnexpectedSymbol(Exception):
 
 class UnexpectedEOF(Exception):
     pass
+
+
+class EOF(StopIteration):
+    pass
