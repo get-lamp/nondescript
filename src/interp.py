@@ -60,6 +60,7 @@ class Interpreter:
         """
         self.parser.set_source(source, is_file)
         self._load()
+        return self
 
     def _load(self):
         """
@@ -344,7 +345,11 @@ class Interpreter:
 
             # a value
             if len(i) < 2:
-                return i.pop()
+                ii = i.pop()
+                if isinstance(ii, self.lang.Constant):
+                    return ii.eval()
+                else:
+                    return ii
 
             # unary operation
             if len(i) < 3:

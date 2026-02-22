@@ -28,9 +28,15 @@ class Lang:
     r_single_quote = r"[\']"
     r_float = r"^[0-9]*\.[0-9]+$"
     r_int = r"^[0-9]+$"
-    r_not = r"^NOT$"
+    r_or = r"(?i)^OR"
+    r_nor = r"(?i)^NOR"
+    r_xor = r"(?i)^XOR"
+    r_and = r"(?i)^AND$"
+    r_nand = r"(?i)^NAND$"
+    r_not = r"(?i)^NOT$"
+    r_true = r"(?i)^TRUE$"
+    r_false = r"(?i)^FALSE$"
     r_identifier = r"[_a-zA-Z][_a-zA-Z0-9]*"
-    r_atsign = r"[@]"
 
     # Will try to match greedily
     symbols = {
@@ -58,7 +64,7 @@ class Lang:
                 r_equal: {None: lambda w, t: Lang.UnequalStrict(w, t)},
                 None: lambda w, t: Lang.Unequal(w, t),
             },
-            None: lambda w, t: Lang.UnaryOperator(w, t),
+            None: lambda w, t: Lang.Not(w, t),
         },
         r_equal: {
             r_equal: {
@@ -79,7 +85,14 @@ class Lang:
             r_int: lambda w, t: Lang.Integer(w, t),
             None: lambda w, t: Lang.Subtract(w, t),
         },
+        r_or: lambda w, t: Lang.Or(w, t),
+        r_nor: lambda w, t: Lang.Nor(w, t),
+        r_xor: lambda w, t: Lang.Xor(w, t),
+        r_and: lambda w, t: Lang.And(w, t),
+        r_nand: lambda w, t: Lang.Nand(w, t),
         r_not: lambda w, t: Lang.Not(w, t),
+        r_true: lambda w, t: Lang.Bool(w, t),
+        r_false: lambda w, t: Lang.Bool(w, t),
         r_identifier: lambda w, t: Lang.identifier(w, t),
     }
 
@@ -247,6 +260,14 @@ class Lang:
         def eval(self):
             return self
 
+    class Bool(Constant):
+        def __init__(self, word, pos=(None, None)):
+            super().__init__(word, pos)
+
+        def eval(self):
+
+            return any([self.word is True, (type(self.word) is str) and self.word.lower() == "true", self.word == 1])
+
     class List(list, Vector):
         def __init__(self, lst=None):
             list.__init__(self, lst if lst else [])
@@ -289,7 +310,7 @@ class Lang:
             raise NotImplementedError
 
     class Not(UnaryOperator):
-        def eval(self, scope, arguments=None, interp=None):
+        def eval(self, scope, arguments, interp):
             return not interp.getval(interp.eval(arguments))
 
     class UnaryPostOperator(Operator):
@@ -330,6 +351,26 @@ class Lang:
 
     class UnequalStrict(Operator):
         pass
+
+    class Or(Operator):
+        def eval(self, left, right, scope):
+            return left or right
+
+    class Nor(Operator):
+        def eval(self, left, right, scope):
+            return not (left or right)
+
+    class Xor(Operator):
+        def eval(self, left, right, scope):
+            return left ^ right
+
+    class And(Operator):
+        def eval(self, left, right, scope):
+            return left and right
+
+    class Nand(Operator):
+        def eval(self, left, right, scope):
+            return not (left and right)
 
     class Subtract(Operator):
         def eval(self, left, right, scope):
@@ -464,7 +505,7 @@ class Lang:
             interp.move(self.length + 1)
 
         def call(self):
-            raise NotImplemented()
+            raise NotImplementedError()
 
     class Def(Procedure):
         def __init__(self, word, pos=(None, None), **kwargs):
@@ -541,7 +582,7 @@ class Lang:
             return [self, condition]
 
         def eval(self, interp, expr):
-            # if condition is truthly, interpreter executes the following block
+            # if condition is truthy, interpreter executes the following block
             interp.push_read_enabled(bool(interp.eval(expr)))
             interp.push_block(self)
 
@@ -552,8 +593,9 @@ class Lang:
         def parse(self, parser, **kwargs):
             return [self]
 
-        def eval(self, interp, expr):
-            # if last block was executed following will not, and viceversa
+        @staticmethod
+        def eval(interp, expr):
+            # if last block was executed following will not, and vice versa
             interp.toggle_read_enabled()
 
     class End(Keyword, Control, Delimiter):
@@ -739,12 +781,12 @@ class Lang:
             if len(self) == 0:
                 self.legal = self.grammar
 
-            l = self.can_push(i)
+            ll = self.can_push(i)
             # print('Is legal %s? %s %s %s' % (self.__class__.__name__, i.type(), self.hint(), l))
             # push term
-            if l:
+            if ll:
                 # climb up in grammar tree
-                self.legal = self.legal[l] if not callable(self.legal[l]) else self.legal[l]()
+                self.legal = self.legal[ll] if not callable(self.legal[ll]) else self.legal[ll]()
                 super(Lang.Grammar, self).append(i)
                 return self
 

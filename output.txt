@@ -1,8 +1,0 @@
-
-Pointer           0
-Block stack       ['<main>']
-Scope             [{}]
-Stack             []
-Ctrl stack        [True]
-Instruction       [<keyword for>, [[<Identifier><i>], <op =>, [0]], [<Identifier><i>, 10], [<unary-post-op ++>, [<Identifier><i>]]]
-Last result       None/n

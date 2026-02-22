@@ -23,7 +23,7 @@ def test_assignment_and_print():
             interpreter.exec_next()
     except EOF:
         pass
-    
+
     snapshot = Interpreter.Snapshot(interpreter)
     assert snapshot["Pointer"] == len(interpreter.memory.instr)
     assert snapshot["Scope"][0]["who"] == "World"
@@ -94,6 +94,24 @@ def test_arithmetic_expressions():
 
 
 def test_if_else():
+    """Tests a basic if/else control flow example."""
+    interpreter = Interpreter()
+    interpreter.read(IF_ELSE, is_file=True)
+
+    try:
+        while True:
+            interpreter.exec_next()
+    except EOF:
+        pass
+
+    snapshot = Interpreter.Snapshot(interpreter)
+    scope = snapshot["Scope"][0]
+    assert scope["a"] == 1
+    assert scope["b"] == 2
+    assert snapshot["Instruction"] is None
+
+
+def test_if_else_step_by_step():
     """Tests a basic if/else control flow example."""
     interpreter = Interpreter()
     interpreter.read(IF_ELSE, is_file=True)
@@ -204,9 +222,7 @@ def test_increment(source, expected):
 
 @pytest.mark.parametrize(
     ("source", "expected"),
-    [
-        ("a=1;b=2;a--;b--", {"a": 0, "b": 1})
-    ],
+    [("a=1;b=2;a--;b--", {"a": 0, "b": 1})],
 )
 def test_decrement(source, expected):
     interpreter = Interpreter()

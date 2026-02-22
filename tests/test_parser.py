@@ -223,8 +223,8 @@ def test_build_raises_unexpected_symbol(source):
             "foo++;bar++",
             [
                 [Lang.Increment("++", (0, 3)), [Lang.Identifier("foo", (0, 0))]],
-                [Lang.Increment("++", (1, 3)), [Lang.Identifier("bar", (1, 0))]]
-            ]
+                [Lang.Increment("++", (1, 3)), [Lang.Identifier("bar", (1, 0))]],
+            ],
         ),
         (
             "a=1;b=2;a++;b++",
@@ -232,25 +232,25 @@ def test_build_raises_unexpected_symbol(source):
                 [[Lang.Identifier("a", (0, 0))], Lang.Assign("=", (0, 1)), [Lang.Integer(1, (0, 2))]],
                 [[Lang.Identifier("b", (1, 0))], Lang.Assign("=", (1, 1)), [Lang.Integer(2, (0, 2))]],
                 [Lang.Increment("++", (2, 1)), [Lang.Identifier("a", (2, 0))]],
-                [Lang.Increment("++", (3, 1)), [Lang.Identifier("b", (3, 0))]]
-            ]
+                [Lang.Increment("++", (3, 1)), [Lang.Identifier("b", (3, 0))]],
+            ],
         ),
         (
-                "foo--;bar--",
-                [
-                    [Lang.Decrement("--", (0, 3)), [Lang.Identifier("foo", (0, 0))]],
-                    [Lang.Decrement("--", (1, 3)), [Lang.Identifier("bar", (1, 0))]]
-                ]
+            "foo--;bar--",
+            [
+                [Lang.Decrement("--", (0, 3)), [Lang.Identifier("foo", (0, 0))]],
+                [Lang.Decrement("--", (1, 3)), [Lang.Identifier("bar", (1, 0))]],
+            ],
         ),
         (
-                "a=1;b=2;a--;b--",
-                [
-                    [[Lang.Identifier("a", (0, 0))], Lang.Assign("=", (0, 1)), [Lang.Integer(1, (0, 2))]],
-                    [[Lang.Identifier("b", (1, 0))], Lang.Assign("=", (1, 1)), [Lang.Integer(2, (0, 2))]],
-                    [Lang.Decrement("--", (2, 1)), [Lang.Identifier("a", (2, 0))]],
-                    [Lang.Decrement("--", (3, 1)), [Lang.Identifier("b", (3, 0))]]
-                ]
-        )
+            "a=1;b=2;a--;b--",
+            [
+                [[Lang.Identifier("a", (0, 0))], Lang.Assign("=", (0, 1)), [Lang.Integer(1, (0, 2))]],
+                [[Lang.Identifier("b", (1, 0))], Lang.Assign("=", (1, 1)), [Lang.Integer(2, (0, 2))]],
+                [Lang.Decrement("--", (2, 1)), [Lang.Identifier("a", (2, 0))]],
+                [Lang.Decrement("--", (3, 1)), [Lang.Identifier("b", (3, 0))]],
+            ],
+        ),
     ],
 )
 def test_parse_and_build(source, expected):

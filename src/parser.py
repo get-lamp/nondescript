@@ -111,12 +111,12 @@ class Parser:
         return lexeme
 
     def list(self, s):
-        l = []
+        ll = []
         e = []
         while True and len(s) > 0:
             i = s.pop(0)
             if isinstance(i, self.lang.Comma):
-                l.append(e)
+                ll.append(e)
                 e = []
                 continue
             elif isinstance(i, self.lang.Bracket):
@@ -124,14 +124,14 @@ class Parser:
                     e = self.list(s)
                 else:
                     if len(e) > 0:
-                        l.append(e)
-                    return l
+                        ll.append(e)
+                    return ll
             else:
                 e.append(i)
 
-        l.append(e)
+        ll.append(e)
 
-        return l
+        return ll
 
     def block(self, until=None, leave=False):
 
@@ -162,6 +162,8 @@ class Parser:
                 block.append(i)
 
     def expression(self, until=None):
+        # Collects tokens belonging to an expression.
+        # It expects an expression and would fail on tokens unexpected on an expression
 
         expression = self.lang.Expression()
 
@@ -190,8 +192,8 @@ class Parser:
                 else:
                     string = "".join(self._verbatim(self.lang.SingleQuote))
 
-                l = self.lang.String(string, (lexeme.line, lexeme.char))
-                expression.push(l)
+                ll = self.lang.String(string, (lexeme.line, lexeme.char))
+                expression.push(ll)
                 continue
 
             if self.lang.Grammar.is_legal(expression + [lexeme], self.lang.expression):
@@ -303,7 +305,6 @@ class Parser:
 
             # operator delimits terms
             elif isinstance(i, self.lang.Operator):
-
                 if isinstance(i, self.lang.UnaryOperator):
                     # unary operator
                     return [i, self.build(s)]
