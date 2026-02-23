@@ -17,6 +17,8 @@ class Lang:
     r_equal = r"[=]"
     r_plus = r"[+]"
     r_dash = r"[-]"
+    r_greater = r"[>]"
+    r_lesser = r"[<]"
     r_bracket_l = r"[\[]"
     r_bracket_r = r"[\]]"
     r_parentheses_l = r"[(]"
@@ -85,6 +87,8 @@ class Lang:
             r_int: lambda w, t: Lang.Integer(w, t),
             None: lambda w, t: Lang.Subtract(w, t),
         },
+        r_greater: lambda w, t: Lang.Greater(w, t),
+        r_lesser: lambda w, t: Lang.Lesser(w, t),
         r_or: lambda w, t: Lang.Or(w, t),
         r_nor: lambda w, t: Lang.Nor(w, t),
         r_xor: lambda w, t: Lang.Xor(w, t),
@@ -352,6 +356,14 @@ class Lang:
     class UnequalStrict(Operator):
         pass
 
+    class Greater(Operator):
+        def eval(self, left, right, scope):
+            return left > right
+
+    class Lesser(Operator):
+        def eval(self, left, right, scope):
+            return left < right
+
     class Or(Operator):
         def eval(self, left, right, scope):
             return left or right
@@ -611,6 +623,8 @@ class Lang:
 
             if isinstance(block, Lang.If):
                 interp.endif()
+            elif isinstance(block, Lang.For):
+                interp.end_for()
             elif isinstance(block, Lang.Procedure):
                 print("Ending procedure block")
                 interp.endcall()
@@ -622,21 +636,32 @@ class Lang:
                 raise Exception("Unknown block type")
 
     class For(Keyword, Block, Control):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.initializer = None
+            self.condition = None
+            self.increment = None
+
         def type(self):
             return "<for>"
 
         def parse(self, parser, **kwargs):
             # store condition pre-built
-            breakpoint()
-            initializer = parser.build(parser.expression(until=Lang.NewLine))
-            condition = parser.build(parser.expression(until=Lang.NewLine))
-            increment = parser.build(parser.expression(until=Lang.NewLine))
-            return [self, initializer, condition, increment]
+            parser.build(parser.expression(until=Lang.NewLine))
+            parser.build(parser.expression(until=Lang.NewLine))
+            parser.build(parser.expression(until=Lang.NewLine))
+            return [self, self.initializer, self.condition, self.increment]
 
-        def eval(self, interp, expr):
-            # if condition is truthly, interpreter executes the following block
-            breakpoint()
-            interp.push_read_enabled(bool(interp.eval(expr)))
+        def eval(self, interp, args):
+            # if condition is truthy, interpreter executes the following block
+            self.initializer = args[0]
+            self.condition = args[1]
+            self.increment = args[2]
+
+            # run initialize
+            interp.eval(self.initializer)
+            interp.push_read_enabled(bool(interp.eval(self.condition)))
             interp.push_block(self)
 
     class Parameter(Lexeme):

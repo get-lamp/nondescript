@@ -224,6 +224,14 @@ class Interpreter:
         self.pull_read_enabled()
         self.endblock()
 
+    def end_for(self):
+        """
+        Close an FOR statement
+        """
+        breakpoint()
+        self.pull_read_enabled()
+        self.endblock()
+
     def block(self):
         """
         Get current block
