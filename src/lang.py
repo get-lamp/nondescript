@@ -1,5 +1,35 @@
 import re
 
+BRACKET_CLOSE = "</bracket>"
+BRACKET_OPEN = "<bracket>"
+CLAUSE = "<clause>"
+COMMA = "<comma>"
+CONST = "<const>"
+DELIM_CLOSE = "</delim>"
+DELIM_OPEN = "<delim>"
+DOUBLE_QUOTE = "<d-quote>"
+ELSE = "<else>"
+END = "<end>"
+EXEC = "<exec>"
+EXPRESSION = "<expression>"
+FOR = "<for>"
+IDENT = "<ident>"
+IF = "<if>"
+INCLUDE = "<include>"
+KEYWORD = "<keyword>"
+LIST = "<list>"
+MAIN = "<main>"
+NEWLINE = "<newline>"
+OP = "<op>"
+PARAMETER = "<parameter>"
+PRNT = "<prnt>"
+PROCEDURE = "<procedure>"
+SINGLE_QUOTE = "<s-quote>"
+STRUCT = "<struct>"
+UNARY_OP = "<unary-op>"
+UNARY_POST_OP = "<unary-post-op>"
+WAIT = "<wait>"
+
 # 	TODO
 # weird delimiter characters behavior
 # check for Evaluable & Callable classes
@@ -126,10 +156,10 @@ class Lang:
         r"<bracket>": lambda: Lang.expression[r"<const>|<ident>"],
         r"<const>|<ident>": {
             r"<bracket>|<const>|<ident>": lambda: Lang.expression[r"<const>|<ident>"],
-            "<op>": lambda: Lang.expression,
+            OP: lambda: Lang.expression,
             r"<unary-post-op>": lambda: Lang.expression,
             "</delim>|</bracket>": lambda: Lang.expression[r"<const>|<ident>"],
-            "<comma>": lambda: Lang.expression,
+            COMMA: lambda: Lang.expression,
         },
     }
 
@@ -212,7 +242,7 @@ class Lang:
 
         @staticmethod
         def type():
-            return "<newline>"
+            return NEWLINE
 
     class Tab(WhiteSpace):
         pass
@@ -221,12 +251,12 @@ class Lang:
     class Vector(Lexeme):
         @staticmethod
         def type():
-            return "<struct>"
+            return STRUCT
 
     class Constant(Lexeme):
         @staticmethod
         def type():
-            return "<const>"
+            return CONST
 
         def __repr__(self):
             return "<const %s>" % self.word
@@ -279,7 +309,7 @@ class Lang:
 
         @staticmethod
         def type():
-            return "<list>"
+            return LIST
 
         def __add__(self, other):
             return Lang.List(list.__add__(self, other))
@@ -298,7 +328,7 @@ class Lang:
     class Operator(Lexeme):
         @staticmethod
         def type():
-            return "<op>"
+            return OP
 
         def __repr__(self):
             return "<op %s>" % self.word
@@ -309,7 +339,7 @@ class Lang:
     class UnaryOperator(Operator):
         @staticmethod
         def type():
-            return "<unary-op>"
+            return UNARY_OP
 
         def __repr__(self):
             return "<unary-op %s>" % self.word
@@ -324,7 +354,7 @@ class Lang:
     class UnaryPostOperator(Operator):
         @staticmethod
         def type():
-            return "<unary-post-op>"
+            return UNARY_POST_OP
 
         def __repr__(self):
             return "<unary-post-op %s>" % self.word
@@ -416,10 +446,10 @@ class Lang:
             super().__init__(*args, **kwargs)
 
         def type(self):
-            return "<delim>" if self.open else "</delim>"
+            return DELIM_OPEN if self.open else DELIM_CLOSE
 
         def __repr__(self):
-            return "<delim>" if self.open else "</delim>"
+            return DELIM_OPEN if self.open else DELIM_CLOSE
 
     class Bracket(Delimiter):
         def __init__(self, *args, open: bool = True, **kwargs):
@@ -427,42 +457,42 @@ class Lang:
             super().__init__(*args, **kwargs)
 
         def type(self):
-            return "<bracket>" if self.open else "</bracket>"
+            return BRACKET_OPEN if self.open else BRACKET_CLOSE
 
         def __repr__(self):
-            return "<bracket>" if self.open else "</bracket>"
+            return BRACKET_OPEN if self.open else BRACKET_CLOSE
 
     # list delimiter
     class Comma(Delimiter):
         @staticmethod
         def type():
-            return "<comma>"
+            return COMMA
 
         def __repr__(self):
-            return "<comma>"
+            return COMMA
 
     # string delimiters
     class DoubleQuote(Delimiter):
         @staticmethod
         def type():
-            return "<d-quote>"
+            return DOUBLE_QUOTE
 
         def __repr__(self):
-            return "<d-quote>"
+            return DOUBLE_QUOTE
 
     class SingleQuote(Delimiter):
         @staticmethod
         def type():
-            return "<s-quote>"
+            return SINGLE_QUOTE
 
         def __repr__(self):
-            return "<s-quote>"
+            return SINGLE_QUOTE
 
     # identifiers
     class Identifier(Lexeme):
         @staticmethod
         def type():
-            return "<ident>"
+            return IDENT
 
         def eval(self, scope, arguments=None, interp=None):
             v = scope.get(self.word, None)
@@ -472,15 +502,51 @@ class Lang:
                 return v
 
     class Keyword(Lexeme):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.identifier = None
+
         def get_identifier(self):
             return self.identifier
 
         @staticmethod
         def type():
-            return "<keyword>"
+            return KEYWORD
 
         def __repr__(self):
-            return "<keyword %s>" % (self.word)
+            return "<keyword %s>" % self.word
+
+    class For(Keyword, Block, Control):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.init = None
+            self.condition = None
+            self.increment = None
+            self.address = None
+
+        @staticmethod
+        def type():
+            return FOR
+
+        def parse(self, parser, **kwargs):
+            # store condition pre-built
+            self.init = parser.build(parser.expression(until=Lang.NewLine))
+            self.condition = parser.build(parser.expression(until=Lang.NewLine))
+            self.increment = parser.build(parser.expression(until=Lang.NewLine))
+            return [self]
+
+        def eval(self, interp):
+            # if condition is truthy, interpreter executes the following block
+
+            self.address = interp.pntr
+            interp.eval(self.init)
+
+
+            # run initialize
+            interp.push_read_enabled(bool(interp.eval(self.condition)))
+            interp.push_block(self)
 
     class Procedure(Keyword, Callable, Block, Control):
         def __init__(self, word, pos=(None, None), **kwargs):
@@ -491,7 +557,7 @@ class Lang:
 
         @staticmethod
         def type():
-            return "<procedure>"
+            return PROCEDURE
 
         def parse(self, parser, **kwargs):
             print("Procedure is being parsed")
@@ -567,7 +633,7 @@ class Lang:
     class Exec(Keyword):
         @staticmethod
         def type():
-            return "<exec>"
+            return EXEC
 
         def parse(self, parser, **kwargs):
 
@@ -599,13 +665,13 @@ class Lang:
     class Main(Block):
         @staticmethod
         def type():
-            return "<main>"
+            return MAIN
 
     class If(Keyword, Block, Control):
 
         @staticmethod
         def type():
-            return "<if>"
+            return IF
 
         def parse(self, parser, **kwargs):
             # store condition pre-built
@@ -620,7 +686,7 @@ class Lang:
     class Else(Keyword, Control):
         @staticmethod
         def type():
-            return "<else>"
+            return ELSE
 
         def parse(self, parser, **kwargs):
             return [self]
@@ -633,7 +699,7 @@ class Lang:
     class End(Keyword, Control, Delimiter):
         @staticmethod
         def type():
-            return "<end>"
+            return END
 
         def parse(self, parser, **kwargs):
             return [self]
@@ -647,7 +713,7 @@ class Lang:
                 interp.endif()
 
             elif isinstance(block, Lang.For):
-                interp.end_for()
+                interp.end_for(block.address, block.condition, block.increment)
 
             elif isinstance(block, Lang.Procedure):
                 interp.end_call()
@@ -656,35 +722,6 @@ class Lang:
                 interp.end_call()
             else:
                 raise Exception("Unknown block type")
-
-    class For(Keyword, Block, Control):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.initializer = None
-            self.condition = None
-            self.increment = None
-
-        @staticmethod
-        def type():
-            return "<for>"
-
-        def parse(self, parser, **kwargs):
-            # store condition pre-built
-            parser.build(parser.expression(until=Lang.NewLine))
-            parser.build(parser.expression(until=Lang.NewLine))
-            parser.build(parser.expression(until=Lang.NewLine))
-            return [self, self.initializer, self.condition, self.increment]
-
-        def eval(self, interp, args):
-            # if condition is truthy, interpreter executes the following block
-            self.initializer = args[0]
-            self.condition = args[1]
-            self.increment = args[2]
-
-            # run initialize
-            interp.eval(self.initializer)
-            interp.push_read_enabled(bool(interp.eval(self.condition)))
-            interp.push_block(self)
 
     class Parameter(Lexeme):
         def __init__(self, *args, **kwargs):
@@ -695,10 +732,10 @@ class Lang:
 
         @staticmethod
         def type():
-            return "<parameter>"
+            return PARAMETER
 
         def __repr__(self):
-            return "<parameter>"
+            return PARAMETER
 
     class Until(Parameter):
         def __init__(self, *args, **kwargs):
@@ -711,7 +748,7 @@ class Lang:
     class Wait(Keyword):
         @staticmethod
         def type():
-            return "<wait>"
+            return WAIT
 
         def parse(self, parser, **kwargs):
             self.condition = parser.build(parser.expression())
@@ -724,12 +761,12 @@ class Lang:
             print("WAITING %s UNTIL %s" % (c, u))
 
         def __repr__(self):
-            return "<wait>"
+            return WAIT
 
     class Prnt(Keyword):
         @staticmethod
         def type():
-            return "<prnt>"
+            return PRNT
 
         def parse(self, parser, **kwargs):
             self.text = parser.build(parser.expression())
@@ -742,7 +779,7 @@ class Lang:
             print(result)
 
         def __repr__(self):
-            return "<prnt>"
+            return PRNT
 
     """
     PREPROCESSOR
@@ -761,7 +798,7 @@ class Lang:
     class Include(Preprocessor, Keyword):
         @staticmethod
         def type():
-            return "<include>"
+            return INCLUDE
 
         def parse(self, parser, **kwargs):
             src = parser.expression()
@@ -839,11 +876,11 @@ class Lang:
 
     class Clause(Grammar):
         def type(self):
-            return "<clause>"
+            return CLAUSE
 
     class Expression(Grammar):
         def __init__(self):
             super(Lang.Expression, self).__init__(Lang.expression)
 
         def type(self):
-            return "<expression>"
+            return EXPRESSION

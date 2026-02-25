@@ -242,8 +242,10 @@ class Parser:
             return lexeme
 
         if isinstance(lexeme, self.lang.Keyword):
+
             if isinstance(lexeme, self.lang.Block):
                 self.push_block((self.count, lexeme))
+
             elif isinstance(lexeme, self.lang.Delimiter):
                 p0, b = self.pull_block()
                 lexeme.owner, b.length = (b, self.count - p0 - 1)

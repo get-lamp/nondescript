@@ -10,7 +10,7 @@ def run(filename):
 
     interp = Interpreter().read(filename, is_file=True)
 
-    with open("debug.txt", "w") as log:
+    with open(".debug", "w") as log:
         try:
             while True:
                 log.write(str(Interpreter.Snapshot(interp)) + "/n")

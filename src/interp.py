@@ -50,7 +50,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = ["<main>"]
+        self.block_stack = [Lang.Block()]
         self.pntr = 0
         self.last = None
 
@@ -167,7 +167,7 @@ class Interpreter:
         # push block
         self.push_block(routine)
 
-        # address & get signarure
+        # address & get signature
         address = routine.address
         signature = routine.get_signature()
 
@@ -225,12 +225,16 @@ class Interpreter:
         self.pull_read_enabled()
         self.end_block()
 
-    def end_for(self):
+    def end_for(self, condition, increment, address):
         """
         Close an FOR statement
         """
-        self.pull_read_enabled()
-        self.end_block()
+        if self.eval(condition):
+            self.eval(increment)
+            self.goto(address)
+        else:
+            self.pull_read_enabled()
+            self.end_block()
 
     def block(self):
         """
@@ -244,6 +248,7 @@ class Interpreter:
         """
         if not isinstance(block, self.lang.Block):
             raise Exception("Tried to push a non-block statement")
+
         self.block_stack.append(block)
 
     def pull_block(self):
