@@ -129,10 +129,11 @@ class Interpreter:
             i = i.word
         return self.scope().get(i, None)
 
-    def push_scope(self, namespace={}):
+    def push_scope(self, namespace=None):
         """
         Open a scope
         """
+        namespace = namespace or {}
         scp = namespace.copy()
         scp.update(self.scope())
         self.memory.scope.append(scp)
@@ -185,7 +186,7 @@ class Interpreter:
         if isinstance(routine, self.lang.Def):
             ret = self._exec_all(routine.block)
             # print(ret)
-            self.endcall()
+            self.end_call()
             return ret
         # is procedure. Return nothing. Move instruction pointer
         else:
@@ -193,7 +194,7 @@ class Interpreter:
             self.stack_push({"ret_addr": self.pntr})
             self.goto(address)
 
-    def endcall(self):
+    def end_call(self):
         """
         Handle procedure call ending
         """
@@ -203,7 +204,7 @@ class Interpreter:
             stack = self.stack_pull()
             ret_addr = stack.get("ret_addr", None)
 
-        self.endblock()
+        self.end_block()
         self.pull_scope()
 
         if ret_addr is None:
@@ -211,7 +212,7 @@ class Interpreter:
 
         self.goto(ret_addr)
 
-    def endblock(self):
+    def end_block(self):
         """
         Close a code of block
         """
@@ -222,15 +223,14 @@ class Interpreter:
         Close an IF statement
         """
         self.pull_read_enabled()
-        self.endblock()
+        self.end_block()
 
     def end_for(self):
         """
         Close an FOR statement
         """
-        breakpoint()
         self.pull_read_enabled()
-        self.endblock()
+        self.end_block()
 
     def block(self):
         """
@@ -238,7 +238,7 @@ class Interpreter:
         """
         return self.block_stack[-1]
 
-    def push_block(self, block):
+    def push_block(self, block: lang.Block):
         """
         Open a block of code
         """

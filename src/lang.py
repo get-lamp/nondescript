@@ -100,8 +100,6 @@ class Lang:
         r_identifier: lambda w, t: Lang.identifier(w, t),
     }
 
-    builtins = {}
-
     keywords = {
         "prnt": lambda w, t: Lang.Prnt(w, t),
         "if": lambda w, t: Lang.If(w, t),
@@ -125,12 +123,12 @@ class Lang:
     expression = {
         r"<unary-op>": lambda: Lang.expression,
         r"<delim>": lambda: Lang.expression,
-        r"<bracket>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
-        r"<const>|<ident>|<built-in>": {
-            r"<bracket>|<const>|<ident>|<built-in>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
+        r"<bracket>": lambda: Lang.expression[r"<const>|<ident>"],
+        r"<const>|<ident>": {
+            r"<bracket>|<const>|<ident>": lambda: Lang.expression[r"<const>|<ident>"],
             "<op>": lambda: Lang.expression,
             r"<unary-post-op>": lambda: Lang.expression,
-            "</delim>|</bracket>": lambda: Lang.expression[r"<const>|<ident>|<built-in>"],
+            "</delim>|</bracket>": lambda: Lang.expression[r"<const>|<ident>"],
             "<comma>": lambda: Lang.expression,
         },
     }
@@ -139,8 +137,6 @@ class Lang:
     def identifier(w, t):
         if w in Lang.keywords:
             return Lang.keywords[w](w, t)
-        elif w in Lang.builtins:
-            return Lang.builtins[w](w, t)
         elif w in Lang.parameters:
             return Lang.parameters[w](w, t)
         else:
@@ -183,7 +179,8 @@ class Lang:
             for i in kwargs:
                 setattr(self, i, kwargs[i])
 
-        def type(self):
+        @staticmethod
+        def type():
             raise NotImplementedError
 
         def parse(self, parser, **kwargs):
@@ -212,7 +209,9 @@ class Lang:
         pass
 
     class NewLine(WhiteSpace):
-        def type(self):
+
+        @staticmethod
+        def type():
             return "<newline>"
 
     class Tab(WhiteSpace):
@@ -466,7 +465,8 @@ class Lang:
         def get_identifier(self):
             return self.identifier
 
-        def type(self):
+        @staticmethod
+        def type():
             return "<keyword>"
 
         def __repr__(self):
@@ -584,8 +584,15 @@ class Lang:
 
             return interp.call(routine, arguments)
 
+    class Main(Block):
+        @staticmethod
+        def type():
+            return "<main>"
+
     class If(Keyword, Block, Control):
-        def type(self):
+
+        @staticmethod
+        def type():
             return "<if>"
 
         def parse(self, parser, **kwargs):
@@ -617,26 +624,26 @@ class Lang:
         def parse(self, parser, **kwargs):
             return [self]
 
-        def eval(self, interp, expr):
+        @staticmethod
+        def eval(interp, expr):
 
             block = interp.block()
 
             if isinstance(block, Lang.If):
                 interp.endif()
+
             elif isinstance(block, Lang.For):
                 interp.end_for()
+
             elif isinstance(block, Lang.Procedure):
-                print("Ending procedure block")
-                interp.endcall()
+                interp.end_call()
+
             elif isinstance(block, Lang.Def):
-                print("Ending def block")
-                interp.endcall()
+                interp.end_call()
             else:
-                print(interp.block_stack)
                 raise Exception("Unknown block type")
 
     class For(Keyword, Block, Control):
-
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.initializer = None
@@ -718,13 +725,6 @@ class Lang:
 
         def __repr__(self):
             return "<prnt>"
-
-    class BuiltIn(Def):
-        def type(self):
-            return "<built-in>"
-
-        def eval(self, interp, signature):
-            return self.bind(signature)
 
     """
     PREPROCESSOR

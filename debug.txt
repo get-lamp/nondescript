@@ -20,10 +20,3 @@ Stack             []
 Ctrl stack        [True, False]
 Instruction       [<keyword end>]
 Last result       None/n
-Pointer           3
-Block stack       ['<main>']
-Scope             [{}]
-Stack             []
-Ctrl stack        [True]
-Instruction       None
-Last result       None/n
