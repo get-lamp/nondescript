@@ -1,6 +1,7 @@
+import src.lang.base
 from src.exc import UnexpectedSymbol
 from src.parser import Parser
-from src.lang import Lang
+from src.lang import operator as op
 import pytest
 from unittest.mock import ANY
 
@@ -14,16 +15,16 @@ ANY_POS = (ANY, ANY)
         (
             "!==!==!==",
             [
-                Lang.UnequalStrict("!==", (0, 0)),
-                Lang.UnequalStrict("!==", (0, 3)),
-                Lang.UnequalStrict("!==", (0, 6)),
+                op.UnequalStrict("!==", (0, 0)),
+                op.UnequalStrict("!==", (0, 3)),
+                op.UnequalStrict("!==", (0, 6)),
             ],
         ),
         (
             "foo=bar",
             [
                 Lang.Identifier("foo", (0, 0)),
-                Lang.Assign("=", (0, 3)),
+                op.Assign("=", (0, 3)),
                 Lang.Identifier("bar", (0, 4)),
             ],
         ),
@@ -47,17 +48,17 @@ ANY_POS = (ANY, ANY)
             "prnt 'hello'",
             [
                 Lang.Prnt("prnt", (0, 0)),
-                Lang.Space(" ", (0, 4)),
-                Lang.SingleQuote("'", (0, 5)),
+                src.lang.base.Space(" ", (0, 4)),
+                src.lang.base.SingleQuote("'", (0, 5)),
                 Lang.Identifier("hello", (0, 6)),
-                Lang.SingleQuote("'", (0, 11)),
+                src.lang.base.SingleQuote("'", (0, 11)),
             ],
         ),
         (
             "if foo==bar",
             [
                 Lang.If("if", (0, 0)),
-                Lang.Space(" ", (0, 2)),
+                src.lang.base.Space(" ", (0, 2)),
                 Lang.Identifier("foo", (0, 3)),
                 Lang.Equal("==", (0, 6)),
                 Lang.Identifier("bar", (0, 8)),
@@ -67,7 +68,7 @@ ANY_POS = (ANY, ANY)
             "procedure my_proc",
             [
                 Lang.Procedure("procedure", (0, 0)),
-                Lang.Space(" ", (0, 9)),
+                src.lang.base.Space(" ", (0, 9)),
                 Lang.Identifier("my_proc", (0, 10)),
             ],
         ),
@@ -75,7 +76,7 @@ ANY_POS = (ANY, ANY)
             "exec my_proc",
             [
                 Lang.Exec("exec", (0, 0)),
-                Lang.Space(" ", (0, 4)),
+                src.lang.base.Space(" ", (0, 4)),
                 Lang.Identifier("my_proc", (0, 5)),
             ],
         ),
@@ -104,13 +105,13 @@ def test_next(source, expected):
     [
         ("foo=bar", [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))]),
         ("if True:", [Lang.Keyword("if", (0, 0)), [Lang.Identifier("True", (0, 3))]]),
-        ("[]", [Lang.Bracket("[", (0, 0), open=True), Lang.Bracket("]", (0, 1), open=False)]),
+        ("[]", [src.lang.base.Bracket("[", (0, 0), open=True), src.lang.base.Bracket("]", (0, 1), open=False)]),
         (
             "[foo]",
             [
-                Lang.Bracket("[", (0, 0), open=True),
+                src.lang.base.Bracket("[", (0, 0), open=True),
                 Lang.Identifier("foo", (0, 1)),
-                Lang.Bracket("]", (0, 4), open=False),
+                src.lang.base.Bracket("]", (0, 4), open=False),
             ],
         ),
         ("prnt 'hello'", [Lang.Prnt("prnt", (0, 0)), [Lang.String("hello", (0, 6))]]),
@@ -118,11 +119,11 @@ def test_next(source, expected):
         (
             "(1+2)",
             [
-                Lang.Parentheses("(", (0, 0), open=True),
+                src.lang.base.Parentheses("(", (0, 0), open=True),
                 Lang.Integer("1", (0, 1)),
                 Lang.Add("+", (0, 2)),
                 Lang.Integer("2", (0, 3)),
-                Lang.Parentheses(")", (0, 4), open=False),
+                src.lang.base.Parentheses(")", (0, 4), open=False),
             ],
         ),
         ("1       +       2", [Lang.Integer("1", (0, 0)), Lang.Add("+", (0, 8)), Lang.Integer("2", (0, 16))]),

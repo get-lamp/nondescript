@@ -1,6 +1,10 @@
 from .parser import Parser
-from .lang import Lang
+from src.lang.grammar import Lang
 from .exc import EOF
+from src.lang.base import Block, Control, Keyword, Constant, Identifier
+from src.lang import struct
+from src.lang import operator
+from src.lang import flow
 
 OPERAND_L = 0
 OPERATOR = 1
@@ -50,7 +54,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = [Lang.Block()]
+        self.block_stack = [Block()]
         self.pntr = 0
         self.last = None
 
@@ -117,7 +121,7 @@ class Interpreter:
         """
         Bind a variable with a value
         """
-        if isinstance(i, self.lang.Identifier):
+        if isinstance(i, Identifier):
             i = i.word
         self.scope()[i] = v
 
@@ -125,7 +129,7 @@ class Interpreter:
         """
         Get a value from a variable in scope
         """
-        if isinstance(i, self.lang.Identifier):
+        if isinstance(i, Identifier):
             i = i.word
         return self.scope().get(i, None)
 
@@ -183,7 +187,7 @@ class Interpreter:
                 self.bind(signature[k][0], arguments[k])
 
         # is function. Return last statement eval
-        if isinstance(routine, self.lang.Def):
+        if isinstance(routine, flow.Def):
             ret = self._exec_all(routine.block)
             # print(ret)
             self.end_call()
@@ -242,11 +246,11 @@ class Interpreter:
         """
         return self.block_stack[-1]
 
-    def push_block(self, block: lang.Block):
+    def push_block(self, block: Block):
         """
         Open a block of code
         """
-        if not isinstance(block, self.lang.Block):
+        if not isinstance(block, Block):
             raise Exception("Tried to push a non-block statement")
 
         self.block_stack.append(block)
@@ -276,7 +280,7 @@ class Interpreter:
         """
         Toggle read enable. Used in IF/ELSE blocks
         """
-        # if parent block isn't executable, child blocks aren't neither
+        # if parent block isn't executable, child blocks are neither
         if not self.ctrl_stack[-2:-1][0]:
             self.ctrl_stack[-1] = False
         else:
@@ -286,7 +290,7 @@ class Interpreter:
         """
         Set a block to be read enabled or not
         """
-        # if parent block isn't executable, child blocks aren't neither
+        # if parent block isn't executable, child blocks are neither
         if not self.is_read_enabled():
             self.ctrl_stack.append(False)
         else:
@@ -305,10 +309,10 @@ class Interpreter:
     def getval(self, i, **kwargs):
 
         # it's nested
-        if isinstance(i, list) and not isinstance(i, self.lang.List):
+        if isinstance(i, list) and not isinstance(i, struct.List):
             return self.getval(i.pop(), **kwargs)
         # identifiers
-        if isinstance(i, self.lang.Identifier):
+        if isinstance(i, Identifier):
             # return memory address identifier
             if kwargs.get("ref", None) is not None:
                 return i
@@ -317,11 +321,11 @@ class Interpreter:
                 return i.eval(self.scope())
 
         # structs
-        elif isinstance(i, self.lang.Vector):
+        elif isinstance(i, struct.Vector):
             return i
 
         # constants
-        elif isinstance(i, self.lang.Constant):
+        elif isinstance(i, Constant):
             return i.eval()
         # a value
         else:
@@ -333,14 +337,14 @@ class Interpreter:
 
     def eval(self, i, ref=False):
 
-        if isinstance(i, self.lang.List):
+        if isinstance(i, struct.List):
             for k, v in enumerate(i):
                 i[k] = self.eval(v) if ref is True else self.getval(self.eval(v))
             return i
 
         if isinstance(i, list) and len(i) > 0:
             # a control struct
-            if isinstance(i[OPERAND_L], self.lang.Control):
+            if isinstance(i[OPERAND_L], Control):
                 return i[OPERAND_L].eval(self, i[1:])
 
             # ignore is read is not enabled
@@ -348,7 +352,7 @@ class Interpreter:
                 return None
 
             # a keyword
-            if isinstance(i[OPERAND_L], self.lang.Keyword):
+            if isinstance(i[OPERAND_L], Keyword):
                 return i[OPERAND_L].eval(self, i[1:])
 
             # expressions
@@ -359,7 +363,7 @@ class Interpreter:
             # a value
             if len(i) < 2:
                 ii = i.pop()
-                if isinstance(ii, self.lang.Constant):
+                if isinstance(ii, Constant):
                     return ii.eval()
                 else:
                     return ii
@@ -369,7 +373,7 @@ class Interpreter:
                 return i.pop(0).eval(self.scope(), arguments=i.pop(0), interp=self)
 
             # assign operations
-            if isinstance(i[OPERATOR], self.lang.Assign):
+            if isinstance(i[OPERATOR], operator.Assign):
                 return i[OPERATOR].eval(i[OPERAND_L], self.getval(i[OPERAND_R]), self.scope())
             # any other binary operation
             else:

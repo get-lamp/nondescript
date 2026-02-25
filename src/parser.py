@@ -1,6 +1,26 @@
+from src.lang.base import (
+    Keyword,
+    Lexeme,
+    Space,
+    Tab,
+    NewLine,
+    Comma,
+    DoubleQuote,
+    SingleQuote,
+    Block,
+    Bracket,
+    Parentheses,
+    Delimiter,
+    Constant,
+    Identifier,
+    UnaryOperator,
+    Operator,
+    UnaryPostOperator,
+)
+from src.lang import data
+from src.lang import struct
 from .lexer import Lexer
 from .exc import UnexpectedEOF, UnexpectedSymbol
-from .lang import Lang
 
 
 BLOCK_MAIN = "<main>"
@@ -80,9 +100,9 @@ class Parser:
 
         return False
 
-    def next(self, ignore=None) -> Lang.Lexeme:
+    def next(self, ignore=None) -> Lexeme | bool:
 
-        ignore = (self.lang.Space, self.lang.Tab) if ignore is None else ignore
+        ignore = (Space, Tab) if ignore is None else ignore
 
         while True:
             lexeme = self.pending.pop() if len(self.pending) > 0 else self.lexer.next()
@@ -95,7 +115,7 @@ class Parser:
             if isinstance(lexeme, self.lang.Preprocessor):
                 if isinstance(lexeme, self.lang.CommentLine):
                     # skips until newline
-                    self._verbatim(self.lang.NewLine)
+                    self._verbatim(NewLine)
                     continue
 
                 if isinstance(lexeme, self.lang.CommentBlock):
@@ -115,11 +135,11 @@ class Parser:
         e = []
         while True and len(s) > 0:
             i = s.pop(0)
-            if isinstance(i, self.lang.Comma):
+            if isinstance(i, Comma):
                 ll.append(e)
                 e = []
                 continue
-            elif isinstance(i, self.lang.Bracket):
+            elif isinstance(i, Bracket):
                 if i.open:
                     e = self.list(s)
                 else:
@@ -179,20 +199,20 @@ class Parser:
                     return False
 
             # commit expression on newline
-            if isinstance(lexeme, self.lang.NewLine):
+            if isinstance(lexeme, NewLine):
                 return expression
 
             if until is not None and isinstance(lexeme, until):
                 return expression
 
             # literals
-            if isinstance(lexeme, (self.lang.DoubleQuote, self.lang.SingleQuote)):
-                if isinstance(lexeme, self.lang.DoubleQuote):
-                    string = "".join(self._verbatim(self.lang.DoubleQuote))
+            if isinstance(lexeme, (DoubleQuote, SingleQuote)):
+                if isinstance(lexeme, DoubleQuote):
+                    string = "".join(self._verbatim(DoubleQuote))
                 else:
-                    string = "".join(self._verbatim(self.lang.SingleQuote))
+                    string = "".join(self._verbatim(SingleQuote))
 
-                ll = self.lang.String(string, (lexeme.line, lexeme.char))
+                ll = data.String(string, (lexeme.line, lexeme.char))
                 expression.push(ll)
                 continue
 
@@ -241,12 +261,11 @@ class Parser:
         if until is not None and isinstance(lexeme, until):
             return lexeme
 
-        if isinstance(lexeme, self.lang.Keyword):
-
-            if isinstance(lexeme, self.lang.Block):
+        if isinstance(lexeme, Keyword):
+            if isinstance(lexeme, Block):
                 self.push_block((self.count, lexeme))
 
-            elif isinstance(lexeme, self.lang.Delimiter):
+            elif isinstance(lexeme, Delimiter):
                 p0, b = self.pull_block()
                 lexeme.owner, b.length = (b, self.count - p0 - 1)
 
@@ -254,9 +273,7 @@ class Parser:
             self.count += 1
             return lexeme.parse(self)
 
-        elif isinstance(
-            lexeme, (self.lang.Delimiter, self.lang.Constant, self.lang.Identifier, self.lang.UnaryOperator)
-        ):
+        elif isinstance(lexeme, (Delimiter, Constant, Identifier, UnaryOperator)):
             self.pending.append(lexeme)
 
             # add to instruction counter
@@ -280,23 +297,23 @@ class Parser:
         while s and len(s) > 0:
             i = s.pop(0)
             # parentheses grouping
-            if isinstance(i, self.lang.Parentheses):
+            if isinstance(i, Parentheses):
                 if i.open:
                     # n is the i(n)ner node while s is the remaining (i)nstruction
-                    n, s = self._unnest(s, self.lang.Parentheses)
+                    n, s = self._unnest(s, Parentheses)
                     if len(n) > 0:
                         n = self.build(n)
                 else:
                     raise Exception("Unexpected parentheses at %s" % i.token.line)
 
             # list without brackets. Like arguments list
-            elif isinstance(i, self.lang.Comma):
-                return self.lang.List(self.list(n + [i] + s))
+            elif isinstance(i, Comma):
+                return struct.List(self.list(n + [i] + s))
 
             # list with brackets
-            elif isinstance(i, self.lang.Bracket):
+            elif isinstance(i, Bracket):
                 if i.open:
-                    n.append(self.lang.List(self.list(s)))
+                    n.append(struct.List(self.list(s)))
                 # closing brackets are disposed by self.list, so they shouldn't come up here
                 else:
                     raise Exception("Unexpected bracket at %s" % i.token.line)
@@ -306,12 +323,12 @@ class Parser:
                 return [i, self.build(s)]
 
             # operator delimits terms
-            elif isinstance(i, self.lang.Operator):
-                if isinstance(i, self.lang.UnaryOperator):
+            elif isinstance(i, Operator):
+                if isinstance(i, UnaryOperator):
                     # unary operator
                     return [i, self.build(s)]
 
-                elif isinstance(i, self.lang.UnaryPostOperator):
+                elif isinstance(i, UnaryPostOperator):
                     # unary post operator
                     return [i, n]
                 # binary operator
