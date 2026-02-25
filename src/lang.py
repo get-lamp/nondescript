@@ -219,11 +219,13 @@ class Lang:
 
     # base types
     class Vector(Lexeme):
-        def type(self):
+        @staticmethod
+        def type():
             return "<struct>"
 
     class Constant(Lexeme):
-        def type(self):
+        @staticmethod
+        def type():
             return "<const>"
 
         def __repr__(self):
@@ -275,7 +277,8 @@ class Lang:
         def __init__(self, lst=None):
             list.__init__(self, lst if lst else [])
 
-        def type(self):
+        @staticmethod
+        def type():
             return "<list>"
 
         def __add__(self, other):
@@ -293,7 +296,8 @@ class Lang:
 
     # operators
     class Operator(Lexeme):
-        def type(self):
+        @staticmethod
+        def type():
             return "<op>"
 
         def __repr__(self):
@@ -303,7 +307,8 @@ class Lang:
             raise NotImplementedError
 
     class UnaryOperator(Operator):
-        def type(self):
+        @staticmethod
+        def type():
             return "<unary-op>"
 
         def __repr__(self):
@@ -317,7 +322,8 @@ class Lang:
             return not interp.getval(interp.eval(arguments))
 
     class UnaryPostOperator(Operator):
-        def type(self):
+        @staticmethod
+        def type():
             return "<unary-post-op>"
 
         def __repr__(self):
@@ -428,7 +434,8 @@ class Lang:
 
     # list delimiter
     class Comma(Delimiter):
-        def type(self):
+        @staticmethod
+        def type():
             return "<comma>"
 
         def __repr__(self):
@@ -436,14 +443,16 @@ class Lang:
 
     # string delimiters
     class DoubleQuote(Delimiter):
-        def type(self):
+        @staticmethod
+        def type():
             return "<d-quote>"
 
         def __repr__(self):
             return "<d-quote>"
 
     class SingleQuote(Delimiter):
-        def type(self):
+        @staticmethod
+        def type():
             return "<s-quote>"
 
         def __repr__(self):
@@ -451,7 +460,8 @@ class Lang:
 
     # identifiers
     class Identifier(Lexeme):
-        def type(self):
+        @staticmethod
+        def type():
             return "<ident>"
 
         def eval(self, scope, arguments=None, interp=None):
@@ -479,7 +489,8 @@ class Lang:
             self.signature = Lang.List()
             super(Lang.Procedure, self).__init__(word, pos=(None, None), **kwargs)
 
-        def type(self):
+        @staticmethod
+        def type():
             return "<procedure>"
 
         def parse(self, parser, **kwargs):
@@ -554,7 +565,8 @@ class Lang:
             return interp.call(self, arguments)
 
     class Exec(Keyword):
-        def type(self):
+        @staticmethod
+        def type():
             return "<exec>"
 
         def parse(self, parser, **kwargs):
@@ -606,7 +618,8 @@ class Lang:
             interp.push_block(self)
 
     class Else(Keyword, Control):
-        def type(self):
+        @staticmethod
+        def type():
             return "<else>"
 
         def parse(self, parser, **kwargs):
@@ -618,7 +631,8 @@ class Lang:
             interp.toggle_read_enabled()
 
     class End(Keyword, Control, Delimiter):
-        def type(self):
+        @staticmethod
+        def type():
             return "<end>"
 
         def parse(self, parser, **kwargs):
@@ -650,7 +664,8 @@ class Lang:
             self.condition = None
             self.increment = None
 
-        def type(self):
+        @staticmethod
+        def type():
             return "<for>"
 
         def parse(self, parser, **kwargs):
@@ -678,7 +693,8 @@ class Lang:
         def eval(self, scope, arguments=None, interp=None):
             return interp.eval(arguments)
 
-        def type(self):
+        @staticmethod
+        def type():
             return "<parameter>"
 
         def __repr__(self):
@@ -693,7 +709,8 @@ class Lang:
             super(Lang.By, self).__init__(*args, **kwargs)
 
     class Wait(Keyword):
-        def type(self):
+        @staticmethod
+        def type():
             return "<wait>"
 
         def parse(self, parser, **kwargs):
@@ -710,7 +727,8 @@ class Lang:
             return "<wait>"
 
     class Prnt(Keyword):
-        def type(self):
+        @staticmethod
+        def type():
             return "<prnt>"
 
         def parse(self, parser, **kwargs):
@@ -741,7 +759,8 @@ class Lang:
         pass
 
     class Include(Preprocessor, Keyword):
-        def type(self):
+        @staticmethod
+        def type():
             return "<include>"
 
         def parse(self, parser, **kwargs):
@@ -819,9 +838,6 @@ class Lang:
             return False
 
     class Clause(Grammar):
-        def __init__(self):
-            super(Lang.Clause, self).__init__(Lang.clause)
-
         def type(self):
             return "<clause>"
 
