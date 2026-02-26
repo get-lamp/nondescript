@@ -1,8 +1,14 @@
-import src.lang.base
-from src.lexer import Lexer
-from src.lang import Lang
-import pytest
 from unittest.mock import ANY
+
+import pytest
+
+import src.lang.base
+from src.lang import operator as op
+from src.lang.base import Identifier, Bracket, DoubleQuote
+from src.lang.data import Integer, Bool, Float
+from src.lang.flow import If, End
+from src.lang.grammar import Lang
+from src.lexer import Lexer
 
 ANY_POS = (ANY, ANY)
 
@@ -91,42 +97,42 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("foo=bar", [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Identifier("bar", (0, 4))]),
-        ("foo=123", [Lang.Identifier("foo", (0, 0)), Lang.Assign("=", (0, 3)), Lang.Integer("123", (0, 4))]),
+        ("foo=bar", [Identifier("foo", (0, 0)), op.Assign("=", (0, 3)), Identifier("bar", (0, 4))]),
+        ("foo=123", [Identifier("foo", (0, 0)), op.Assign("=", (0, 3)), Integer("123", (0, 4))]),
         (
             'foo="abc"',
             [
-                Lang.Identifier("foo", (0, 0)),
-                Lang.Assign("=", (0, 3)),
-                src.lang.base.DoubleQuote('"', (0, 4)),
-                Lang.Identifier("abc", (0, 5)),
-                src.lang.base.DoubleQuote('"', (0, 8)),
+                Identifier("foo", (0, 0)),
+                op.Assign("=", (0, 3)),
+                DoubleQuote('"', (0, 4)),
+                Identifier("abc", (0, 5)),
+                DoubleQuote('"', (0, 8)),
             ],
         ),
         (
             "foo[0]",
             [
-                Lang.Identifier("foo", (0, 0)),
-                src.lang.base.Bracket("[", (0, 3)),
-                Lang.Integer("0", (0, 4)),
+                Identifier("foo", (0, 0)),
+                Bracket("[", (0, 3)),
+                Integer("0", (0, 4)),
                 src.lang.base.Bracket("]", (0, 5)),
             ],
         ),
-        ("!foo", [Lang.Not("!", (0, 0)), Lang.Identifier("foo", (0, 1))]),
-        ("NOT", [Lang.Not("NOT", (0, 0))]),
-        ("prnt 123", [Lang.Prnt("prnt", (0, 0)), src.lang.base.Space(" ", (0, 4)), Lang.Integer("123", (0, 5))]),
+        ("!foo", [op.Not("!", (0, 0)), Identifier("foo", (0, 1))]),
+        ("NOT", [op.Not("NOT", (0, 0))]),
+        ("prnt 123", [Lang.Prnt("prnt", (0, 0)), src.lang.base.Space(" ", (0, 4)), Integer("123", (0, 5))]),
         ("   ", [src.lang.base.Space(" ", (0, 0)), src.lang.base.Space(" ", (0, 1)), src.lang.base.Space(" ", (0, 2))]),
-        ("a=", [Lang.Identifier("a", (0, 0)), Lang.Assign("=", (0, 1))]),
-        ("--", [Lang.Decrement("--", (0, 0))]),
-        ("----", [Lang.Decrement("--", (0, 0)), Lang.Decrement("--", (0, 2))]),
-        ("--++", [Lang.Decrement("--", (0, 0)), Lang.Increment("++", (0, 2))]),
-        ("++++", [Lang.Increment("++", (0, 0)), Lang.Increment("++", (0, 2))]),
-        ("++--", [Lang.Increment("++", (0, 0)), Lang.Decrement("--", (0, 2))]),
-        ("==", [Lang.Equal("==", (0, 0))]),
-        ("===", [Lang.EqualStrict("===", (0, 0))]),
-        ("!", [Lang.Not("!", (0, 0))]),
-        ("!=", [Lang.Unequal("!=", (0, 0))]),
-        ("!==", [Lang.UnequalStrict("!==", (0, 0))]),
+        ("a=", [Identifier("a", (0, 0)), op.Assign("=", (0, 1))]),
+        ("--", [op.Decrement("--", (0, 0))]),
+        ("----", [op.Decrement("--", (0, 0)), op.Decrement("--", (0, 2))]),
+        ("--++", [op.Decrement("--", (0, 0)), op.Increment("++", (0, 2))]),
+        ("++++", [op.Increment("++", (0, 0)), op.Increment("++", (0, 2))]),
+        ("++--", [op.Increment("++", (0, 0)), op.Decrement("--", (0, 2))]),
+        ("==", [op.Equal("==", (0, 0))]),
+        ("===", [op.EqualStrict("===", (0, 0))]),
+        ("!", [op.Not("!", (0, 0))]),
+        ("!=", [op.Unequal("!=", (0, 0))]),
+        ("!==", [op.UnequalStrict("!==", (0, 0))]),
         ("[", [src.lang.base.Bracket("[", (0, 0))]),
         ("[[", [src.lang.base.Bracket("[", (0, 0)), src.lang.base.Bracket("[", (0, 1))]),
         ("]", [src.lang.base.Bracket("]", (0, 0))]),
@@ -143,20 +149,20 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
         ),
         (
             "1.23",
-            [Lang.Float("1.23", (0, 0))],
+            [Float("1.23", (0, 0))],
         ),
         (
             "// This is a comment",
             [
                 Lang.CommentLine("//", (0, 0)),
                 src.lang.base.Space(" ", (0, 2)),
-                Lang.Identifier("This", (0, 3)),
+                Identifier("This", (0, 3)),
                 src.lang.base.Space(" ", (0, 7)),
-                Lang.Identifier("is", (0, 8)),
+                Identifier("is", (0, 8)),
                 src.lang.base.Space(" ", (0, 10)),
-                Lang.Identifier("a", (0, 11)),
+                Identifier("a", (0, 11)),
                 src.lang.base.Space(" ", (0, 12)),
-                Lang.Identifier("comment", (0, 13)),
+                Identifier("comment", (0, 13)),
             ],
         ),
         (
@@ -164,9 +170,9 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
             [
                 Lang.CommentBlock("/*", (0, 0), open=True),
                 src.lang.base.Space(" ", (0, 2)),
-                Lang.Identifier("Block", (0, 3)),
+                Identifier("Block", (0, 3)),
                 src.lang.base.Space(" ", (0, 8)),
-                Lang.Identifier("comment", (0, 9)),
+                Identifier("comment", (0, 9)),
                 src.lang.base.Space(" ", (0, 16)),
                 Lang.CommentBlock("*/", (0, 17), open=False),
             ],
@@ -174,54 +180,54 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
         (
             "1+2-3*4/5",
             [
-                Lang.Integer("1", (0, 0)),
-                Lang.Add("+", (0, 1)),
-                Lang.Integer("2", (0, 2)),
-                Lang.Integer("-3", (0, 3)),
-                Lang.Multiply("*", (0, 5)),
-                Lang.Integer("4", (0, 6)),
-                Lang.Divide("/", (0, 7)),
-                Lang.Integer("5", (0, 8)),
+                Integer("1", (0, 0)),
+                op.Add("+", (0, 1)),
+                Integer("2", (0, 2)),
+                Integer("-3", (0, 3)),
+                op.Multiply("*", (0, 5)),
+                Integer("4", (0, 6)),
+                op.Divide("/", (0, 7)),
+                Integer("5", (0, 8)),
             ],
         ),
         (
             "++foo",
-            [Lang.Increment("++", (0, 0)), Lang.Identifier("foo", (0, 2))],
+            [op.Increment("++", (0, 0)), Identifier("foo", (0, 2))],
         ),
         (
             "foo++",
-            [Lang.Identifier("foo", (0, 0)), Lang.Increment("++", (0, 3))],
+            [Identifier("foo", (0, 0)), op.Increment("++", (0, 3))],
         ),
         (
             "(a + b)",
             [
                 src.lang.base.Parentheses("(", (0, 0), open=True),
-                Lang.Identifier("a", (0, 1)),
+                Identifier("a", (0, 1)),
                 src.lang.base.Space(" ", (0, 2)),
-                Lang.Add("+", (0, 3)),
+                op.Add("+", (0, 3)),
                 src.lang.base.Space(" ", (0, 4)),
-                Lang.Identifier("b", (0, 5)),
+                Identifier("b", (0, 5)),
                 src.lang.base.Parentheses(")", (0, 6), open=False),
             ],
         ),
         (
             "if 1==1 then prnt 'true' end",
             [
-                Lang.If("if", (0, 0)),
+                If("if", (0, 0)),
                 src.lang.base.Space(" ", (0, 2)),
-                Lang.Integer("1", (0, 3)),
-                Lang.Equal("==", (0, 4)),
-                Lang.Integer("1", (0, 6)),
+                Integer("1", (0, 3)),
+                op.Equal("==", (0, 4)),
+                Integer("1", (0, 6)),
                 src.lang.base.Space(" ", (0, 7)),
-                Lang.Identifier("then", (0, 8)),
+                Identifier("then", (0, 8)),
                 src.lang.base.Space(" ", (0, 12)),
                 Lang.Prnt("prnt", (0, 13)),
                 src.lang.base.Space(" ", (0, 17)),
                 src.lang.base.SingleQuote("'", (0, 18)),
-                Lang.Bool("true", (0, 19)),
+                Bool("true", (0, 19)),
                 src.lang.base.SingleQuote("'", (0, 23)),
                 src.lang.base.Space(" ", (0, 24)),
-                Lang.End("end", (0, 25)),
+                End("end", (0, 25)),
             ],
         ),
     ],
