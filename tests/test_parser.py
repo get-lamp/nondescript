@@ -206,7 +206,7 @@ def test_parse_raises_unexpected_symbol(source):
 def test_build(source, expected):
 
     parser = Parser(Lang, source)
-    ast = parser.build(parser.expression())
+    ast = parser.build(parser.parse_expression())
 
     assert ast == expected
 
@@ -218,7 +218,7 @@ def test_build(source, expected):
 def test_build_raises_unexpected_symbol(source):
     parser = Parser(Lang, source)
     with pytest.raises(UnexpectedSymbol):
-        parser.build(parser.expression())
+        parser.build(parser.parse_expression())
 
 
 @pytest.mark.parametrize(

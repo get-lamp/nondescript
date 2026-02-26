@@ -27,7 +27,7 @@ class If(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        condition = parser.build(parser.expression(until=NewLine))
+        condition = parser.build(parser.parse_expression(until=NewLine))
         return [self, condition]
 
     def eval(self, interp, expr):
@@ -64,9 +64,9 @@ class For(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        self.init = parser.build(parser.expression(until=NewLine))
-        self.condition = parser.build(parser.expression(until=NewLine))
-        self.increment = parser.build(parser.expression(until=NewLine))
+        self.init = parser.build(parser.parse_expression(until=NewLine))
+        self.condition = parser.build(parser.parse_expression(until=NewLine))
+        self.increment = parser.build(parser.parse_expression(until=NewLine))
         return [self]
 
     def eval(self, interp):
@@ -112,7 +112,7 @@ class Procedure(Keyword, Callable, Block, Control):
 
         try:
             # get arguments
-            self.signature = parser.build(parser.expression())
+            self.signature = parser.build(parser.parse_expression())
 
         except Exception:
             self.signature = data.List()
@@ -149,12 +149,12 @@ class Def(Procedure):
 
         try:
             # get arguments
-            self.signature = parser.build(parser.expression())
+            self.signature = parser.build(parser.parse_expression())
         except Exception:
             self.signature = data.List()
 
         # get function block
-        self.block = parser.block(until=End)
+        self.block = parser.parse_block(until=End)
 
         return [self, self.identifier, self.signature]
 
@@ -183,7 +183,7 @@ class Exec(Keyword):
         identifier = [parser.next()]
 
         try:
-            arguments = parser.build(parser.expression())
+            arguments = parser.build(parser.parse_expression())
         except Exception:
             arguments = data.List()
 
@@ -217,7 +217,7 @@ class End(Keyword, Control, Delimiter):
     @staticmethod
     def eval(interp, expr):
 
-        block = interp.block()
+        block = interp.get_block()
 
         if isinstance(block, If):
             interp.endif()

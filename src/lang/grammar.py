@@ -202,7 +202,7 @@ class Lang:
             return WAIT
 
         def parse(self, parser, **kwargs):
-            self.condition = parser.build(parser.expression())
+            self.condition = parser.build(parser.parse_expression())
             self.until = parser.build(parser.clause(Lang.Until))
             return [self, self.condition, self.until]
 
@@ -220,7 +220,7 @@ class Lang:
             return PRNT
 
         def parse(self, parser, **kwargs):
-            self.text = parser.build(parser.expression())
+            self.text = parser.build(parser.parse_expression())
             return [self, self.text]
 
         def eval(self, interp, expression):
@@ -252,7 +252,7 @@ class Lang:
             return INCLUDE
 
         def parse(self, parser, **kwargs):
-            src = parser.expression()
+            src = parser.parse_expression()
             return [self, src]
 
         def eval(self, interp, source):

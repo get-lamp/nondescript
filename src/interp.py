@@ -3,6 +3,7 @@ from src.lang import control, data, operator
 from src.lang.base import Keyword, Identifier
 from src.lang.grammar import Lang
 from src.parser import Parser
+from dataclasses import dataclass
 
 OPERAND_L = 0
 OPERATOR = 1
@@ -12,6 +13,7 @@ OPERAND_R = 2
 class Interpreter:
     lang = Lang
 
+    @dataclass
     class Snapshot(dict):
         """
         Takes a snapshot of interpreter state. Print human-readable dump
@@ -31,7 +33,7 @@ class Interpreter:
                 "Last result": interp.last,
             }
 
-            super(Interpreter.Snapshot, self).__init__(d, **kwargs)
+            super().__init__(d, **kwargs)
 
         def __str__(self):
             # one-liner aligning with spaces
@@ -238,7 +240,7 @@ class Interpreter:
             self.pull_read_enabled()
             self.end_block()
 
-    def block(self):
+    def get_block(self):
         """
         Get current block
         """

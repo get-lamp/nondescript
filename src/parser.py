@@ -151,7 +151,7 @@ class Parser:
 
         return ll
 
-    def block(self, until=None, leave=False):
+    def parse_block(self, until=None, leave=False):
 
         block = []
 
@@ -179,7 +179,7 @@ class Parser:
             else:
                 block.append(i)
 
-    def expression(self, until=None):
+    def parse_expression(self, until=None):
         # Collects tokens belonging to an expression.
         # It expects an expression and would fail on tokens unexpected on an expression
 
@@ -190,13 +190,13 @@ class Parser:
 
             # EOF
             if lexeme is False:
-                # return last expression
+                # return last parse_expression
                 if len(expression) > 0:
                     return expression
                 else:
                     return False
 
-            # commit expression on newline
+            # commit parse_expression on newline
             if isinstance(lexeme, NewLine):
                 return expression
 
@@ -237,7 +237,7 @@ class Parser:
 
             # EOF
             if lexeme is False:
-                # return last expression
+                # return last parse_expression
                 if len(clause) > 0:
                     return clause
                 else:
@@ -276,7 +276,7 @@ class Parser:
 
             # add to instruction counter
             self.count += 1
-            return self.expression()
+            return self.parse_expression()
         elif isinstance(lexeme, self.lang.Parameter):
             raise Exception("Misplaced parameter")
         else:
