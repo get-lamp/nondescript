@@ -1,0 +1,170 @@
+from abc import ABC
+
+BRACKET_CLOSE = "</bracket>"
+BRACKET_OPEN = "<bracket>"
+CLAUSE = "<clause>"
+COMMA = "<comma>"
+CONST = "<const>"
+DELIM_CLOSE = "</delim>"
+DELIM_OPEN = "<delim>"
+DOUBLE_QUOTE = "<d-quote>"
+ELSE = "<else>"
+END = "<end>"
+EXEC = "<exec>"
+EXPRESSION = "<expression>"
+FOR = "<for>"
+IDENT = "<ident>"
+IF = "<if>"
+INCLUDE = "<include>"
+KEYWORD = "<keyword>"
+LIST = "<list>"
+MAIN = "<main>"
+NEWLINE = "<newline>"
+OP = "<op>"
+PARAMETER = "<parameter>"
+PRNT = "<prnt>"
+PROCEDURE = "<procedure>"
+SINGLE_QUOTE = "<s-quote>"
+STRUCT = "<struct>"
+UNARY_OP = "<unary-op>"
+UNARY_POST_OP = "<unary-post-op>"
+WAIT = "<wait>"
+
+
+class Lexeme(ABC):
+    """
+    Base class for every language word
+    """
+
+    def __init__(self, word, pos=(None, None), **kwargs):
+        self.word = word
+        self.line, self.char = pos
+        self.set(kwargs)
+
+    def set(self, kwargs):
+        """
+        Convenience method for setting properties dynamically
+        """
+        for i in kwargs:
+            setattr(self, i, kwargs[i])
+
+    @staticmethod
+    def type():
+        raise NotImplementedError
+
+    def parse(self, parser, **kwargs):
+        raise NotImplementedError
+
+    def __repr__(self):
+        return "<%s><%s>" % (self.__class__.__name__, self.word)
+
+    def __eq__(self, other):
+        return all(
+            [
+                self.word == other.word,
+                self.line == other.line,
+                self.char == other.char,
+            ]
+        )
+
+
+class Keyword(Lexeme, ABC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.identifier = None
+
+    def get_identifier(self):
+        return self.identifier
+
+    @staticmethod
+    def type():
+        return KEYWORD
+
+    def __repr__(self):
+        return "<keyword %s>" % self.word
+
+
+class Delimiter(Lexeme, ABC):
+    pass
+
+
+class Identifier(Lexeme):
+    @staticmethod
+    def type():
+        return IDENT
+
+    def eval(self, scope, arguments=None, interp=None):
+        v = scope.get(self.word, None)
+        if arguments is not None and v is not None:
+            return v.call(arguments, interp)
+        else:
+            return v
+
+
+class Parentheses(Delimiter):
+    def __init__(self, *args, open: bool = True, **kwargs):
+        self.open = open
+        super().__init__(*args, **kwargs)
+
+    def type(self):
+        return DELIM_OPEN if self.open else DELIM_CLOSE
+
+    def __repr__(self):
+        return DELIM_OPEN if self.open else DELIM_CLOSE
+
+
+class Bracket(Delimiter):
+    def __init__(self, *args, open: bool = True, **kwargs):
+        self.open = open
+        super().__init__(*args, **kwargs)
+
+    def type(self):
+        return BRACKET_OPEN if self.open else BRACKET_CLOSE
+
+    def __repr__(self):
+        return BRACKET_OPEN if self.open else BRACKET_CLOSE
+
+
+class Comma(Delimiter):
+    @staticmethod
+    def type():
+        return COMMA
+
+    def __repr__(self):
+        return COMMA
+
+
+class DoubleQuote(Delimiter):
+    @staticmethod
+    def type():
+        return DOUBLE_QUOTE
+
+    def __repr__(self):
+        return DOUBLE_QUOTE
+
+
+class SingleQuote(Delimiter):
+    @staticmethod
+    def type():
+        return SINGLE_QUOTE
+
+    def __repr__(self):
+        return SINGLE_QUOTE
+
+
+class WhiteSpace(Lexeme):
+    pass
+
+
+class Space(WhiteSpace):
+    pass
+
+
+class NewLine(WhiteSpace):
+    @staticmethod
+    def type():
+        return NEWLINE
+
+
+class Tab(WhiteSpace):
+    pass
