@@ -2,7 +2,9 @@ import src.lang.data
 from .parser import Parser
 from src.lang.grammar import Lang
 from .exc import EOF
-from src.lang.base import Block, Control, Keyword, Constant, Identifier
+from src.lang.base import Keyword, Identifier
+from .lang.control import Block, Control
+from .lang.data import Constant
 from src.lang import data
 from src.lang import operator
 from src.lang import control

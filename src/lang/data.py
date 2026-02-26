@@ -1,4 +1,13 @@
-from src.lang.base import Constant, LIST, Lexeme, STRUCT
+from src.lang.base import LIST, Lexeme, STRUCT, CONST
+
+
+class Constant(Lexeme):
+    @staticmethod
+    def type():
+        return CONST
+
+    def __repr__(self):
+        return "<const %s>" % self.word
 
 
 class String(str, Constant):

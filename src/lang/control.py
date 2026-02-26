@@ -2,7 +2,17 @@ from abc import ABC
 
 import src.lang.base
 import src.lang.data
-from src.lang.base import Keyword, Block, Control, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter
+from src.lang.base import Keyword, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter
+
+
+class Block:
+    def __init__(self, *args, **kwargs):
+        self.length = 0
+        self.owner = None
+
+
+class Control:
+    pass
 
 
 class If(Keyword, Block, Control):

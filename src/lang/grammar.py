@@ -15,7 +15,6 @@ from src.lang.base import (
     Space,
     Delimiter,
     Keyword,
-    Block,
     Identifier,
     NewLine,
     Tab,
@@ -24,6 +23,7 @@ from src.lang.base import (
     DoubleQuote,
     SingleQuote,
 )
+from src.lang.control import Block
 
 from src.lang import control
 from src.lang import data
