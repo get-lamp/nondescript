@@ -1,4 +1,4 @@
-from src.lang.base import Constant, Vector, LIST
+from src.lang.base import Constant, LIST, Lexeme, STRUCT
 
 
 class String(str, Constant):
@@ -47,6 +47,12 @@ class Bool(Constant):
         return any([self.word is True, (type(self.word) is str) and self.word.lower() == "true", self.word == 1])
 
     # identifiers
+
+
+class Vector(Lexeme):
+    @staticmethod
+    def type():
+        return STRUCT
 
 
 class List(list, Vector):

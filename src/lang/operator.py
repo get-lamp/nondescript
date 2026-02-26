@@ -1,9 +1,47 @@
-from src.lang.base import Operator, UnaryOperator, UnaryPostOperator
+from abc import ABC
+
+from src.lang.base import Lexeme, OP, UNARY_OP, UNARY_POST_OP
+
+
+class Operator(Lexeme, ABC):
+    @staticmethod
+    def type():
+        return OP
+
+    def __repr__(self):
+        return "<op %s>" % self.word
+
+    def eval(self, *args):
+        raise NotImplementedError
+
+
+class UnaryOperator(Operator, ABC):
+    @staticmethod
+    def type():
+        return UNARY_OP
+
+    def __repr__(self):
+        return "<unary-op %s>" % self.word
+
+    def eval(self, *arg):
+        raise NotImplementedError
 
 
 class Not(UnaryOperator):
     def eval(self, scope, arguments, interp):
         return not interp.getval(interp.eval(arguments))
+
+
+class UnaryPostOperator(Operator, ABC):
+    @staticmethod
+    def type():
+        return UNARY_POST_OP
+
+    def __repr__(self):
+        return "<unary-post-op %s>" % self.word
+
+    def eval(self, *arg):
+        raise NotImplementedError
 
 
 class Increment(UnaryPostOperator):

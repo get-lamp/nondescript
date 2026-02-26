@@ -1,6 +1,7 @@
+import src.lang.operator
 from src.lang.base import Identifier, Block, Space, SingleQuote, Bracket, Keyword, Parentheses
 from src.lang.data import Integer, Bool, String, Float
-from src.lang.flow import Procedure, If, Exec
+from src.lang.control import Procedure, If, Exec
 from src.exc import UnexpectedSymbol
 from src.parser import Parser
 from src.lang import operator as op
@@ -187,7 +188,7 @@ def test_parse_raises_unexpected_symbol(source):
         ),
         ("1", [Integer("1", (0, 0))]),
         ("foo", [Identifier("foo", (0, 0))]),
-        ("!foo", [op.UnaryOperator("!", (0, 0)), [Identifier("foo", (0, 1))]]),
+        ("!foo", [src.lang.operator.UnaryOperator("!", (0, 0)), [Identifier("foo", (0, 1))]]),
         ("foo++", [op.Increment("++", (0, 3)), [Identifier("foo", (0, 0))]]),
         (
             "1+2++",

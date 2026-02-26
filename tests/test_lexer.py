@@ -6,7 +6,7 @@ import src.lang.base
 from src.lang import operator as op
 from src.lang.base import Identifier, Bracket, DoubleQuote
 from src.lang.data import Integer, Bool, Float
-from src.lang.flow import If, End
+from src.lang.control import If, End
 from src.lang.grammar import Lang
 from src.lexer import Lexer
 

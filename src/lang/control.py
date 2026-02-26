@@ -1,7 +1,8 @@
+from abc import ABC
+
 import src.lang.base
 import src.lang.data
-from src.lang.base import Keyword, Block, Control, IF, ELSE, END, Callable, FOR, PROCEDURE, Identifier, EXEC, Delimiter
-from src.lang import struct
+from src.lang.base import Keyword, Block, Control, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter
 
 
 class If(Keyword, Block, Control):
@@ -62,6 +63,15 @@ class For(Keyword, Block, Control):
         # run initialize
         interp.push_read_enabled(bool(interp.eval(self.condition)))
         interp.push_block(self)
+
+
+class Callable(ABC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.signature = None
+
+    def get_signature(self):
+        return self.signature
 
 
 class Procedure(Keyword, Callable, Block, Control):

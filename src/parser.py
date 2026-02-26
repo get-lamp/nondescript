@@ -14,12 +14,9 @@ from src.lang.base import (
     Delimiter,
     Constant,
     Identifier,
-    UnaryOperator,
-    Operator,
-    UnaryPostOperator,
 )
+from .lang.operator import Operator, UnaryOperator, UnaryPostOperator
 from src.lang import data
-from src.lang import struct
 from .lexer import Lexer
 from .exc import UnexpectedEOF, UnexpectedSymbol
 

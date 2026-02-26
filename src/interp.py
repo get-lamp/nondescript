@@ -3,9 +3,9 @@ from .parser import Parser
 from src.lang.grammar import Lang
 from .exc import EOF
 from src.lang.base import Block, Control, Keyword, Constant, Identifier
-from src.lang import struct
+from src.lang import data
 from src.lang import operator
-from src.lang import flow
+from src.lang import control
 
 OPERAND_L = 0
 OPERATOR = 1
@@ -188,7 +188,7 @@ class Interpreter:
                 self.bind(signature[k][0], arguments[k])
 
         # is function. Return last statement eval
-        if isinstance(routine, flow.Def):
+        if isinstance(routine, control.Def):
             ret = self._exec_all(routine.block)
             # print(ret)
             self.end_call()
@@ -322,7 +322,7 @@ class Interpreter:
                 return i.eval(self.scope())
 
         # structs
-        elif isinstance(i, struct.Vector):
+        elif isinstance(i, data.Vector):
             return i
 
         # constants

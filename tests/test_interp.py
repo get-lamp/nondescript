@@ -2,7 +2,7 @@ import pytest
 
 from src.exc import EOF
 from src.interp import Interpreter
-from src.lang.flow import Def
+from src.lang.control import Def
 
 # --- Constants for sample file paths ---
 ASSIGNMENT_AND_PRINT = "tests/sample/assignment_and_print.ns"

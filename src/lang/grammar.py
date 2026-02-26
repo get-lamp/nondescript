@@ -25,7 +25,7 @@ from src.lang.base import (
     SingleQuote,
 )
 
-from src.lang import flow
+from src.lang import control
 from src.lang import data
 from src.lang import operator as op
 
@@ -132,13 +132,13 @@ class Lang:
 
     keywords = {
         "prnt": lambda w, t: Lang.Prnt(w, t),
-        "if": lambda w, t: flow.If(w, t),
-        "else": lambda w, t: flow.Else(w, t),
-        "end": lambda w, t: flow.End(w, t),
-        "for": lambda w, t: flow.For(w, t),
-        "procedure": lambda w, t: flow.Procedure(w, t),
-        "def": lambda w, t: flow.Def(w, t),
-        "exec": lambda w, t: flow.Exec(w, t),
+        "if": lambda w, t: control.If(w, t),
+        "else": lambda w, t: control.Else(w, t),
+        "end": lambda w, t: control.End(w, t),
+        "for": lambda w, t: control.For(w, t),
+        "procedure": lambda w, t: control.Procedure(w, t),
+        "def": lambda w, t: control.Def(w, t),
+        "exec": lambda w, t: control.Exec(w, t),
         "include": lambda w, t: Lang.Include(w, t),
         "WAIT": lambda w, t: Lang.Wait(w, t),
     }
