@@ -7,7 +7,6 @@ from src.lang.base import (
     COMMA,
     EXPRESSION,
     INCLUDE,
-    MAIN,
     OP,
     PARAMETER,
     PRNT,
@@ -23,7 +22,6 @@ from src.lang.base import (
     DoubleQuote,
     SingleQuote,
 )
-from src.lang.control import Block
 
 from src.lang import control
 from src.lang import data
@@ -175,11 +173,6 @@ class Lang:
     @staticmethod
     def bind_keyword(keyword, cls):
         Lang.keywords["keyword"] = lambda w, t: cls(w, t)
-
-    class Main(Block):
-        @staticmethod
-        def type():
-            return MAIN
 
     class Parameter(Lexeme):
         def __init__(self, *args, **kwargs):

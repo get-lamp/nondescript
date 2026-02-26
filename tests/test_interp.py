@@ -53,7 +53,7 @@ def test_procedure():
     # Inside the procedure, at the first 'prnt 9'
     assert snapshot["Pointer"] == 1  # Pointer is at the first instruction *inside* the procedure (prnt 9)
     assert len(snapshot["Scope"]) == 2
-    #assert snapshot["Block stack"] == ["<main>", snapshot["Scope"][1]["test"]]
+    # assert snapshot["Block stack"] == ["<main>", snapshot["Scope"][1]["test"]]
     assert snapshot["Stack"] == [{"ret_addr": 5}]
 
 

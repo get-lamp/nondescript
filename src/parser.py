@@ -13,12 +13,12 @@ from src.lang.base import (
     Delimiter,
     Identifier,
 )
-from .lang.control import Block
-from .lang.data import Constant
-from .lang.operator import Operator, UnaryOperator, UnaryPostOperator
+from src.lang.control import Block
+from src.lang.data import Constant
+from src.lang.operator import Operator, UnaryOperator, UnaryPostOperator
 from src.lang import data
-from .lexer import Lexer
-from .exc import UnexpectedEOF, UnexpectedSymbol
+from src.lexer import Lexer
+from src.exc import UnexpectedEOF, UnexpectedSymbol
 
 
 BLOCK_MAIN = "<main>"

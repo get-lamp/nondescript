@@ -1,8 +1,7 @@
 from abc import ABC
 
-import src.lang.base
-import src.lang.data
-from src.lang.base import Keyword, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter
+from src.lang import data
+from src.lang.base import Keyword, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter, NewLine, MAIN
 
 
 class Block:
@@ -15,6 +14,12 @@ class Control:
     pass
 
 
+class Main(Block):
+    @staticmethod
+    def type():
+        return MAIN
+
+
 class If(Keyword, Block, Control):
     @staticmethod
     def type():
@@ -22,7 +27,7 @@ class If(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        condition = parser.build(parser.expression(until=src.lang.base.NewLine))
+        condition = parser.build(parser.expression(until=NewLine))
         return [self, condition]
 
     def eval(self, interp, expr):
@@ -59,9 +64,9 @@ class For(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        self.init = parser.build(parser.expression(until=src.lang.base.NewLine))
-        self.condition = parser.build(parser.expression(until=src.lang.base.NewLine))
-        self.increment = parser.build(parser.expression(until=src.lang.base.NewLine))
+        self.init = parser.build(parser.expression(until=NewLine))
+        self.condition = parser.build(parser.expression(until=NewLine))
+        self.increment = parser.build(parser.expression(until=NewLine))
         return [self]
 
     def eval(self, interp):
@@ -88,7 +93,7 @@ class Procedure(Keyword, Callable, Block, Control):
     def __init__(self, word, pos=(None, None), **kwargs):
         self.address = None
         self.identifier = None
-        self.signature = src.lang.data.List()
+        self.signature = data.List()
         super().__init__(word, pos=(None, None), **kwargs)
 
     @staticmethod
@@ -110,7 +115,7 @@ class Procedure(Keyword, Callable, Block, Control):
             self.signature = parser.build(parser.expression())
 
         except Exception:
-            self.signature = src.lang.data.List()
+            self.signature = data.List()
 
         return [self, self.identifier, self.signature]
 
@@ -146,7 +151,7 @@ class Def(Procedure):
             # get arguments
             self.signature = parser.build(parser.expression())
         except Exception:
-            self.signature = src.lang.data.List()
+            self.signature = data.List()
 
         # get function block
         self.block = parser.block(until=End)
@@ -180,7 +185,7 @@ class Exec(Keyword):
         try:
             arguments = parser.build(parser.expression())
         except Exception:
-            arguments = src.lang.data.List()
+            arguments = data.List()
 
         return [self, identifier, arguments]
 

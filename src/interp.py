@@ -1,13 +1,8 @@
-import src.lang.data
-from .parser import Parser
-from src.lang.grammar import Lang
-from .exc import EOF
+from src.exc import EOF
+from src.lang import control, data, operator
 from src.lang.base import Keyword, Identifier
-from .lang.control import Block, Control
-from .lang.data import Constant
-from src.lang import data
-from src.lang import operator
-from src.lang import control
+from src.lang.grammar import Lang
+from src.parser import Parser
 
 OPERAND_L = 0
 OPERATOR = 1
@@ -57,7 +52,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = [Block()]
+        self.block_stack = [control.Block()]
         self.pntr = 0
         self.last = None
 
@@ -249,11 +244,11 @@ class Interpreter:
         """
         return self.block_stack[-1]
 
-    def push_block(self, block: Block):
+    def push_block(self, block: control.Block):
         """
         Open a block of code
         """
-        if not isinstance(block, Block):
+        if not isinstance(block, control.Block):
             raise Exception("Tried to push a non-block statement")
 
         self.block_stack.append(block)
@@ -312,7 +307,7 @@ class Interpreter:
     def getval(self, i, **kwargs):
 
         # it's nested
-        if isinstance(i, list) and not isinstance(i, src.lang.data.List):
+        if isinstance(i, list) and not isinstance(i, data.List):
             return self.getval(i.pop(), **kwargs)
         # identifiers
         if isinstance(i, Identifier):
@@ -328,7 +323,7 @@ class Interpreter:
             return i
 
         # constants
-        elif isinstance(i, Constant):
+        elif isinstance(i, data.Constant):
             return i.eval()
         # a value
         else:
@@ -340,14 +335,14 @@ class Interpreter:
 
     def eval(self, i, ref=False):
 
-        if isinstance(i, src.lang.data.List):
+        if isinstance(i, data.List):
             for k, v in enumerate(i):
                 i[k] = self.eval(v) if ref is True else self.getval(self.eval(v))
             return i
 
         if isinstance(i, list) and len(i) > 0:
             # a control struct
-            if isinstance(i[OPERAND_L], Control):
+            if isinstance(i[OPERAND_L], control.Control):
                 return i[OPERAND_L].eval(self, i[1:])
 
             # ignore is read is not enabled
@@ -366,7 +361,7 @@ class Interpreter:
             # a value
             if len(i) < 2:
                 ii = i.pop()
-                if isinstance(ii, Constant):
+                if isinstance(ii, data.Constant):
                     return ii.eval()
                 else:
                     return ii
