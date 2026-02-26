@@ -11,10 +11,10 @@ class Constant(Lexeme):
 
 
 class String(str, Constant):
-    def __init__(self, string, pos=(None, None)):
-        super().__init__(string, pos)
+    def __init__(self, string, *args, **kwargs):
+        super().__init__(string, *args, **kwargs)
 
-    def __new__(cls, *args, **kw):
+    def __new__(cls, *args, **kwargs):
         string, pos = args
         return super().__new__(cls, string)
 
@@ -23,8 +23,8 @@ class String(str, Constant):
 
 
 class Float(float, Constant):
-    def __init__(self, number, pos=(None, None)):
-        super().__init__(number, pos)
+    def __init__(self, number, *args, **kwargs):
+        super().__init__(number, *args, **kwargs)
 
     def __new__(cls, *args, **kw):
         number, pos = args
@@ -35,8 +35,8 @@ class Float(float, Constant):
 
 
 class Integer(int, Constant):
-    def __init__(self, number, pos=(None, None)):
-        super().__init__(number, pos)
+    def __init__(self, number, *args, **kwargs):
+        super().__init__(number, *args, **kwargs)
 
     def __new__(cls, *args, **kwarg):
         # allow for not instantiating with the position tuple
@@ -48,14 +48,11 @@ class Integer(int, Constant):
 
 
 class Bool(Constant):
-    def __init__(self, word, pos=(None, None)):
-        super().__init__(word, pos)
+    def __init__(self, word, *args, **kwargs):
+        super().__init__(word, *args, **kwargs)
 
     def eval(self):
-
         return any([self.word is True, (type(self.word) is str) and self.word.lower() == "true", self.word == 1])
-
-    # identifiers
 
 
 class Vector(Lexeme):
