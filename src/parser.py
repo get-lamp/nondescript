@@ -1,3 +1,4 @@
+import src.lang.data
 from src.lang.base import (
     Keyword,
     Lexeme,
@@ -308,12 +309,12 @@ class Parser:
 
             # list without brackets. Like arguments list
             elif isinstance(i, Comma):
-                return struct.List(self.list(n + [i] + s))
+                return src.lang.data.List(self.list(n + [i] + s))
 
             # list with brackets
             elif isinstance(i, Bracket):
                 if i.open:
-                    n.append(struct.List(self.list(s)))
+                    n.append(src.lang.data.List(self.list(s)))
                 # closing brackets are disposed by self.list, so they shouldn't come up here
                 else:
                     raise Exception("Unexpected bracket at %s" % i.token.line)

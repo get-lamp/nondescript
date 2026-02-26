@@ -1,4 +1,4 @@
-from src.lang.base import Constant
+from src.lang.base import Constant, Vector, LIST
 
 
 class String(str, Constant):
@@ -47,3 +47,25 @@ class Bool(Constant):
         return any([self.word is True, (type(self.word) is str) and self.word.lower() == "true", self.word == 1])
 
     # identifiers
+
+
+class List(list, Vector):
+    def __init__(self, lst=None):
+        list.__init__(self, lst if lst else [])
+
+    @staticmethod
+    def type():
+        return LIST
+
+    def __add__(self, other):
+        return List(list.__add__(self, other))
+
+    def __getitem__(self, item):
+        result = list.__getitem__(self, item)
+        try:
+            return List(result)
+        except TypeError:
+            return result
+
+    def eval(self):
+        return self

@@ -1,3 +1,4 @@
+import src.lang.data
 from .parser import Parser
 from src.lang.grammar import Lang
 from .exc import EOF
@@ -309,7 +310,7 @@ class Interpreter:
     def getval(self, i, **kwargs):
 
         # it's nested
-        if isinstance(i, list) and not isinstance(i, struct.List):
+        if isinstance(i, list) and not isinstance(i, src.lang.data.List):
             return self.getval(i.pop(), **kwargs)
         # identifiers
         if isinstance(i, Identifier):
@@ -337,7 +338,7 @@ class Interpreter:
 
     def eval(self, i, ref=False):
 
-        if isinstance(i, struct.List):
+        if isinstance(i, src.lang.data.List):
             for k, v in enumerate(i):
                 i[k] = self.eval(v) if ref is True else self.getval(self.eval(v))
             return i
