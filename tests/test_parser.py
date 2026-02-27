@@ -6,6 +6,7 @@ from src.exc import UnexpectedSymbol
 from src.parser import Parser
 from src.lang import operator as op
 from src.lang.grammar import Lang
+from src.lexer import Token
 import pytest
 from unittest.mock import ANY
 
@@ -19,77 +20,77 @@ ANY_POS = (ANY, ANY)
         (
             "!==!==!==",
             [
-                op.UnequalStrict("!==", (0, 0)),
-                op.UnequalStrict("!==", (0, 3)),
-                op.UnequalStrict("!==", (0, 6)),
+                op.UnequalStrict(Token("!==", 0, 0, 3)),
+                op.UnequalStrict(Token("!==", 0, 3, 6)),
+                op.UnequalStrict(Token("!==", 0, 6, 9)),
             ],
         ),
         (
             "foo=bar",
             [
-                Identifier("foo", (0, 0)),
-                op.Assign("=", (0, 3)),
-                Identifier("bar", (0, 4)),
+                Identifier(Token("foo", 0, 0, 3)),
+                op.Assign(Token("=", 0, 3, 4)),
+                Identifier(Token("bar", 0, 4, 7)),
             ],
         ),
         (
             "foo!=bar",
             [
-                Identifier("foo", (0, 0)),
-                op.Unequal("!=", (0, 3)),
-                Identifier("bar", (0, 5)),
+                Identifier(Token("foo", 0, 0, 3)),
+                op.Unequal(Token("!=", 0, 3, 5)),
+                Identifier(Token("bar", 0, 5, 8)),
             ],
         ),
         (
             "foo!==bar",
             [
-                Identifier("foo", (0, 0)),
-                op.UnequalStrict("!==", (0, 3)),
-                Identifier("bar", (0, 6)),
+                Identifier(Token("foo", 0, 0, 3)),
+                op.UnequalStrict(Token("!==", 0, 3, 6)),
+                Identifier(Token("bar", 0, 6, 9)),
             ],
         ),
         (
             "prnt 'hello'",
             [
-                Lang.Prnt("prnt", (0, 0)),
-                Space(" ", (0, 4)),
-                SingleQuote("'", (0, 5)),
-                Identifier("hello", (0, 6)),
-                SingleQuote("'", (0, 11)),
+                Lang.Prnt(Token("prnt", 0, 0, 4)),
+                Space(Token(" ", 0, 4, 5)),
+                SingleQuote(Token("'", 0, 5, 6)),
+                Identifier(Token("hello", 0, 6, 11)),
+                SingleQuote(Token("'", 0, 11, 12)),
             ],
         ),
         (
             "if foo==bar",
             [
-                If("if", (0, 0)),
-                Space(" ", (0, 2)),
-                Identifier("foo", (0, 3)),
-                op.Equal("==", (0, 6)),
-                Identifier("bar", (0, 8)),
+                If(Token("if", 0, 0, 2)),
+                Space(Token(" ", 0, 2, 3)),
+                Identifier(Token("foo", 0, 3, 6)),
+                op.Equal(Token("==", 0, 6, 8)),
+                Identifier(Token("bar", 0, 8, 11)),
             ],
         ),
         (
             "procedure my_proc",
             [
-                Procedure("procedure", (0, 0)),
-                Space(" ", (0, 9)),
-                Identifier("my_proc", (0, 10)),
+                Procedure(Token("procedure", 0, 0, 9)),
+                Space(Token(" ", 0, 9, 10)),
+                Identifier(Token("my_proc", 0, 10, 17)),
             ],
         ),
         (
             "exec my_proc",
             [
-                Exec("exec", (0, 0)),
-                Space(" ", (0, 4)),
-                Identifier("my_proc", (0, 5)),
+                Exec(Token("exec", 0, 0, 4)),
+                Space(Token(" ", 0, 4, 5)),
+                Identifier(Token("my_proc", 0, 5, 12)),
             ],
         ),
         (
             "1+2",
             [
-                Integer("1", (0, 0)),
-                op.Add("+", (0, 1)),
-                Integer("2", (0, 2)),
+                Integer(Token("1", 0, 0, 1)),
+                op.Add(Token("+", 0, 1, 2)),
+                Integer(Token("2", 0, 2, 3)),
             ],
         ),
     ],
@@ -107,33 +108,66 @@ def test_next(source, expected):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("foo=bar", [Identifier("foo", (0, 0)), op.Assign("=", (0, 3)), Identifier("bar", (0, 4))]),
-        ("if True:", [Keyword("if", (0, 0)), [Identifier("True", (0, 3))]]),
-        ("[]", [Bracket("[", (0, 0), open=True), Bracket("]", (0, 1), open=False)]),
+        (
+            "foo=bar",
+            [
+                Identifier(Token("foo", 0, 0, 0)),
+                op.Assign(Token("=", 0, 3, 3)),
+                Identifier(Token("bar", 0, 4, 4)),
+            ],
+        ),
+        (
+            "if True:",
+            [Keyword(Token("if", 0, 0, 0)), [Identifier(Token("True", 0, 3, 3))]],
+        ),
+        (
+            "[]",
+            [
+                Bracket(Token("[", 0, 0, 0), open=True),
+                Bracket(Token("]", 0, 1, 1), open=False),
+            ],
+        ),
         (
             "[foo]",
             [
-                Bracket("[", (0, 0), open=True),
-                Identifier("foo", (0, 1)),
-                Bracket("]", (0, 4), open=False),
+                Bracket(Token("[", 0, 0, 0), open=True),
+                Identifier(Token("foo", 0, 1, 1)),
+                Bracket(Token("]", 0, 4, 4), open=False),
             ],
         ),
-        ("prnt 'hello'", [Lang.Prnt("prnt", (0, 0)), [String("hello", (0, 6))]]),
-        ("1+2", [Integer("1", (0, 0)), op.Add("+", (0, 1)), Integer("2", (0, 2))]),
+        (
+            "prnt 'hello'",
+            [Lang.Prnt(Token("prnt", 0, 0, 0)), [String(Token("hello", 0, 6, 6))]],
+        ),
+        (
+            "1+2",
+            [
+                Integer(Token("1", 0, 0, 0)),
+                op.Add(Token("+", 0, 1, 1)),
+                Integer(Token("2", 0, 2, 2)),
+            ],
+        ),
         (
             "(1+2)",
             [
-                Parentheses("(", (0, 0), open=True),
-                Integer("1", (0, 1)),
-                op.Add("+", (0, 2)),
-                Integer("2", (0, 3)),
-                Parentheses(")", (0, 4), open=False),
+                Parentheses(Token("(", 0, 0, 0), open=True),
+                Integer(Token("1", 0, 1, 1)),
+                op.Add(Token("+", 0, 2, 2)),
+                Integer(Token("2", 0, 3, 3)),
+                Parentheses(Token(")", 0, 4, 4), open=False),
             ],
         ),
-        ("1       +       2", [Integer("1", (0, 0)), op.Add("+", (0, 8)), Integer("2", (0, 16))]),
-        ("a++", [Identifier("a", (0, 0)), op.Increment("++", (0, 1))]),
-        ("a--", [Identifier("a", (0, 0)), op.Decrement("--", (0, 1))]),
-        ("!a", [op.Not("!", (0, 0)), Identifier("a", (0, 1))]),
+        (
+            "1       +       2",
+            [
+                Integer(Token("1", 0, 0, 0)),
+                op.Add(Token("+", 0, 8, 8)),
+                Integer(Token("2", 0, 16, 16)),
+            ],
+        ),
+        ("a++", [Identifier(Token("a", 0, 0, 0)), op.Increment(Token("++", 0, 1, 1))]),
+        ("a--", [Identifier(Token("a", 0, 0, 0)), op.Decrement(Token("--", 0, 1, 1))]),
+        ("!a", [op.Not(Token("!", 0, 0, 0)), Identifier(Token("a", 0, 1, 1))]),
     ],
 )
 def test_parse(source, expected):
@@ -160,53 +194,105 @@ def test_parse_raises_unexpected_symbol(source):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("1+2", [[Integer("1", (0, 0))], op.Add("+", (0, 1)), [Integer("2", (0, 2))]]),
-        ("a * b", [[Identifier("a", (0, 0))], op.Multiply("*", (0, 2)), [Identifier("b", (0, 4))]]),
+        (
+            "1+2",
+            [
+                [Integer(Token("1", 0, 0, 0))],
+                op.Add(Token("+", 0, 1, 1)),
+                [Integer(Token("2", 0, 2, 2))],
+            ],
+        ),
+        (
+            "a * b",
+            [
+                [Identifier(Token("a", 0, 0, 0))],
+                op.Multiply(Token("*", 0, 2, 2)),
+                [Identifier(Token("b", 0, 4, 4))],
+            ],
+        ),
         (
             "a + b * c",  # Testing operator precedence
             [
-                [Identifier("a", (0, 0))],
-                op.Add("+", (0, 2)),
-                [[Identifier("b", (0, 4))], op.Multiply("*", (0, 6)), [Identifier("c", (0, 8))]],
+                [Identifier(Token("a", 0, 0, 0))],
+                op.Add(Token("+", 0, 2, 2)),
+                [
+                    [Identifier(Token("b", 0, 4, 4))],
+                    op.Multiply(Token("*", 0, 6, 6)),
+                    [Identifier(Token("c", 0, 8, 8))],
+                ],
             ],
         ),
         (
             "(a + b) * c",  # Testing parentheses grouping
             [
-                [[Identifier("a", (0, 1))], op.Add("+", (0, 3)), [Identifier("b", (0, 5))]],
-                op.Multiply("*", (0, 8)),
-                [Identifier("c", (0, 10))],
+                [
+                    [Identifier(Token("a", 0, 1, 1))],
+                    op.Add(Token("+", 0, 3, 3)),
+                    [Identifier(Token("b", 0, 5, 5))],
+                ],
+                op.Multiply(Token("*", 0, 8, 8)),
+                [Identifier(Token("c", 0, 10, 10))],
             ],
         ),
         (
             "'Hello' + ' ' + who",  # Testing right-associativity (adjusting based on previous failure)
             [
-                [String("Hello", (0, 0))],
-                op.Add("+", (0, 8)),
-                [[String(" ", (0, 10))], op.Add("+", (0, 14)), [Identifier("who", (0, 16))]],
+                [String(Token("Hello", 0, 1, 1))],
+                op.Add(Token("+", 0, 8, 8)),
+                [
+                    [String(Token(" ", 0, 11, 11))],
+                    op.Add(Token("+", 0, 14, 14)),
+                    [Identifier(Token("who", 0, 16, 16))],
+                ],
             ],
         ),
-        ("1", [Integer("1", (0, 0))]),
-        ("foo", [Identifier("foo", (0, 0))]),
-        ("!foo", [src.lang.operator.UnaryOperator("!", (0, 0)), [Identifier("foo", (0, 1))]]),
-        ("foo++", [op.Increment("++", (0, 3)), [Identifier("foo", (0, 0))]]),
+        ("1", [Integer(Token("1", 0, 0, 0))]),
+        ("foo", [Identifier(Token("foo", 0, 0, 0))]),
+        (
+            "!foo",
+            [
+                src.lang.operator.UnaryOperator(Token("!", 0, 0, 0)),
+                [Identifier(Token("foo", 0, 1, 1))],
+            ],
+        ),
+        (
+            "foo++",
+            [op.Increment(Token("++", 0, 3, 3)), [Identifier(Token("foo", 0, 0, 0))]],
+        ),
         (
             "1+2++",
             [
-                [Integer("1", (0, 0))],
-                op.Add("+", (0, 1)),
-                [op.Increment("++", (0, 3)), [Integer("2", (0, 2))]],
+                [Integer(Token("1", 0, 0, 0))],
+                op.Add(Token("+", 0, 1, 1)),
+                [op.Increment(Token("++", 0, 3, 3)), [Integer(Token("2", 0, 2, 2))]],
             ],
         ),
-        ("NOT bar", [op.Not("NOT", (0, 0)), [Identifier("bar", (0, 4))]]),
-        ("1 == 2", [[Integer("1", (0, 0))], op.Equal("==", (0, 2)), [Integer("2", (0, 5))]]),
-        ("1 != 2", [[Integer("1", (0, 0))], op.Unequal("!=", (0, 2)), [Integer("2", (0, 5))]]),
+        (
+            "NOT bar",
+            [op.Not(Token("NOT", 0, 0, 0)), [Identifier(Token("bar", 0, 4, 4))]],
+        ),
+        (
+            "1 == 2",
+            [
+                [Integer(Token("1", 0, 0, 0))],
+                op.Equal(Token("==", 0, 2, 2)),
+                [Integer(Token("2", 0, 5, 5))],
+            ],
+        ),
+        (
+            "1 != 2",
+            [
+                [Integer(Token("1", 0, 0, 0))],
+                op.Unequal(Token("!=", 0, 2, 2)),
+                [Integer(Token("2", 0, 5, 5))],
+            ],
+        ),
     ],
 )
 def test_build(source, expected):
 
     parser = Parser(Lang, source)
-    ast = parser.build(parser.parse_expression())
+    ast = parser.build_ast(parser.parse_expression())
 
     assert ast == expected
 
@@ -218,7 +304,7 @@ def test_build(source, expected):
 def test_build_raises_unexpected_symbol(source):
     parser = Parser(Lang, source)
     with pytest.raises(UnexpectedSymbol):
-        parser.build(parser.parse_expression())
+        parser.build_ast(parser.parse_expression())
 
 
 @pytest.mark.parametrize(
@@ -227,33 +313,61 @@ def test_build_raises_unexpected_symbol(source):
         (
             "foo++;bar++",
             [
-                [op.Increment("++", (0, 3)), [Identifier("foo", (0, 0))]],
-                [op.Increment("++", (1, 3)), [Identifier("bar", (1, 0))]],
+                [
+                    op.Increment(Token("++", 0, 3, 5)),
+                    [Identifier(Token("foo", 0, 0, 3))],
+                ],
+                [
+                    op.Increment(Token("++", 1, 3, 5)),
+                    [Identifier(Token("bar", 1, 0, 3))],
+                ],
             ],
         ),
         (
             "a=1;b=2;a++;b++",
             [
-                [[Identifier("a", (0, 0))], op.Assign("=", (0, 1)), [Integer(1, (0, 2))]],
-                [[Identifier("b", (1, 0))], op.Assign("=", (1, 1)), [Integer(2, (0, 2))]],
-                [op.Increment("++", (2, 1)), [Identifier("a", (2, 0))]],
-                [op.Increment("++", (3, 1)), [Identifier("b", (3, 0))]],
+                [
+                    [Identifier(Token("a", 0, 0, 1))],
+                    op.Assign(Token("=", 0, 1, 2)),
+                    [Integer(Token("1", 0, 2, 3))],
+                ],
+                [
+                    [Identifier(Token("b", 1, 0, 1))],
+                    op.Assign(Token("=", 1, 1, 2)),
+                    [Integer(Token("2", 1, 2, 3))],
+                ],
+                [op.Increment(Token("++", 2, 1, 3)), [Identifier(Token("a", 2, 0, 1))]],
+                [op.Increment(Token("++", 3, 1, 3)), [Identifier(Token("b", 3, 0, 1))]],
             ],
         ),
         (
             "foo--;bar--",
             [
-                [op.Decrement("--", (0, 3)), [Identifier("foo", (0, 0))]],
-                [op.Decrement("--", (1, 3)), [Identifier("bar", (1, 0))]],
+                [
+                    op.Decrement(Token("--", 0, 3, 5)),
+                    [Identifier(Token("foo", 0, 0, 3))],
+                ],
+                [
+                    op.Decrement(Token("--", 1, 3, 5)),
+                    [Identifier(Token("bar", 1, 0, 3))],
+                ],
             ],
         ),
         (
             "a=1;b=2;a--;b--",
             [
-                [[Identifier("a", (0, 0))], op.Assign("=", (0, 1)), [Integer(1, (0, 2))]],
-                [[Identifier("b", (1, 0))], op.Assign("=", (1, 1)), [Integer(2, (0, 2))]],
-                [op.Decrement("--", (2, 1)), [Identifier("a", (2, 0))]],
-                [op.Decrement("--", (3, 1)), [Identifier("b", (3, 0))]],
+                [
+                    [Identifier(Token("a", 0, 0, 1))],
+                    op.Assign(Token("=", 0, 1, 2)),
+                    [Integer(Token("1", 0, 2, 3))],
+                ],
+                [
+                    [Identifier(Token("b", 1, 0, 1))],
+                    op.Assign(Token("=", 1, 1, 2)),
+                    [Integer(Token("2", 1, 2, 3))],
+                ],
+                [op.Decrement(Token("--", 2, 1, 3)), [Identifier(Token("a", 2, 0, 1))]],
+                [op.Decrement(Token("--", 3, 1, 3)), [Identifier(Token("b", 3, 0, 1))]],
             ],
         ),
     ],
@@ -264,7 +378,7 @@ def test_parse_and_build(source, expected):
 
     for exp in expected:
         p = parser.parse()
-        ast = parser.build(p)
+        ast = parser.build_ast(p)
         assert exp == ast
 
     assert parser.parse() is False

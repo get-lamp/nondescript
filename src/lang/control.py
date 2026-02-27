@@ -1,7 +1,28 @@
 from abc import ABC
 
 from src.lang import data
-from src.lang.base import Keyword, IF, ELSE, END, FOR, PROCEDURE, Identifier, EXEC, Delimiter, NewLine, MAIN
+from src.lang.base import (
+    Keyword,
+    IF,
+    ELSE,
+    END,
+    FOR,
+    PROCEDURE,
+    Identifier,
+    EXEC,
+    Delimiter,
+    NewLine,
+    MAIN,
+)
+
+
+class Callable(ABC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.signature = None
+
+    def get_signature(self):
+        return self.signature
 
 
 class Block:
@@ -10,7 +31,7 @@ class Block:
         self.owner = None
 
 
-class Control:
+class Control(ABC):
     pass
 
 
@@ -27,7 +48,7 @@ class If(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        condition = parser.build(parser.parse_expression(until=NewLine))
+        condition = parser.build_ast(parser.parse_expression(until=NewLine))
         return [self, condition]
 
     def eval(self, interp, expr):
@@ -64,9 +85,9 @@ class For(Keyword, Block, Control):
 
     def parse(self, parser, **kwargs):
         # store condition pre-built
-        self.init = parser.build(parser.parse_expression(until=NewLine))
-        self.condition = parser.build(parser.parse_expression(until=NewLine))
-        self.increment = parser.build(parser.parse_expression(until=NewLine))
+        self.init = parser.build_ast(parser.parse_expression(until=NewLine))
+        self.condition = parser.build_ast(parser.parse_expression(until=NewLine))
+        self.increment = parser.build_ast(parser.parse_expression(until=NewLine))
         return [self]
 
     def eval(self, interp):
@@ -80,21 +101,12 @@ class For(Keyword, Block, Control):
         interp.push_block(self)
 
 
-class Callable(ABC):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.signature = None
-
-    def get_signature(self):
-        return self.signature
-
-
 class Procedure(Keyword, Callable, Block, Control):
-    def __init__(self, word, pos=(None, None), **kwargs):
+    def __init__(self, word, *args, **kwargs):
         self.address = None
         self.identifier = None
         self.signature = data.List()
-        super().__init__(word, pos=(None, None), **kwargs)
+        super().__init__(word, *args, **kwargs)
 
     @staticmethod
     def type():
@@ -112,7 +124,7 @@ class Procedure(Keyword, Callable, Block, Control):
 
         try:
             # get arguments
-            self.signature = parser.build(parser.parse_expression())
+            self.signature = parser.build_ast(parser.parse_expression())
 
         except Exception:
             self.signature = data.List()
@@ -149,7 +161,7 @@ class Def(Procedure):
 
         try:
             # get arguments
-            self.signature = parser.build(parser.parse_expression())
+            self.signature = parser.build_ast(parser.parse_expression())
         except Exception:
             self.signature = data.List()
 
@@ -183,7 +195,7 @@ class Exec(Keyword):
         identifier = [parser.next()]
 
         try:
-            arguments = parser.build(parser.parse_expression())
+            arguments = parser.build_ast(parser.parse_expression())
         except Exception:
             arguments = data.List()
 

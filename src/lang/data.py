@@ -11,48 +11,50 @@ class Constant(Lexeme):
 
 
 class String(str, Constant):
-    def __init__(self, string, *args, **kwargs):
-        super().__init__(string, *args, **kwargs)
+    def __init__(self, token, **kwargs):
+        Constant.__init__(self, token, **kwargs)
 
-    def __new__(cls, *args, **kwargs):
-        string, pos = args
-        return super().__new__(cls, string)
+    def __new__(cls, token, **kwargs):
+        return str.__new__(cls, token.word)
 
     def eval(self):
         return str(self)
 
 
 class Float(float, Constant):
-    def __init__(self, number, *args, **kwargs):
-        super().__init__(number, *args, **kwargs)
+    def __init__(self, token, **kwargs):
+        Constant.__init__(self, token, **kwargs)
 
-    def __new__(cls, *args, **kw):
-        number, pos = args
-        return super().__new__(cls, number)
+    def __new__(cls, token, **kwargs):
+        return float.__new__(cls, token.word)
 
     def eval(self):
         return self
 
 
 class Integer(int, Constant):
-    def __init__(self, number, *args, **kwargs):
-        super().__init__(number, *args, **kwargs)
+    def __init__(self, token, **kwargs):
+        Constant.__init__(self, token, **kwargs)
 
-    def __new__(cls, *args, **kwarg):
-        # allow for not instantiating with the position tuple
-        number, pos = args if len(args) == 2 else (*args, None)
-        return super().__new__(cls, number)
+    def __new__(cls, token, **kwargs):
+        return int.__new__(cls, token.word)
 
     def eval(self):
         return self
 
 
 class Bool(Constant):
-    def __init__(self, word, *args, **kwargs):
-        super().__init__(word, *args, **kwargs)
+    def __init__(self, token, **kwargs):
+        super().__init__(token, **kwargs)
 
     def eval(self):
-        return any([self.word is True, (type(self.word) is str) and self.word.lower() == "true", self.word == 1])
+        return any(
+            [
+                self.word is True,
+                (type(self.word) is str) and self.word.lower() == "true",
+                self.word == 1,
+            ]
+        )
 
 
 class Vector(Lexeme):

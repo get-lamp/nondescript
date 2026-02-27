@@ -70,80 +70,80 @@ class Lang:
 
     # Will try to match greedily
     symbols = {
-        r_space: lambda w, t: Space(w, t),
-        r_newline: lambda w, t: NewLine(w, t),
-        r_tab: lambda w, t: Tab(w, t),
-        r_bracket_l: lambda w, t: Bracket(w, t, open=True),
-        r_bracket_r: lambda w, t: Bracket(w, t, open=False),
-        r_double_quote: lambda w, t: DoubleQuote(w, t),
-        r_single_quote: lambda w, t: SingleQuote(w, t),
-        r_parentheses_l: lambda w, t: Parentheses(w, t, open=True),
-        r_parentheses_r: lambda w, t: Parentheses(w, t, open=False),
+        r_space: lambda t: Space(t),
+        r_newline: lambda t: NewLine(t),
+        r_tab: lambda t: Tab(t),
+        r_bracket_l: lambda t: Bracket(t, open=True),
+        r_bracket_r: lambda t: Bracket(t, open=False),
+        r_double_quote: lambda t: DoubleQuote(t),
+        r_single_quote: lambda t: SingleQuote(t),
+        r_parentheses_l: lambda t: Parentheses(t, open=True),
+        r_parentheses_r: lambda t: Parentheses(t, open=False),
         r_slash: {
-            r_asterisk: lambda w, t: Lang.CommentBlock(w, t, open=True),
-            r_slash: lambda w, t: Lang.CommentLine(w, t),
-            None: lambda w, t: op.Divide(w, t),
+            r_asterisk: lambda t: Lang.CommentBlock(t, open=True),
+            r_slash: lambda t: Lang.CommentLine(t),
+            None: lambda t: op.Divide(t),
         },
         r_asterisk: {
-            r_slash: lambda w, t: Lang.CommentBlock(w, t, open=False),
-            None: lambda w, t: op.Multiply(w, t),
+            r_slash: lambda t: Lang.CommentBlock(t, open=False),
+            None: lambda t: op.Multiply(t),
         },
-        r_comma: lambda w, t: src.lang.base.Comma(w, t),
+        r_comma: lambda t: src.lang.base.Comma(t),
         r_bang: {
             r_equal: {
-                r_equal: {None: lambda w, t: op.UnequalStrict(w, t)},
-                None: lambda w, t: op.Unequal(w, t),
+                r_equal: {None: lambda t: op.UnequalStrict(t)},
+                None: lambda t: op.Unequal(t),
             },
-            None: lambda w, t: op.Not(w, t),
+            None: lambda t: op.Not(t),
         },
         r_equal: {
             r_equal: {
-                r_equal: {None: lambda w, t: op.EqualStrict(w, t)},
-                None: lambda w, t: op.Equal(w, t),
+                r_equal: {None: lambda t: op.EqualStrict(t)},
+                None: lambda t: op.Equal(t),
             },
-            None: lambda w, t: op.Assign(w, t),
+            None: lambda t: op.Assign(t),
         },
         r_plus: {
-            r_plus: lambda w, t: op.Increment(w, t),
-            None: lambda w, t: op.Add(w, t),
+            r_plus: lambda t: op.Increment(t),
+            None: lambda t: op.Add(t),
         },
-        r_float: lambda w, t: data.Float(w, t),
-        r_int: lambda w, t: data.Integer(w, t),
+        r_float: lambda t: data.Float(t),
+        r_int: lambda t: data.Integer(t),
         r_dash: {
-            r_dash: lambda w, t: op.Decrement(w, t),
-            r_float: lambda w, t: data.Float(w, t),
-            r_int: lambda w, t: data.Integer(w, t),
-            None: lambda w, t: op.Subtract(w, t),
+            r_dash: lambda t: op.Decrement(t),
+            r_float: lambda t: data.Float(t),
+            r_int: lambda t: data.Integer(t),
+            None: lambda t: op.Subtract(t),
         },
-        r_greater: lambda w, t: op.Greater(w, t),
-        r_lesser: lambda w, t: op.Lesser(w, t),
-        r_or: lambda w, t: op.Or(w, t),
-        r_nor: lambda w, t: op.Nor(w, t),
-        r_xor: lambda w, t: op.Xor(w, t),
-        r_and: lambda w, t: op.And(w, t),
-        r_nand: lambda w, t: op.Nand(w, t),
-        r_not: lambda w, t: op.Not(w, t),
-        r_true: lambda w, t: data.Bool(w, t),
-        r_false: lambda w, t: data.Bool(w, t),
-        r_identifier: lambda w, t: Lang.identifier(w, t),
+        r_greater: lambda t: op.Greater(t),
+        r_lesser: lambda t: op.Lesser(t),
+        r_or: lambda t: op.Or(t),
+        r_nor: lambda t: op.Nor(t),
+        r_xor: lambda t: op.Xor(t),
+        r_and: lambda t: op.And(t),
+        r_nand: lambda t: op.Nand(t),
+        r_not: lambda t: op.Not(t),
+        r_true: lambda t: data.Bool(t),
+        r_false: lambda t: data.Bool(t),
+        r_identifier: lambda t: Lang.identifier(t),
     }
 
     keywords = {
-        "prnt": lambda w, t: Lang.Prnt(w, t),
-        "if": lambda w, t: control.If(w, t),
-        "else": lambda w, t: control.Else(w, t),
-        "end": lambda w, t: control.End(w, t),
-        "for": lambda w, t: control.For(w, t),
-        "procedure": lambda w, t: control.Procedure(w, t),
-        "def": lambda w, t: control.Def(w, t),
-        "exec": lambda w, t: control.Exec(w, t),
-        "include": lambda w, t: Lang.Include(w, t),
-        "WAIT": lambda w, t: Lang.Wait(w, t),
+        "prnt": lambda t: Lang.Prnt(t),
+        "if": lambda t: control.If(t),
+        "else": lambda t: control.Else(t),
+        "end": lambda t: control.End(t),
+        "for": lambda t: control.For(t),
+        "procedure": lambda t: control.Procedure(t),
+        "def": lambda t: control.Def(t),
+        "exec": lambda t: control.Exec(t),
+        "include": lambda t: Lang.Include(t),
+        "WAIT": lambda t: Lang.Wait(t),
     }
 
     parameters = {
-        "UNTIL": lambda w, t: Lang.Until(w, t),
-        "BY": lambda w, t: Lang.By(w, t),
+        "UNTIL": lambda t: Lang.Until(t),
+        "BY": lambda t: Lang.By(t),
     }
 
     clause = {r"<parameter>": lambda: Lang.expression}
@@ -162,17 +162,17 @@ class Lang:
     }
 
     @staticmethod
-    def identifier(w, t):
-        if w in Lang.keywords:
-            return Lang.keywords[w](w, t)
-        elif w in Lang.parameters:
-            return Lang.parameters[w](w, t)
+    def identifier(t):
+        if t.word in Lang.keywords:
+            return Lang.keywords[t.word](t)
+        elif t.word in Lang.parameters:
+            return Lang.parameters[t.word](t)
         else:
-            return Identifier(w, t)
+            return Identifier(t)
 
     @staticmethod
     def bind_keyword(keyword, cls):
-        Lang.keywords["keyword"] = lambda w, t: cls(w, t)
+        Lang.keywords["keyword"] = lambda t: cls(t)
 
     class Parameter(Lexeme):
         def __init__(self, *args, **kwargs):
@@ -202,8 +202,8 @@ class Lang:
             return WAIT
 
         def parse(self, parser, **kwargs):
-            self.condition = parser.build(parser.parse_expression())
-            self.until = parser.build(parser.clause(Lang.Until))
+            self.condition = parser.build_ast(parser.parse_expression())
+            self.until = parser.build_ast(parser.clause(Lang.Until))
             return [self, self.condition, self.until]
 
         def eval(self, interp, expression):
@@ -220,7 +220,7 @@ class Lang:
             return PRNT
 
         def parse(self, parser, **kwargs):
-            self.text = parser.build(parser.parse_expression())
+            self.text = parser.build_ast(parser.parse_expression())
             return [self, self.text]
 
         def eval(self, interp, expression):
@@ -318,7 +318,9 @@ class Lang:
             # push term
             if ll:
                 # climb up in grammar tree
-                self.legal = self.legal[ll] if not callable(self.legal[ll]) else self.legal[ll]()
+                self.legal = (
+                    self.legal[ll] if not callable(self.legal[ll]) else self.legal[ll]()
+                )
                 super().append(i)
                 return self
 

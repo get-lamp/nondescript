@@ -1,5 +1,24 @@
+import os
 import re
 from io import BytesIO
+
+
+class Token:
+    def __init__(self, word, line, char, byte):
+        self.word = word
+        self.line = line
+        self.char = char
+        self.byte = byte
+
+    def __eq__(self, other):
+        return all(
+            [
+                self.word == other.word,
+                self.line == other.line,
+                self.char == other.char,
+                self.byte == other.byte,
+            ]
+        )
 
 
 class Lexer:
@@ -7,36 +26,14 @@ class Lexer:
     Spit out tokens
     """
 
-    class Token:
-        """
-        The words
-        """
-
-        def __init__(self, word, line, char):
-            self.word = word
-            self.line = line
-            self.char = char
-
-        def __repr__(self):
-            return "Token(line=(%s)%s, char=(%s)%s, word=(%s)'%s'" % (
-                type(self.line),
-                self.line,
-                type(self.char),
-                self.char,
-                type(self.word),
-                self.word,
-            )
-
-        def __eq__(self, other):
-            return all(
-                [
-                    self.word == other.word,
-                    self.line == other.line,
-                    self.char == other.char,
-                ]
-            )
-
     def __init__(self, syntax, source, is_file=False):
+
+        self.syntax = syntax
+        self.chars = []
+        self.num_line = 0
+        self.num_char = 0
+        self.src = None
+
         if is_file:
             with open(source, "rb") as f:
                 self.src = BytesIO(f.read())
@@ -45,16 +42,16 @@ class Lexer:
                 self.src = BytesIO(b"")
             else:
                 self.src = BytesIO(source.encode("utf-8"))
-        self.syntax = syntax
-        self.token = []
-        self.num_line = 0
-        self.num_char = 0
 
     def __exit__(self):
         self.src.close()
 
+    def jump_to(self, n):
+        self.src.seek(n, os.SEEK_SET)
+        return self
+
     def _backtrack(self, n=1):
-        self.src.seek(-n, 1)
+        self.src.seek(-n, os.SEEK_CUR)
         return self
 
     def _is_newline(self, char):
@@ -74,8 +71,9 @@ class Lexer:
             # already at EOF
             return None
 
-        self.token = []
+        self.chars = []
         char = ""
+        start_byte = self.src.tell()
 
         while True:
             # read character
@@ -91,11 +89,11 @@ class Lexer:
 
             # no delimiter found. Keep reading
             if c is None:
-                self.token.append(char)
+                self.chars.append(char)
             else:
                 # a delimiter found. A single char to return
-                if len(self.token) == 0:
-                    self.token = char
+                if len(self.chars) == 0:
+                    self.chars = char
                     break
                 # a multichar token to return.
                 # backtrack 1 to leave pointer in position for next reading
@@ -104,7 +102,7 @@ class Lexer:
                     break
 
         # return None on empty word
-        word = "".join(self.token) if len(self.token) > 0 else None
+        word = "".join(self.chars) if len(self.chars) > 0 else None
         if word is None:
             return None
 
@@ -114,7 +112,7 @@ class Lexer:
 
         self._track_line_and_char(char, word)
 
-        return self.Token(word, line=num_line, char=num_char)
+        return Token(word, line=num_line, char=num_char, byte=start_byte)
 
     def next(self):
 
@@ -134,7 +132,14 @@ class Lexer:
                 if len(tokens) == 0:
                     return False
                 else:
-                    return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                    return tree[None](
+                        Token(
+                            "".join([t.word for t in tokens]),
+                            tokens[0].line,
+                            tokens[0].char,
+                            tokens[0].byte,
+                        )
+                    )
 
             for regexp in [t for t in tree if t is not None]:
                 if re.match(regexp, token.word):
@@ -144,10 +149,24 @@ class Lexer:
 
                     if callable(tree):
                         # It's a terminal symbol. Wrap it up.
-                        return tree("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                        return tree(
+                            Token(
+                                "".join([t.word for t in tokens]),
+                                tokens[0].line,
+                                tokens[0].char,
+                                tokens[0].byte,
+                            )
+                        )
                     elif len(tree) == 1 and None in tree.keys():
                         # Also a terminal
-                        return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                        return tree[None](
+                            Token(
+                                "".join([t.word for t in tokens]),
+                                tokens[0].line,
+                                tokens[0].char,
+                                tokens[0].byte,
+                            )
+                        )
 
                     match = token.word
                     break
@@ -156,9 +175,21 @@ class Lexer:
                 # found something. Collected it in tokens. Get one more and try to match greedily
                 continue
 
-            elif not match and len(tokens) > 0 and isinstance(tree, dict) and None in tree.keys():
+            elif (
+                not match
+                and len(tokens) > 0
+                and isinstance(tree, dict)
+                and None in tree.keys()
+            ):
                 self._backtrack(len(token.word))
                 self.num_char -= len(token.word)
-                return tree[None]("".join([t.word for t in tokens]), (tokens[0].line, tokens[0].char))
+                return tree[None](
+                    Token(
+                        "".join([t.word for t in tokens]),
+                        tokens[0].line,
+                        tokens[0].char,
+                        tokens[0].byte,
+                    )
+                )
             else:
                 continue

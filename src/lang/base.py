@@ -36,9 +36,11 @@ class Lexeme(ABC):
     Base class for every language word
     """
 
-    def __init__(self, word, pos=(None, None), **kwargs):
-        self.word = word
-        self.line, self.char = pos
+    def __init__(self, token, **kwargs):
+        self.word = token.word
+        self.line = token.line
+        self.char = token.char
+        self.byte = token.byte
         self.set(kwargs)
 
     def set(self, kwargs):

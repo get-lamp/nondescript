@@ -17,7 +17,7 @@ from src.lang.control import Block
 from src.lang.data import Constant
 from src.lang.operator import Operator, UnaryOperator, UnaryPostOperator
 from src.lang import data
-from src.lexer import Lexer
+from src.lexer import Lexer, Token
 from src.exc import UnexpectedEOF, UnexpectedSymbol
 
 
@@ -35,7 +35,7 @@ class Parser:
         self.lexer = Lexer(lang, source, is_file)
         self.tree = []
         self.pending = []
-        self.blocks = [BLOCK_MAIN]
+        self.blocks: [Block] = [BLOCK_MAIN]
 
     def set_source(self, source, is_file=False):
         self.lexer = Lexer(self.lang, source, is_file)
@@ -60,10 +60,20 @@ class Parser:
 
         return s, n
 
+    def seek_ahead(self, needle):
+        now = self.lexer.src.tell()
+
+        try:
+            while lex := self.next():
+                if lex.word == needle:
+                    return lex
+        finally:
+            self.lexer.jump_to(now)
+
     def push_block(self, block):
         self.blocks.append(block)
 
-    def pull_block(self):
+    def pull_block(self) -> Block:
         if len(self.blocks) <= 1:
             raise Exception("Cannot pull main block")
         return self.blocks.pop()
@@ -92,7 +102,7 @@ class Parser:
                         # reject lexeme as the stop mark
                         break
                 if found:
-                    return verbatim
+                    return "".join(verbatim)
             else:
                 verbatim.append(lexeme.word)
 
@@ -206,11 +216,11 @@ class Parser:
             # literals
             if isinstance(lexeme, (DoubleQuote, SingleQuote)):
                 if isinstance(lexeme, DoubleQuote):
-                    string = "".join(self._verbatim(DoubleQuote))
+                    word = self._verbatim(DoubleQuote)
                 else:
-                    string = "".join(self._verbatim(SingleQuote))
+                    word = self._verbatim(SingleQuote)
 
-                ll = data.String(string, (lexeme.line, lexeme.char))
+                ll = data.String(Token(word, lexeme.line, lexeme.char, lexeme.byte))
                 expression.push(ll)
                 continue
 
@@ -283,7 +293,7 @@ class Parser:
             # newline, tab & beyond
             return self.parse(until=until)
 
-    def build(self, s):
+    def build_ast(self, s):
 
         # n as the node we are building
         n = []
@@ -300,9 +310,9 @@ class Parser:
                     # n is the i(n)ner node while s is the remaining (i)nstruction
                     n, s = self._unnest(s, Parentheses)
                     if len(n) > 0:
-                        n = self.build(n)
+                        n = self.build_ast(n)
                 else:
-                    raise Exception("Unexpected parentheses at %s" % i.token.line)
+                    raise Exception("Unexpected parentheses at %s" % i.line)
 
             # list without brackets. Like arguments list
             elif isinstance(i, Comma):
@@ -314,24 +324,24 @@ class Parser:
                     n.append(src.lang.data.List(self.list(s)))
                 # closing brackets are disposed by self.list, so they shouldn't come up here
                 else:
-                    raise Exception("Unexpected bracket at %s" % i.token.line)
+                    raise Exception("Unexpected bracket at %s" % i.line)
 
             # parameter
             elif isinstance(i, self.lang.Parameter):
-                return [i, self.build(s)]
+                return [i, self.build_ast(s)]
 
             # operator delimits terms
             elif isinstance(i, Operator):
                 if isinstance(i, UnaryOperator):
                     # unary operator
-                    return [i, self.build(s)]
+                    return [i, self.build_ast(s)]
 
                 elif isinstance(i, UnaryPostOperator):
                     # unary post operator
                     return [i, n]
                 # binary operator
                 else:
-                    return [n, i, self.build(s)]
+                    return [n, i, self.build_ast(s)]
             else:
                 n.append(i)
 

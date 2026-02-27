@@ -43,7 +43,9 @@ def test_procedure():
     # Before 'exec test'
     interpreter.exec_next()  # 'procedure test'
     snapshot = Interpreter.Snapshot(interpreter)
-    assert snapshot["Pointer"] == 5  # After defining the procedure, pointer moves to 'exec test'
+    assert (
+        snapshot["Pointer"] == 5
+    )  # After defining the procedure, pointer moves to 'exec test'
     assert "test" in snapshot["Scope"][0]
 
     # Execute 'exec test'
@@ -51,7 +53,9 @@ def test_procedure():
     snapshot = Interpreter.Snapshot(interpreter)
 
     # Inside the procedure, at the first 'prnt 9'
-    assert snapshot["Pointer"] == 1  # Pointer is at the first instruction *inside* the procedure (prnt 9)
+    assert (
+        snapshot["Pointer"] == 1
+    )  # Pointer is at the first instruction *inside* the procedure (prnt 9)
     assert len(snapshot["Scope"]) == 2
     # assert snapshot["Block stack"] == ["<main>", snapshot["Scope"][1]["test"]]
     assert snapshot["Stack"] == [{"ret_addr": 5}]
@@ -155,7 +159,9 @@ def test_nested_structures():
 
     # Now we are inside 'nested_procedure'
     snapshot = Interpreter.Snapshot(interpreter)
-    assert snapshot["Pointer"] == 2  # Inside nested_procedure (at prnt 'Im defining a procedure here')
+    assert (
+        snapshot["Pointer"] == 2
+    )  # Inside nested_procedure (at prnt 'Im defining a procedure here')
     assert len(snapshot["Scope"]) == 3
     assert "nested_procedure" in snapshot["Scope"][1]
 

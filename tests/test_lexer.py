@@ -2,13 +2,19 @@ from unittest.mock import ANY
 
 import pytest
 
-import src.lang.base
 from src.lang import operator as op
-from src.lang.base import Identifier, Bracket, DoubleQuote
+from src.lang.base import (
+    Identifier,
+    Bracket,
+    DoubleQuote,
+    Space,
+    Parentheses,
+    SingleQuote,
+)
 from src.lang.data import Integer, Bool, Float
 from src.lang.control import If, End
 from src.lang.grammar import Lang
-from src.lexer import Lexer
+from src.lexer import Lexer, Token
 
 ANY_POS = (ANY, ANY)
 
@@ -25,69 +31,73 @@ def test_is_newline(char):
         (
             "foo;bar;baz",
             [
-                Lexer.Token("foo", 0, 0),
-                Lexer.Token(";", 0, 3),
-                Lexer.Token("bar", 1, 0),
-                Lexer.Token(";", 1, 3),
-                Lexer.Token("baz", 2, 0),
+                Token("foo", 0, 0, 0),
+                Token(";", 0, 3, 3),
+                Token("bar", 1, 0, 4),
+                Token(";", 1, 3, 7),
+                Token("baz", 2, 0, 8),
             ],
         ),
         (
             "foo\nbar\nbaz",
             [
-                Lexer.Token("foo", 0, 0),
-                Lexer.Token("\n", 0, 3),
-                Lexer.Token("bar", 1, 0),
-                Lexer.Token("\n", 1, 3),
-                Lexer.Token("baz", 2, 0),
+                Token("foo", 0, 0, 0),
+                Token("\n", 0, 3, 3),
+                Token("bar", 1, 0, 4),
+                Token("\n", 1, 3, 7),
+                Token("baz", 2, 0, 8),
             ],
         ),
         (
             "foo bar baz",
             [
-                Lexer.Token("foo", 0, 0),
-                Lexer.Token(" ", 0, 3),
-                Lexer.Token("bar", 0, 4),
-                Lexer.Token(" ", 0, 7),
-                Lexer.Token("baz", 0, 8),
+                Token("foo", 0, 0, 0),
+                Token(" ", 0, 3, 3),
+                Token("bar", 0, 4, 4),
+                Token(" ", 0, 7, 7),
+                Token("baz", 0, 8, 8),
             ],
         ),
         (
             "# ^ &",
             [
-                Lexer.Token("#", 0, 0),
-                Lexer.Token(" ", 0, 1),
-                Lexer.Token("^", 0, 2),
-                Lexer.Token(" ", 0, 3),
-                Lexer.Token("&", 0, 4),
+                Token("#", 0, 0, 0),
+                Token(" ", 0, 1, 1),
+                Token("^", 0, 2, 2),
+                Token(" ", 0, 3, 3),
+                Token("&", 0, 4, 4),
             ],
         ),
         (
             "0\n1\n2",
             [
-                Lexer.Token("0", 0, 0),
-                Lexer.Token("\n", 0, 1),
-                Lexer.Token("1", 1, 0),
-                Lexer.Token("\n", 1, 1),
-                Lexer.Token("2", 2, 0),
+                Token("0", 0, 0, 0),
+                Token("\n", 0, 1, 1),
+                Token("1", 1, 0, 2),
+                Token("\n", 1, 1, 3),
+                Token("2", 2, 0, 4),
             ],
         ),
         (
             "foo=bar",
             [
-                Lexer.Token("foo", 0, 0),
-                Lexer.Token("=", 0, 3),
-                Lexer.Token("bar", 0, 4),
+                Token("foo", 0, 0, 0),
+                Token("=", 0, 3, 3),
+                Token("bar", 0, 4, 4),
             ],
         ),
     ],
 )
-def test_scan_keeps_track_of_char_and_line_number(source, expected):
+def test_scan_keeps_track_of_char_line_number_and_byte(source, expected):
 
     lexer = Lexer(Lang, source)
 
     for exp in expected:
         token = lexer._scan()
+        assert token.char == exp.char
+        assert token.line == exp.line
+        assert token.word == exp.word
+        assert token.byte == exp.byte
         assert token == exp
         assert type(token) is type(exp)
 
@@ -97,137 +107,177 @@ def test_scan_keeps_track_of_char_and_line_number(source, expected):
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
-        ("foo=bar", [Identifier("foo", (0, 0)), op.Assign("=", (0, 3)), Identifier("bar", (0, 4))]),
-        ("foo=123", [Identifier("foo", (0, 0)), op.Assign("=", (0, 3)), Integer("123", (0, 4))]),
+        (
+            "foo=bar",
+            [
+                Identifier(Token("foo", 0, 0, 0)),
+                op.Assign(Token("=", 0, 3, 3)),
+                Identifier(Token("bar", 0, 4, 4)),
+            ],
+        ),
+        (
+            "foo=123",
+            [
+                Identifier(Token("foo", 0, 0, 0)),
+                op.Assign(Token("=", 0, 3, 3)),
+                Integer(Token("123", 0, 4, 4)),
+            ],
+        ),
         (
             'foo="abc"',
             [
-                Identifier("foo", (0, 0)),
-                op.Assign("=", (0, 3)),
-                DoubleQuote('"', (0, 4)),
-                Identifier("abc", (0, 5)),
-                DoubleQuote('"', (0, 8)),
+                Identifier(Token("foo", 0, 0, 0)),
+                op.Assign(Token("=", 0, 3, 3)),
+                DoubleQuote(Token('"', 0, 4, 4)),
+                Identifier(Token("abc", 0, 5, 5)),
+                DoubleQuote(Token('"', 0, 8, 8)),
             ],
         ),
         (
             "foo[0]",
             [
-                Identifier("foo", (0, 0)),
-                Bracket("[", (0, 3)),
-                Integer("0", (0, 4)),
-                src.lang.base.Bracket("]", (0, 5)),
+                Identifier(Token("foo", 0, 0, 0)),
+                Bracket(Token("[", 0, 3, 3)),
+                Integer(Token("0", 0, 4, 4)),
+                Bracket(Token("]", 0, 5, 5)),
             ],
         ),
-        ("!foo", [op.Not("!", (0, 0)), Identifier("foo", (0, 1))]),
-        ("NOT", [op.Not("NOT", (0, 0))]),
-        ("prnt 123", [Lang.Prnt("prnt", (0, 0)), src.lang.base.Space(" ", (0, 4)), Integer("123", (0, 5))]),
-        ("   ", [src.lang.base.Space(" ", (0, 0)), src.lang.base.Space(" ", (0, 1)), src.lang.base.Space(" ", (0, 2))]),
-        ("a=", [Identifier("a", (0, 0)), op.Assign("=", (0, 1))]),
-        ("--", [op.Decrement("--", (0, 0))]),
-        ("----", [op.Decrement("--", (0, 0)), op.Decrement("--", (0, 2))]),
-        ("--++", [op.Decrement("--", (0, 0)), op.Increment("++", (0, 2))]),
-        ("++++", [op.Increment("++", (0, 0)), op.Increment("++", (0, 2))]),
-        ("++--", [op.Increment("++", (0, 0)), op.Decrement("--", (0, 2))]),
-        ("==", [op.Equal("==", (0, 0))]),
-        ("===", [op.EqualStrict("===", (0, 0))]),
-        ("!", [op.Not("!", (0, 0))]),
-        ("!=", [op.Unequal("!=", (0, 0))]),
-        ("!==", [op.UnequalStrict("!==", (0, 0))]),
-        ("[", [src.lang.base.Bracket("[", (0, 0))]),
-        ("[[", [src.lang.base.Bracket("[", (0, 0)), src.lang.base.Bracket("[", (0, 1))]),
-        ("]", [src.lang.base.Bracket("]", (0, 0))]),
-        ("]]", [src.lang.base.Bracket("]", (0, 0)), src.lang.base.Bracket("]", (0, 1))]),
-        ("[]", [src.lang.base.Bracket("[", (0, 0)), src.lang.base.Bracket("]", (0, 1))]),
+        ("!foo", [op.Not(Token("!", 0, 0, 0)), Identifier(Token("foo", 0, 1, 1))]),
+        ("NOT", [op.Not(Token("NOT", 0, 0, 0))]),
+        (
+            "prnt 123",
+            [
+                Lang.Prnt(Token("prnt", 0, 0, 0)),
+                Space(Token(" ", 0, 4, 4)),
+                Integer(Token("123", 0, 5, 5)),
+            ],
+        ),
+        (
+            "   ",
+            [
+                Space(Token(" ", 0, 0, 0)),
+                Space(Token(" ", 0, 1, 1)),
+                Space(Token(" ", 0, 2, 2)),
+            ],
+        ),
+        ("a=", [Identifier(Token("a", 0, 0, 0)), op.Assign(Token("=", 0, 1, 1))]),
+        ("--", [op.Decrement(Token("--", 0, 0, 0))]),
+        (
+            "----",
+            [op.Decrement(Token("--", 0, 0, 0)), op.Decrement(Token("--", 0, 2, 2))],
+        ),
+        (
+            "--++",
+            [op.Decrement(Token("--", 0, 0, 0)), op.Increment(Token("++", 0, 2, 2))],
+        ),
+        (
+            "++++",
+            [op.Increment(Token("++", 0, 0, 0)), op.Increment(Token("++", 0, 2, 2))],
+        ),
+        (
+            "++--",
+            [op.Increment(Token("++", 0, 0, 0)), op.Decrement(Token("--", 0, 2, 2))],
+        ),
+        ("==", [op.Equal(Token("==", 0, 0, 0))]),
+        ("===", [op.EqualStrict(Token("===", 0, 0, 0))]),
+        ("!", [op.Not(Token("!", 0, 0, 0))]),
+        ("!=", [op.Unequal(Token("!=", 0, 0, 0))]),
+        ("!==", [op.UnequalStrict(Token("!==", 0, 0, 0))]),
+        ("[", [Bracket(Token("[", 0, 0, 0))]),
+        ("[[", [Bracket(Token("[", 0, 0, 0)), Bracket(Token("[", 0, 1, 1))]),
+        ("]", [Bracket(Token("]", 0, 0, 0))]),
+        ("]]", [Bracket(Token("]", 0, 0, 0)), Bracket(Token("]", 0, 1, 1))]),
+        ("[]", [Bracket(Token("[", 0, 0, 0)), Bracket(Token("]", 0, 1, 1))]),
         (
             "[[]]",
             [
-                src.lang.base.Bracket("[", (0, 0)),
-                src.lang.base.Bracket("[", (0, 1)),
-                src.lang.base.Bracket("]", (0, 2)),
-                src.lang.base.Bracket("]", (0, 3)),
+                Bracket(Token("[", 0, 0, 0)),
+                Bracket(Token("[", 0, 1, 1)),
+                Bracket(Token("]", 0, 2, 2)),
+                Bracket(Token("]", 0, 3, 3)),
             ],
         ),
         (
             "1.23",
-            [Float("1.23", (0, 0))],
+            [Float(Token("1.23", 0, 0, 0))],
         ),
         (
             "// This is a comment",
             [
-                Lang.CommentLine("//", (0, 0)),
-                src.lang.base.Space(" ", (0, 2)),
-                Identifier("This", (0, 3)),
-                src.lang.base.Space(" ", (0, 7)),
-                Identifier("is", (0, 8)),
-                src.lang.base.Space(" ", (0, 10)),
-                Identifier("a", (0, 11)),
-                src.lang.base.Space(" ", (0, 12)),
-                Identifier("comment", (0, 13)),
+                Lang.CommentLine(Token("//", 0, 0, 0)),
+                Space(Token(" ", 0, 2, 2)),
+                Identifier(Token("This", 0, 3, 3)),
+                Space(Token(" ", 0, 7, 7)),
+                Identifier(Token("is", 0, 8, 8)),
+                Space(Token(" ", 0, 10, 10)),
+                Identifier(Token("a", 0, 11, 11)),
+                Space(Token(" ", 0, 12, 12)),
+                Identifier(Token("comment", 0, 13, 13)),
             ],
         ),
         (
             "/* Block comment */",
             [
-                Lang.CommentBlock("/*", (0, 0), open=True),
-                src.lang.base.Space(" ", (0, 2)),
-                Identifier("Block", (0, 3)),
-                src.lang.base.Space(" ", (0, 8)),
-                Identifier("comment", (0, 9)),
-                src.lang.base.Space(" ", (0, 16)),
-                Lang.CommentBlock("*/", (0, 17), open=False),
+                Lang.CommentBlock(Token("/*", 0, 0, 0), open=True),
+                Space(Token(" ", 0, 2, 2)),
+                Identifier(Token("Block", 0, 3, 3)),
+                Space(Token(" ", 0, 8, 8)),
+                Identifier(Token("comment", 0, 9, 9)),
+                Space(Token(" ", 0, 16, 16)),
+                Lang.CommentBlock(Token("*/", 0, 17, 17), open=False),
             ],
         ),
         (
             "1+2-3*4/5",
             [
-                Integer("1", (0, 0)),
-                op.Add("+", (0, 1)),
-                Integer("2", (0, 2)),
-                Integer("-3", (0, 3)),
-                op.Multiply("*", (0, 5)),
-                Integer("4", (0, 6)),
-                op.Divide("/", (0, 7)),
-                Integer("5", (0, 8)),
+                Integer(Token("1", 0, 0, 0)),
+                op.Add(Token("+", 0, 1, 1)),
+                Integer(Token("2", 0, 2, 2)),
+                Integer(Token("-3", 0, 3, 3)),
+                op.Multiply(Token("*", 0, 5, 5)),
+                Integer(Token("4", 0, 6, 6)),
+                op.Divide(Token("/", 0, 7, 7)),
+                Integer(Token("5", 0, 8, 8)),
             ],
         ),
         (
             "++foo",
-            [op.Increment("++", (0, 0)), Identifier("foo", (0, 2))],
+            [op.Increment(Token("++", 0, 0, 0)), Identifier(Token("foo", 0, 2, 2))],
         ),
         (
             "foo++",
-            [Identifier("foo", (0, 0)), op.Increment("++", (0, 3))],
+            [Identifier(Token("foo", 0, 0, 0)), op.Increment(Token("++", 0, 3, 3))],
         ),
         (
             "(a + b)",
             [
-                src.lang.base.Parentheses("(", (0, 0), open=True),
-                Identifier("a", (0, 1)),
-                src.lang.base.Space(" ", (0, 2)),
-                op.Add("+", (0, 3)),
-                src.lang.base.Space(" ", (0, 4)),
-                Identifier("b", (0, 5)),
-                src.lang.base.Parentheses(")", (0, 6), open=False),
+                Parentheses(Token("(", 0, 0, 0), open=True),
+                Identifier(Token("a", 0, 1, 1)),
+                Space(Token(" ", 0, 2, 2)),
+                op.Add(Token("+", 0, 3, 3)),
+                Space(Token(" ", 0, 4, 4)),
+                Identifier(Token("b", 0, 5, 5)),
+                Parentheses(Token(")", 0, 6, 6), open=False),
             ],
         ),
         (
             "if 1==1 then prnt 'true' end",
             [
-                If("if", (0, 0)),
-                src.lang.base.Space(" ", (0, 2)),
-                Integer("1", (0, 3)),
-                op.Equal("==", (0, 4)),
-                Integer("1", (0, 6)),
-                src.lang.base.Space(" ", (0, 7)),
-                Identifier("then", (0, 8)),
-                src.lang.base.Space(" ", (0, 12)),
-                Lang.Prnt("prnt", (0, 13)),
-                src.lang.base.Space(" ", (0, 17)),
-                src.lang.base.SingleQuote("'", (0, 18)),
-                Bool("true", (0, 19)),
-                src.lang.base.SingleQuote("'", (0, 23)),
-                src.lang.base.Space(" ", (0, 24)),
-                End("end", (0, 25)),
+                If(Token("if", 0, 0, 0)),
+                Space(Token(" ", 0, 2, 2)),
+                Integer(Token("1", 0, 3, 3)),
+                op.Equal(Token("==", 0, 4, 4)),
+                Integer(Token("1", 0, 6, 6)),
+                Space(Token(" ", 0, 7, 7)),
+                Identifier(Token("then", 0, 8, 8)),
+                Space(Token(" ", 0, 12, 12)),
+                Lang.Prnt(Token("prnt", 0, 13, 13)),
+                Space(Token(" ", 0, 17, 17)),
+                SingleQuote(Token("'", 0, 18, 18)),
+                Bool(Token("true", 0, 19, 19)),
+                SingleQuote(Token("'", 0, 23, 23)),
+                Space(Token(" ", 0, 24, 24)),
+                End(Token("end", 0, 25, 25)),
             ],
         ),
     ],
@@ -240,6 +290,7 @@ def test_next(source, expected):
         assert token.word == exp.word
         assert token.line == exp.line
         assert token.char == exp.char
+        assert token.byte == exp.byte
         assert token == exp
         assert type(token) is type(exp)
 
