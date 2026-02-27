@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 BRACKET_CLOSE = "</bracket>"
 BRACKET_OPEN = "<bracket>"
@@ -18,7 +18,7 @@ IF = "<if>"
 INCLUDE = "<include>"
 KEYWORD = "<keyword>"
 LIST = "<list>"
-MAIN = "<main>"
+BLOCK_MAIN = "<main>"
 NEWLINE = "<newline>"
 OP = "<op>"
 PARAMETER = "<parameter>"
@@ -50,12 +50,16 @@ class Lexeme(ABC):
         for i in kwargs:
             setattr(self, i, kwargs[i])
 
+    """
     @staticmethod
+    #@abstractmethod
     def type():
         raise NotImplementedError
 
+    #@abstractmethod
     def parse(self, parser, **kwargs):
-        raise NotImplementedError
+        pass
+    """
 
     def __repr__(self):
         return "<%s><%s>" % (self.__class__.__name__, self.word)
@@ -83,7 +87,7 @@ class Keyword(Lexeme, ABC):
         return KEYWORD
 
     def __repr__(self):
-        return "<keyword %s>" % self.word
+        return "<keyword %s : %s>" % (self.word, id(self))
 
 
 class Delimiter(Lexeme, ABC):
@@ -102,14 +106,20 @@ class Identifier(Lexeme):
         else:
             return v
 
+    def parse(self, parser, **kwargs):
+        raise NotImplementedError
+
 
 class Parentheses(Delimiter):
     def __init__(self, *args, open: bool = True, **kwargs):
-        self.open = open
         super().__init__(*args, **kwargs)
+        self.open = open
 
     def type(self):
         return DELIM_OPEN if self.open else DELIM_CLOSE
+
+    def parse(self, parser, **kwargs):
+        raise NotImplementedError
 
     def __repr__(self):
         return DELIM_OPEN if self.open else DELIM_CLOSE

@@ -1,6 +1,7 @@
 from src.exc import EOF
 from src.lang import control, data, operator
 from src.lang.base import Keyword, Identifier
+from src.lang.control import Callable
 from src.lang.grammar import Lang
 from src.parser import Parser
 from dataclasses import dataclass
@@ -24,13 +25,13 @@ class Interpreter:
             interp = args[0]
 
             d = {
-                "Pointer": interp.pntr,
+                "Pointer": interp.instr_pointer,
                 "Block stack": interp.block_stack,
                 "Scope": interp.memory.scope,
                 "Stack": interp.memory.stack,
                 "Ctrl stack": interp.ctrl_stack,
-                "Instruction": interp.memory.instr[interp.pntr]
-                if interp.pntr < len(interp.memory.instr)
+                "Instruction": interp.memory.instr[interp.instr_pointer]
+                if interp.instr_pointer < len(interp.memory.instr)
                 else None,
                 "Last result": interp.last,
             }
@@ -59,7 +60,7 @@ class Interpreter:
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
         self.block_stack = [control.Block()]
-        self.pntr = 0
+        self.instr_pointer = 0
         self.last = None
 
     def read(self, source, is_file=False):
@@ -106,13 +107,13 @@ class Interpreter:
         """
         try:
             # eval the instructions
-            r = self.eval(self.memory.instr[self.pntr])
+            r = self.eval(self.memory.instr[self.instr_pointer])
             self.last = r
 
         except IndexError:
             raise EOF
 
-        self.pntr += 1
+        self.instr_pointer += 1
         return r
 
     def scope(self):
@@ -157,16 +158,16 @@ class Interpreter:
         """
         Goto absolute address
         """
-        self.pntr = n
+        self.instr_pointer = n
 
     # relative addressing
     def move(self, i):
         """
         Move interpreter instruction pointer. Relative address from current pointer position
         """
-        self.pntr += i
+        self.instr_pointer += i
 
-    def call(self, routine, arguments):
+    def call(self, routine: Callable, arguments):
         """
         Handle procedure calls
         """
@@ -202,7 +203,7 @@ class Interpreter:
         # is procedure. Return nothing. Move instruction pointer
         else:
             # push return address to stack
-            self.stack_push({"ret_addr": self.pntr})
+            self.stack_push({"ret_addr": self.instr_pointer})
             self.goto(address)
 
     def end_call(self):

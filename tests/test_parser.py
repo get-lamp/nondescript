@@ -372,7 +372,7 @@ def test_build_raises_unexpected_symbol(source):
         ),
     ],
 )
-def test_parse_and_build(source, expected):
+def test_build_ast(source, expected):
 
     parser = Parser(Lang, source)
 

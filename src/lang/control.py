@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from src.lang import data
 from src.lang.base import (
@@ -12,7 +12,7 @@ from src.lang.base import (
     EXEC,
     Delimiter,
     NewLine,
-    MAIN,
+    BLOCK_MAIN,
 )
 
 
@@ -24,24 +24,39 @@ class Callable(ABC):
     def get_signature(self):
         return self.signature
 
-
-class Block:
-    def __init__(self, *args, **kwargs):
-        self.length = 0
-        self.owner = None
+    @abstractmethod
+    def get_identifier(self):
+        pass
 
 
 class Control(ABC):
     pass
 
 
+class Block:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.length = 0
+        self.start = None
+        self.end = None
+        self.block = []
+
+    def parse(self, parser):
+        return parser.parse_block(until=End)
+
+
 class Main(Block):
     @staticmethod
     def type():
-        return MAIN
+        return BLOCK_MAIN
 
 
 class If(Keyword, Block, Control):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.else_ = None
+
     @staticmethod
     def type():
         return IF
@@ -49,26 +64,33 @@ class If(Keyword, Block, Control):
     def parse(self, parser, **kwargs):
         # store condition pre-built
         condition = parser.build_ast(parser.parse_expression(until=NewLine))
+        super().parse(parser)
+
         return [self, condition]
 
     def eval(self, interp, expr):
-        # if condition is truthy, interpreter executes the following block
-        interp.push_read_enabled(bool(interp.eval(expr)))
-        interp.push_block(self)
+        if interp.eval(expr):
+            # let the instruction pointer go on
+            pass
+        else:
+            return interp.eval(self.else_)
 
 
-class Else(Keyword, Control):
+class Else(Keyword, Block, Control):
     @staticmethod
     def type():
         return ELSE
 
     def parse(self, parser, **kwargs):
+        # get the previous IF
+        if_block = parser.get_block(If)
+        # store reference in IF object, so it can skip to here on false conditions
+        if_block.else_ = self
         return [self]
 
-    @staticmethod
-    def eval(interp, expr):
-        # if last block was executed following will not, and vice versa
-        interp.toggle_read_enabled()
+    def eval(self, interp, expr):
+        interp.push_block(self)
+        return interp.exec_block(self.block)
 
 
 class For(Keyword, Block, Control):
@@ -93,7 +115,7 @@ class For(Keyword, Block, Control):
     def eval(self, interp):
         # if condition is truthy, interpreter executes the following block
 
-        self.address = interp.pntr
+        self.address = interp.instr_pointer
         interp.eval(self.init)
 
         # run initialize
@@ -135,7 +157,7 @@ class Procedure(Keyword, Callable, Block, Control):
         print("Procedure is being eval'd")
 
         # store procedure address
-        self.address = interp.pntr
+        self.address = interp.instr_pointer
 
         # eval procedure identifier, leaving room for dynamic procedures
         self.identifier = interp.getval(self.identifier, ref=False)
@@ -173,7 +195,7 @@ class Def(Procedure):
     def eval(self, interp, signature):
 
         # store procedure address
-        self.address = interp.pntr
+        self.address = interp.instr_pointer
 
         # eval procedure identifier, leaving room for dynamic procedures
         self.identifier = interp.getval(self.identifier, ref=False)

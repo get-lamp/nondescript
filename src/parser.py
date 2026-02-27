@@ -78,6 +78,14 @@ class Parser:
             raise Exception("Cannot pull main block")
         return self.blocks.pop()
 
+    def get_block(self, type_=None):
+        if type_ is None:
+            return self.blocks[-1]
+        else:
+            for _, block in reversed(self.blocks):
+                if isinstance(block, type_):
+                    return block
+
     def _verbatim(self, stop, **kwargs):
         verbatim = []
 
