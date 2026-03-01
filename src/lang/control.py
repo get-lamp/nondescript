@@ -241,7 +241,7 @@ class End(Keyword, Control, Delimiter):
     @staticmethod
     def eval(interp, expr):
 
-        block = interp.pull_block()
+        block = interp.get_block()
 
         if isinstance(block, If):
             interp.endif()

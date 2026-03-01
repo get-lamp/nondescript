@@ -26,45 +26,45 @@ def test_assignment_and_print():
     except EOF:
         pass
 
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == len(interp.memory.instr)
-    assert snapshot["Scope"][0]["who"] == "World"
-    assert snapshot["Instruction"] is None
-    assert snapshot["Last result"] is None
-    assert len(snapshot["Block stack"]) == 1
-    assert snapshot["Stack"] == []
-    assert snapshot["Ctrl stack"] == [True]
+    assert interp.instr_pointer == len(interp.memory.instr)
+    assert interp.memory.scope[0]["who"] == "World"
+    assert (
+        interp.memory.instr[interp.instr_pointer]
+        if interp.instr_pointer < len(interp.memory.instr)
+        else None
+    ) is None
+    assert interp.last is None
+    assert len(interp.block_stack) == 1
+    assert interp.memory.stack == []
+    assert interp.ctrl_stack == [True]
 
 
 def test_procedure():
     """Tests a simple procedure definition and execution."""
     interp = Interpreter()
     interp.read(PROCEDURE, is_file=True)
-    snapshot = Interpreter.Snapshot(interp)
-
     assert interp.instr_pointer == 0
-
-    assert snapshot["Pointer"] == 0
-    assert snapshot["Block stack"] == ['<MAIN>']
-    assert snapshot["Ctrl stack"] == [True]
+    assert interp.block_stack == ['<MAIN>']
+    assert interp.ctrl_stack == [True]
 
     # Before 'exec test'
     interp.exec_next()  # 'procedure test'
 
-    assert interp.instr_pointer == 5 # After defining the procedure, pointer moves to 'exec test'
-    assert "test" in snapshot["Scope"][0]
+    assert (
+        interp.instr_pointer == 5
+    )  # After defining the procedure, pointer moves to 'exec test'
+    assert "test" in interp.memory.scope[0]
 
     # Execute 'exec test'
     interp.exec_next()
-    snapshot = Interpreter.Snapshot(interp)
 
     # Inside the procedure, at the first 'prnt 9'
     assert (
-        snapshot["Pointer"] == 1
+        interp.instr_pointer == 1
     )  # Pointer is at the first instruction *inside* the procedure (prnt 9)
-    assert len(snapshot["Scope"]) == 2
-    # assert snapshot["Block stack"] == ["<main>", snapshot["Scope"][1]["test"]]
-    assert snapshot["Stack"] == [{"ret_addr": 5}]
+    assert len(interp.memory.scope) == 2
+    # assert interp.block_stack == ["<main>", interp.memory.scope[1]["test"]]
+    assert interp.memory.stack == [{"ret_addr": 5}]
 
 
 def test_function_with_return():
@@ -78,12 +78,15 @@ def test_function_with_return():
     except EOF:
         pass
 
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == len(interp.memory.instr)
-    assert snapshot["Scope"][0]["r"] == 6
-    assert isinstance(snapshot["Scope"][0]["func"], Def)
-    assert snapshot["Instruction"] is None
-    assert snapshot["Last result"] is None
+    assert interp.instr_pointer == len(interp.memory.instr)
+    assert interp.memory.scope[0]["r"] == 6
+    assert isinstance(interp.memory.scope[0]["func"], Def)
+    assert (
+        interp.memory.instr[interp.instr_pointer]
+        if interp.instr_pointer < len(interp.memory.instr)
+        else None
+    ) is None
+    assert interp.last is None
 
 
 def test_arithmetic_expressions():
@@ -97,11 +100,14 @@ def test_arithmetic_expressions():
     except EOF:
         pass
 
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == len(interp.memory.instr)
-    assert snapshot["Scope"][0]["z"] == 80.0
-    assert snapshot["Instruction"] is None
-    assert snapshot["Last result"] is None
+    assert interp.instr_pointer == len(interp.memory.instr)
+    assert interp.memory.scope[0]["z"] == 80.0
+    assert (
+        interp.memory.instr[interp.instr_pointer]
+        if interp.instr_pointer < len(interp.memory.instr)
+        else None
+    ) is None
+    assert interp.last is None
 
 
 def test_if_else_true_path():
@@ -149,10 +155,9 @@ def test_nested_structures():
     interp.exec_next()
 
     # Now we are inside 'a_test_procedure', at 'procedure nested_procedure'
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == 1  # Inside a_test_procedure
-    assert len(snapshot["Scope"]) == 2
-    assert "a_test_procedure" in snapshot["Scope"][0]
+    assert interp.instr_pointer == 1  # Inside a_test_procedure
+    assert len(interp.memory.scope) == 2
+    assert "a_test_procedure" in interp.memory.scope[0]
 
     # Execute 'procedure nested_procedure'
     interp.exec_next()
@@ -160,12 +165,11 @@ def test_nested_structures():
     interp.exec_next()
 
     # Now we are inside 'nested_procedure'
-    snapshot = Interpreter.Snapshot(interp)
     assert (
-        snapshot["Pointer"] == 2
+        interp.instr_pointer == 2
     )  # Inside nested_procedure (at prnt 'Im defining a procedure here')
-    assert len(snapshot["Scope"]) == 3
-    assert "nested_procedure" in snapshot["Scope"][1]
+    assert len(interp.memory.scope) == 3
+    assert "nested_procedure" in interp.memory.scope[1]
 
 
 def test_step_by_step_execution():
@@ -174,21 +178,18 @@ def test_step_by_step_execution():
     interp.read(ARITHMETIC_EXPRESSIONS, is_file=True)
 
     # Before any execution
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == 0
-    assert not snapshot["Scope"][0]
+    assert interp.instr_pointer == 0
+    assert not interp.memory.scope[0]
 
     # Execute first instruction: 5 + -10
     interp.exec_next()
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == 1
-    assert snapshot["Last result"] == -5
+    assert interp.instr_pointer == 1
+    assert interp.last == -5
 
     # Execute second instruction: z = ((1+3) * 100) / 5
     interp.exec_next()
-    snapshot = Interpreter.Snapshot(interp)
-    assert snapshot["Pointer"] == 2
-    assert snapshot["Scope"][0]["z"] == 80.0
+    assert interp.instr_pointer == 2
+    assert interp.memory.scope[0]["z"] == 80.0
 
 
 def test_full_sample_final_state():
@@ -202,9 +203,8 @@ def test_full_sample_final_state():
     except EOF:
         pass
 
-    snapshot = Interpreter.Snapshot(interp)
-    scope = snapshot["Scope"][0]
-    assert snapshot["Pointer"] == len(interp.memory.instr)
+    scope = interp.memory.scope[0]
+    assert interp.instr_pointer == len(interp.memory.instr)
     assert scope["a"] == 1.0
     assert scope["b"] == 1
     assert scope["z"] == 1
