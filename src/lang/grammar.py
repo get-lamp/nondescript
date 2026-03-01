@@ -227,6 +227,10 @@ class Lang:
             result = interp.eval(expression)
             while isinstance(result, list) and len(result) == 1:
                 result = result[0]
+
+            if isinstance(result, Identifier):
+                result = interp.eval(result)
+
             print(result)
 
         def __repr__(self):

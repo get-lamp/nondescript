@@ -9,6 +9,8 @@ from dataclasses import dataclass
 OPERAND_L = 0
 OPERATOR = 1
 OPERAND_R = 2
+UNARY_OP_L = 0
+UNARY_OP_R = 1
 
 
 class Interpreter:
@@ -59,7 +61,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = [control.Block()]
+        self.block_stack = ['<MAIN>']
         self.instr_pointer = 0
         self.last = None
 
@@ -237,15 +239,15 @@ class Interpreter:
         self.pull_read_enabled()
         self.end_block()
 
-    def end_for(self, condition, increment, address):
+    def end_for(self, block):
         """
         Close an FOR statement
         """
-        if self.eval(condition):
-            self.eval(increment)
-            self.goto(address)
+        if self.eval(block.condition):
+            self.eval(block.increment)
+            self.goto(block.address)
+            self.push_block(block)
         else:
-            self.pull_read_enabled()
             self.end_block()
 
     def get_block(self):
@@ -370,7 +372,7 @@ class Interpreter:
 
             # a value
             if len(i) < 2:
-                ii = i.pop()
+                ii = i[0]
                 if isinstance(ii, data.Constant):
                     return ii.eval()
                 else:
@@ -378,7 +380,7 @@ class Interpreter:
 
             # unary operation
             if len(i) < 3:
-                return i.pop(0).eval(self.scope(), arguments=i.pop(0), interp=self)
+                return i[UNARY_OP_L].eval(self.scope(), arguments=i[UNARY_OP_R], interp=self)
 
             # assign operations
             if isinstance(i[OPERATOR], operator.Assign):
@@ -392,4 +394,4 @@ class Interpreter:
                 )
 
         else:
-            return i
+            return i.eval(self.scope()) if isinstance(i, Identifier) else i

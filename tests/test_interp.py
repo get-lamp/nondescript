@@ -40,13 +40,18 @@ def test_procedure():
     """Tests a simple procedure definition and execution."""
     interp = Interpreter()
     interp.read(PROCEDURE, is_file=True)
+    snapshot = Interpreter.Snapshot(interp)
+
+    assert interp.instr_pointer == 0
+
+    assert snapshot["Pointer"] == 0
+    assert snapshot["Block stack"] == ['<MAIN>']
+    assert snapshot["Ctrl stack"] == [True]
 
     # Before 'exec test'
     interp.exec_next()  # 'procedure test'
-    snapshot = Interpreter.Snapshot(interp)
-    assert (
-        snapshot["Pointer"] == 5
-    )  # After defining the procedure, pointer moves to 'exec test'
+
+    assert interp.instr_pointer == 5 # After defining the procedure, pointer moves to 'exec test'
     assert "test" in snapshot["Scope"][0]
 
     # Execute 'exec test'

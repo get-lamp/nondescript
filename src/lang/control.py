@@ -41,9 +41,6 @@ class Block:
         self.end = None
         self.block = []
 
-    def parse(self, parser):
-        return parser.parse_block(until=End)
-
 
 class Main(Block):
     @staticmethod
@@ -52,11 +49,6 @@ class Main(Block):
 
 
 class If(Keyword, Block, Control):
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.else_ = None
-
     @staticmethod
     def type():
         return IF
@@ -64,42 +56,37 @@ class If(Keyword, Block, Control):
     def parse(self, parser, **kwargs):
         # store condition pre-built
         condition = parser.build_ast(parser.parse_expression(until=NewLine))
-        super().parse(parser)
-
         return [self, condition]
 
     def eval(self, interp, expr):
-        if interp.eval(expr):
-            # let the instruction pointer go on
-            pass
-        else:
-            return interp.eval(self.else_)
+        # if condition is truthy, interpreter executes the following block
+        interp.push_read_enabled(bool(interp.eval(expr)))
+        interp.push_block(self)
 
 
-class Else(Keyword, Block, Control):
+class Else(Keyword, Control):
     @staticmethod
     def type():
         return ELSE
 
     def parse(self, parser, **kwargs):
-        # get the previous IF
-        if_block = parser.get_block(If)
-        # store reference in IF object, so it can skip to here on false conditions
-        if_block.else_ = self
         return [self]
 
-    def eval(self, interp, expr):
-        interp.push_block(self)
-        return interp.exec_block(self.block)
+    @staticmethod
+    def eval(interp, expr):
+        # if last block was executed following will not, and vice versa
+        interp.toggle_read_enabled()
 
 
 class For(Keyword, Block, Control):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.initialized = False
         self.init = None
         self.condition = None
         self.increment = None
         self.address = None
+        self.end = None
 
     @staticmethod
     def type():
@@ -110,17 +97,20 @@ class For(Keyword, Block, Control):
         self.init = parser.build_ast(parser.parse_expression(until=NewLine))
         self.condition = parser.build_ast(parser.parse_expression(until=NewLine))
         self.increment = parser.build_ast(parser.parse_expression(until=NewLine))
+        self.end = parser.seek_ahead(End)
         return [self]
 
-    def eval(self, interp):
+    def eval(self, interp, *args, **kwargs):
         # if condition is truthy, interpreter executes the following block
-
         self.address = interp.instr_pointer
-        interp.eval(self.init)
 
-        # run initialize
-        interp.push_read_enabled(bool(interp.eval(self.condition)))
-        interp.push_block(self)
+        if not self.initialized:
+            interp.eval(self.init)
+            interp.push_block(self)
+            self.initialized = True
+
+        if not interp.eval(self.condition):
+            interp.goto(self.address + self.length)
 
 
 class Procedure(Keyword, Callable, Block, Control):
@@ -251,13 +241,13 @@ class End(Keyword, Control, Delimiter):
     @staticmethod
     def eval(interp, expr):
 
-        block = interp.get_block()
+        block = interp.pull_block()
 
         if isinstance(block, If):
             interp.endif()
 
         elif isinstance(block, For):
-            interp.end_for(block.address, block.condition, block.increment)
+            interp.end_for(block)
 
         elif isinstance(block, Procedure):
             interp.end_call()

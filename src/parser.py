@@ -35,7 +35,8 @@ class Parser:
         self.lexer = Lexer(lang, source, is_file)
         self.tree = []
         self.pending = []
-        self.blocks: [Block] = [BLOCK_MAIN]
+        self.blocks = [BLOCK_MAIN]
+        self.jump_points = []
 
     def set_source(self, source, is_file=False):
         self.lexer = Lexer(self.lang, source, is_file)
@@ -60,15 +61,34 @@ class Parser:
 
         return s, n
 
+    def get_position(self):
+        return {
+            'line': self.lexer.num_line,
+            'char': self.lexer.num_char,
+            'byte': self.lexer.src.tell()
+        }
+
+    def jump_to(self, byte):
+        self.jump_points.append(self.get_position())
+        self.lexer.jump_to(byte)
+
+    def jump_back(self):
+        pos = self.jump_points.pop()
+        self.lexer.jump_to(pos['byte'])
+        self.lexer.num_line = pos['line']
+        self.lexer.num_char = pos['char']
+
     def seek_ahead(self, needle):
-        now = self.lexer.src.tell()
+        now = self.get_position()
 
         try:
             while lex := self.next():
-                if lex.word == needle:
+                if isinstance(lex, needle):
                     return lex
         finally:
-            self.lexer.jump_to(now)
+            self.lexer.jump_to(now['byte'])
+            self.lexer.num_line = now['line']
+            self.lexer.num_char = now['char']
 
     def push_block(self, block):
         self.blocks.append(block)
@@ -78,12 +98,14 @@ class Parser:
             raise Exception("Cannot pull main block")
         return self.blocks.pop()
 
-    def get_block(self, type_=None):
-        if type_ is None:
+    def seek_block(self, needle=None, until=None):
+        if needle is None:
             return self.blocks[-1]
         else:
             for _, block in reversed(self.blocks):
-                if isinstance(block, type_):
+                if until and isinstance(block, until):
+                    return False
+                elif isinstance(block, needle):
                     return block
 
     def _verbatim(self, stop, **kwargs):
