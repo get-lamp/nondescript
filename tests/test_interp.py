@@ -44,7 +44,7 @@ def test_procedure():
     interp = Interpreter()
     interp.read(PROCEDURE, is_file=True)
     assert interp.instr_pointer == 0
-    assert interp.block_stack == ['<MAIN>']
+    assert interp.block_stack == ["<MAIN>"]
     assert interp.ctrl_stack == [True]
 
     # Before 'exec test'

@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 BRACKET_CLOSE = "</bracket>"
 BRACKET_OPEN = "<bracket>"

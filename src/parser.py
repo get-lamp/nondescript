@@ -63,9 +63,9 @@ class Parser:
 
     def get_position(self):
         return {
-            'line': self.lexer.num_line,
-            'char': self.lexer.num_char,
-            'byte': self.lexer.src.tell()
+            "line": self.lexer.num_line,
+            "char": self.lexer.num_char,
+            "byte": self.lexer.src.tell(),
         }
 
     def jump_to(self, byte):
@@ -74,9 +74,9 @@ class Parser:
 
     def jump_back(self):
         pos = self.jump_points.pop()
-        self.lexer.jump_to(pos['byte'])
-        self.lexer.num_line = pos['line']
-        self.lexer.num_char = pos['char']
+        self.lexer.jump_to(pos["byte"])
+        self.lexer.num_line = pos["line"]
+        self.lexer.num_char = pos["char"]
 
     def seek_ahead(self, needle):
         now = self.get_position()
@@ -86,9 +86,9 @@ class Parser:
                 if isinstance(lex, needle):
                     return lex
         finally:
-            self.lexer.jump_to(now['byte'])
-            self.lexer.num_line = now['line']
-            self.lexer.num_char = now['char']
+            self.lexer.jump_to(now["byte"])
+            self.lexer.num_line = now["line"]
+            self.lexer.num_char = now["char"]
 
     def push_block(self, block):
         self.blocks.append(block)

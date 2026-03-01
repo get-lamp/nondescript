@@ -61,7 +61,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = ['<MAIN>']
+        self.block_stack = ["<MAIN>"]
         self.instr_pointer = 0
         self.last = None
 
@@ -380,7 +380,9 @@ class Interpreter:
 
             # unary operation
             if len(i) < 3:
-                return i[UNARY_OP_L].eval(self.scope(), arguments=i[UNARY_OP_R], interp=self)
+                return i[UNARY_OP_L].eval(
+                    self.scope(), arguments=i[UNARY_OP_R], interp=self
+                )
 
             # assign operations
             if isinstance(i[OPERATOR], operator.Assign):
