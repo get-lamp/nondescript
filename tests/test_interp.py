@@ -2,7 +2,7 @@ import pytest
 
 from src.exc import EOF
 from src.interp import Interpreter
-from src.lang.control import Def
+from src.lang.control import Def, Main, Procedure
 
 # --- Constants for sample file paths ---
 ASSIGNMENT_AND_PRINT = "tests/sample/assignment_and_print.ns"
@@ -12,6 +12,7 @@ ARITHMETIC_EXPRESSIONS = "tests/sample/arithmetic_expressions.ns"
 IF_ELSE_TRUE = "tests/sample/if_else_true.ns"
 IF_ELSE_FALSE = "tests/sample/if_else_false.ns"
 NESTED_STRUCTURES = "tests/sample/nested_structures.ns"
+FOR_LOOP = "tests/sample/for_loop.ns"
 SAMPLE = "tests/sample/sample.ns"
 
 
@@ -44,7 +45,7 @@ def test_procedure():
     interp = Interpreter()
     interp.read(PROCEDURE, is_file=True)
     assert interp.instr_pointer == 0
-    assert interp.block_stack == ["<MAIN>"]
+    assert isinstance(interp.block_stack[-1], Main)
     assert interp.ctrl_stack == [True]
 
     # Before 'exec test'
@@ -242,3 +243,60 @@ def test_decrement(source, expected):
             interp.exec_next()
     except EOF:
         assert interp.scope() == expected
+
+
+def test_for_loop_false_condition():
+    source = """
+        x = 0
+        for i=0; i<0; i++
+            x = 1
+        end
+    """
+    interp = Interpreter()
+    interp.read(source)
+    try:
+        while True:
+            interp.exec_next()
+    except EOF:
+        pass
+    assert interp.scope()["i"] == 0
+    assert interp.scope()["x"] == 0
+
+
+def test_for_loop_10_iterations():
+    source = """
+    for i=0; i<10; i++
+        prnt i
+    end
+    """
+    interp = Interpreter()
+    interp.read(source)
+    try:
+        while True:
+            interp.exec_next()
+    except EOF:
+        pass
+    assert interp.scope()["i"] == 10
+
+
+def test_nested_for_loops():
+    source = """
+    z=0
+    for x=0; x < 2; x++
+        prnt x
+        for y=0; y < 2; y++
+            z++
+            prnt y, z
+        end
+    end
+    """
+    interp = Interpreter()
+    interp.read(source)
+    try:
+        while True:
+            interp.exec_next()
+    except EOF:
+        pass
+    assert interp.scope()["x"] == 2
+    assert interp.scope()["y"] == 2
+    assert interp.scope()["z"] == 9

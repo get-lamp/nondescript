@@ -38,7 +38,6 @@ class Block:
         super().__init__(*args, **kwargs)
         self.length = 0
         self.start = None
-        self.end = None
         self.block = []
 
 
@@ -86,7 +85,6 @@ class For(Keyword, Block, Control):
         self.condition = None
         self.increment = None
         self.address = None
-        self.end = None
 
     @staticmethod
     def type():
@@ -97,7 +95,6 @@ class For(Keyword, Block, Control):
         self.init = parser.build_ast(parser.parse_expression(until=NewLine))
         self.condition = parser.build_ast(parser.parse_expression(until=NewLine))
         self.increment = parser.build_ast(parser.parse_expression(until=NewLine))
-        self.end = parser.seek_ahead(End)
         return [self]
 
     def eval(self, interp, *args, **kwargs):
@@ -111,6 +108,9 @@ class For(Keyword, Block, Control):
 
         if not interp.eval(self.condition):
             interp.goto(self.address + self.length)
+
+    def done(self):
+        self.initialized = False
 
 
 class Procedure(Keyword, Callable, Block, Control):
@@ -254,5 +254,8 @@ class End(Keyword, Control, Delimiter):
 
         elif isinstance(block, Def):
             interp.end_call()
+
+        elif isinstance(block, Main):
+            interp.terminate()
         else:
             raise Exception("Unknown block type")

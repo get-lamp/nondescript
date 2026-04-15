@@ -13,7 +13,7 @@ def run(filename):
     with open(".debug", "w") as log:
         try:
             while True:
-                log.write(str(Interpreter.Snapshot(interp)) + "/n")
+                log.write(str(Interpreter.Snapshot(interp)) + '\n')
                 interp.exec_next()
         except EOF:
             exit(0)

@@ -46,10 +46,6 @@ class Lexer:
     def __exit__(self):
         self.src.close()
 
-    def jump_to(self, n):
-        self.src.seek(n, os.SEEK_SET)
-        return self
-
     def _backtrack(self, n=1):
         self.src.seek(-n, os.SEEK_CUR)
         return self

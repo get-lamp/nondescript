@@ -1,7 +1,7 @@
 from src.exc import EOF
 from src.lang import control, data, operator
 from src.lang.base import Keyword, Identifier
-from src.lang.control import Callable
+from src.lang.control import Callable, Main
 from src.lang.grammar import Lang
 from src.parser import Parser
 from dataclasses import dataclass
@@ -61,7 +61,7 @@ class Interpreter:
         self.lang = self.parser.lang
         self.memory = Interpreter.Memory()
         self.ctrl_stack = [True]
-        self.block_stack = ["<MAIN>"]
+        self.block_stack = [Main()]
         self.instr_pointer = 0
         self.last = None
 
@@ -90,6 +90,10 @@ class Interpreter:
 
             # append to instruction memory block
             self.memory.instr.append(ast)
+
+    @staticmethod
+    def terminate():
+        return
 
     def _exec_all(self, source=None, build=True):
         """
@@ -246,8 +250,8 @@ class Interpreter:
         if self.eval(block.condition):
             self.eval(block.increment)
             self.goto(block.address)
-            self.push_block(block)
         else:
+            block.done()
             self.end_block()
 
     def get_block(self):
