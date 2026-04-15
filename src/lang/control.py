@@ -107,7 +107,8 @@ class For(Keyword, Block, Control):
             self.initialized = True
 
         if not interp.eval(self.condition):
-            interp.goto(self.address + self.length)
+            # go past the END keyword
+            interp.goto(self.address + self.length + 1)
 
     def done(self):
         self.initialized = False

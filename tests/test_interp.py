@@ -299,4 +299,4 @@ def test_nested_for_loops():
         pass
     assert interp.scope()["x"] == 2
     assert interp.scope()["y"] == 2
-    assert interp.scope()["z"] == 9
+    assert interp.scope()["z"] == 4

@@ -247,8 +247,9 @@ class Interpreter:
         """
         Close an FOR statement
         """
+        self.eval(block.increment)
+
         if self.eval(block.condition):
-            self.eval(block.increment)
             self.goto(block.address)
         else:
             block.done()
