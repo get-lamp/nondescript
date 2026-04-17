@@ -65,13 +65,16 @@ class Lexeme(ABC):
         return "<%s><%s>" % (self.__class__.__name__, self.word)
 
     def __eq__(self, other):
-        return all(
-            [
-                self.word == other.word,
-                self.line == other.line,
-                self.char == other.char,
-            ]
-        )
+        try:
+            return all(
+                [
+                    self.word == other.word,
+                    self.line == other.line,
+                    self.char == other.char,
+                ]
+            )
+        except AttributeError:
+            return False
 
 
 class Keyword(Lexeme, ABC):

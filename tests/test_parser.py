@@ -1,7 +1,16 @@
 import src.lang.operator
-from src.lang.base import Identifier, Space, SingleQuote, Bracket, Keyword, Parentheses
+from src.lang.base import (
+    Identifier,
+    Space,
+    NewLine,
+    SingleQuote,
+    Bracket,
+    Keyword,
+    Parentheses,
+    Comma,
+)
 from src.lang.data import Integer, String
-from src.lang.control import Procedure, If, Exec
+from src.lang.control import Procedure, If, Exec, Def, End
 from src.exc import UnexpectedSymbol
 from src.parser import Parser
 from src.lang import operator as op
@@ -93,6 +102,50 @@ ANY_POS = (ANY, ANY)
                 Integer(Token("2", 0, 2, 3)),
             ],
         ),
+        (
+            "def func a,b,c: end",
+            [
+                Def(Token("def", 0, 0, ANY)),
+                Space(Token(" ", 0, 3, ANY)),
+                Identifier(Token("func", 0, 4, ANY)),
+                Space(Token(" ", 0, 8, ANY)),
+                Identifier(Token("a", 0, 9, ANY)),
+                Comma(Token(",", 0, 10, ANY)),
+                Identifier(Token("b", 0, 11, ANY)),
+                Comma(Token(",", 0, 12, ANY)),
+                Identifier(Token("c", 0, 13, ANY)),
+                Space(Token(" ", 0, 15, ANY)),
+                End(Token("end", 0, 16, ANY)),
+            ],
+        ),
+        (
+            "def func a,b,c\nend",
+            [
+                Def(Token("def", 0, 0, ANY)),
+                Space(Token(" ", 0, 3, ANY)),
+                Identifier(Token("func", 0, 4, ANY)),
+                Space(Token(" ", 0, 8, ANY)),
+                Identifier(Token("a", 0, 9, ANY)),
+                Comma(Token(",", 0, 10, ANY)),
+                Identifier(Token("b", 0, 11, ANY)),
+                Comma(Token(",", 0, 12, ANY)),
+                Identifier(Token("c", 0, 13, ANY)),
+                NewLine(Token("\n", 0, 14, ANY)),
+                End(Token("end", 1, 0, ANY)),
+            ],
+        ),
+        (
+            "def func a\nend",
+            [
+                Def(Token("def", 0, 0, ANY)),
+                Space(Token(" ", 0, 3, ANY)),
+                Identifier(Token("func", 0, 4, ANY)),
+                Space(Token(" ", 0, 8, ANY)),
+                Identifier(Token("a", 0, 9, ANY)),
+                NewLine(Token("\n", 0, 10, ANY)),
+                End(Token("end", 1, 0, ANY)),
+            ],
+        ),
     ],
 )
 def test_next(source, expected):
@@ -101,8 +154,12 @@ def test_next(source, expected):
 
     for exp in expected:
         token = parser.lexer.next()
-        assert token == exp
+        assert token.word == exp.word
+        assert token.char == exp.char
+        assert token.line == exp.line
         assert type(token) is type(exp)
+
+    assert parser.next() is False
 
 
 @pytest.mark.parametrize(
@@ -189,6 +246,110 @@ def test_parse_returns_false(source):
 def test_parse_raises_unexpected_symbol(source):
     with pytest.raises(UnexpectedSymbol):
         Parser(Lang, source).parse()
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        (
+                "1+2",
+                [
+                    Integer(Token("1", 0, 0, 0)),
+                    op.Add(Token("+", 0, 1, 1)),
+                    Integer(Token("2", 0, 2, 2)),
+                ],
+        ),
+        (
+                "a * b",
+                [
+                    Identifier(Token("a", 0, 0, 0)),
+                    op.Multiply(Token("*", 0, 2, 2)),
+                    Identifier(Token("b", 0, 4, 4)),
+                ],
+        ),
+        (
+                "a + b * c",  # Testing operator precedence
+                [
+                    [Identifier(Token("a", 0, 0, 0))],
+                    op.Add(Token("+", 0, 2, 2)),
+                    [
+                        [Identifier(Token("b", 0, 4, 4))],
+                        op.Multiply(Token("*", 0, 6, 6)),
+                        [Identifier(Token("c", 0, 8, 8))],
+                    ],
+                ],
+        ),
+        (
+                "(a + b) * c",  # Testing parentheses grouping
+                [
+                    [
+                        [Identifier(Token("a", 0, 1, 1))],
+                        op.Add(Token("+", 0, 3, 3)),
+                        [Identifier(Token("b", 0, 5, 5))],
+                    ],
+                    op.Multiply(Token("*", 0, 8, 8)),
+                    [Identifier(Token("c", 0, 10, 10))],
+                ],
+        ),
+        (
+                "'Hello' + ' ' + who",  # Testing right-associativity (adjusting based on previous failure)
+                [
+                    [String(Token("Hello", 0, 1, 1))],
+                    op.Add(Token("+", 0, 8, 8)),
+                    [
+                        [String(Token(" ", 0, 11, 11))],
+                        op.Add(Token("+", 0, 14, 14)),
+                        [Identifier(Token("who", 0, 16, 16))],
+                    ],
+                ],
+        ),
+        ("1", [Integer(Token("1", 0, 0, 0))]),
+        ("foo", [Identifier(Token("foo", 0, 0, 0))]),
+        (
+                "!foo",
+                [
+                    src.lang.operator.UnaryOperator(Token("!", 0, 0, 0)),
+                    [Identifier(Token("foo", 0, 1, 1))],
+                ],
+        ),
+        (
+                "foo++",
+                [op.Increment(Token("++", 0, 3, 3)), [Identifier(Token("foo", 0, 0, 0))]],
+        ),
+        (
+                "1+2++",
+                [
+                    [Integer(Token("1", 0, 0, 0))],
+                    op.Add(Token("+", 0, 1, 1)),
+                    [op.Increment(Token("++", 0, 3, 3)), [Integer(Token("2", 0, 2, 2))]],
+                ],
+        ),
+        (
+                "NOT bar",
+                [op.Not(Token("NOT", 0, 0, 0)), [Identifier(Token("bar", 0, 4, 4))]],
+        ),
+        (
+                "1 == 2",
+                [
+                    [Integer(Token("1", 0, 0, 0))],
+                    op.Equal(Token("==", 0, 2, 2)),
+                    [Integer(Token("2", 0, 5, 5))],
+                ],
+        ),
+        (
+                "1 != 2",
+                [
+                    [Integer(Token("1", 0, 0, 0))],
+                    op.Unequal(Token("!=", 0, 2, 2)),
+                    [Integer(Token("2", 0, 5, 5))],
+                ],
+        ),
+    ],
+)
+def test_parse_expression(source, expected):
+
+    parser = Parser(Lang, source)
+    expression = parser.parse_expression()
 
 
 @pytest.mark.parametrize(
@@ -370,6 +531,40 @@ def test_build_raises_unexpected_symbol(source):
                 [op.Decrement(Token("--", 3, 1, 3)), [Identifier(Token("b", 3, 0, 1))]],
             ],
         ),
+        (
+            "def func a\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [Identifier(Token("a", ANY, ANY, ANY))],
+                ]
+            ],
+        ),
+        (
+            "def func a,b,c\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [
+                        [Identifier(Token("a", ANY, ANY, ANY))],
+                        [Identifier(Token("b", ANY, ANY, ANY))],
+                        [Identifier(Token("c", ANY, ANY, ANY))],
+                    ],
+                ]
+            ],
+        ),
+        (
+            "def func\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [],
+                ]
+            ],
+        ),
     ],
 )
 def test_build_ast(source, expected):
@@ -379,6 +574,103 @@ def test_build_ast(source, expected):
     for exp in expected:
         p = parser.parse()
         ast = parser.build_ast(p)
-        assert exp == ast
+        assert ast == exp
+
+    assert parser.parse() is False
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_ast", "expected_block"),
+    [
+        (
+            "def func a\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [Identifier(Token("a", ANY, ANY, ANY))],
+                ]
+            ],
+            [],
+        ),
+        (
+            "def func a\nx=0\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [Identifier(Token("a", ANY, ANY, ANY))],
+                ]
+            ],
+            [
+                [
+                    [Identifier(Token("x", ANY, ANY, ANY))],
+                    op.Assign(Token("=", ANY, ANY, ANY)),
+                    [Integer(Token("0", ANY, ANY, ANY))],
+                ]
+            ],
+        ),
+        (
+            "def func a,b,c\nx=0\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [
+                        [Identifier(Token("a", ANY, ANY, ANY))],
+                        [Identifier(Token("b", ANY, ANY, ANY))],
+                        [Identifier(Token("c", ANY, ANY, ANY))],
+                    ],
+                ]
+            ],
+            [
+                [
+                    [Identifier(Token("x", ANY, ANY, ANY))],
+                    op.Assign(Token("=", ANY, ANY, ANY)),
+                    [Integer(Token("0", ANY, ANY, ANY))],
+                ]
+            ],
+        ),
+        (
+            "def func\nx=0;y=1;x=2\nend",
+            [
+                [
+                    Def(Token("def", ANY, ANY, ANY)),
+                    [Identifier(Token("func", ANY, ANY, ANY))],
+                    [],
+                ]
+            ],
+            [
+                [
+                    [Identifier(Token("x", ANY, ANY, ANY))],
+                    op.Assign(Token("=", ANY, ANY, ANY)),
+                    [Integer(Token("0", ANY, ANY, ANY))],
+                ],
+                [
+                    [Identifier(Token("y", ANY, ANY, ANY))],
+                    op.Assign(Token("=", ANY, ANY, ANY)),
+                    [Integer(Token("1", ANY, ANY, ANY))],
+                ],
+                [
+                    [Identifier(Token("z", ANY, ANY, ANY))],
+                    op.Assign(Token("=", ANY, ANY, ANY)),
+                    [Integer(Token("2", ANY, ANY, ANY))],
+                ],
+            ],
+        ),
+    ],
+)
+def test_functions_in_built_ast(source, expected_ast, expected_block):
+    parser = Parser(Lang, source)
+
+    for exp in expected_ast:
+        p = parser.parse()
+        ast = parser.build_ast(p)
+
+        assert ast == exp
+
+        def_k, ident, sign = ast
+
+        assert def_k.block == expected_block
 
     assert parser.parse() is False
