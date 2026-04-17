@@ -8,6 +8,7 @@ from src.lang.control import Def, Main
 ASSIGNMENT_AND_PRINT = "tests/sample/assignment_and_print.ns"
 PROCEDURE = "tests/sample/procedure.ns"
 FUNCTION_WITH_RETURN = "tests/sample/function_with_return.ns"
+FIBONACCI = "tests/sample/fibonacci.ns"
 ARITHMETIC_EXPRESSIONS = "tests/sample/arithmetic_expressions.ns"
 IF_ELSE_TRUE = "tests/sample/if_else_true.ns"
 IF_ELSE_FALSE = "tests/sample/if_else_false.ns"
@@ -88,6 +89,18 @@ def test_function_with_return():
         else None
     ) is None
     assert interp.last is None
+
+
+def test_function_fibonacci():
+    """Tests a function with parameters and a return value."""
+    interp = Interpreter()
+    interp.read(FIBONACCI, is_file=True)
+
+    try:
+        while True:
+            interp.exec_next()
+    except EOF:
+        pass
 
 
 def test_arithmetic_expressions():
