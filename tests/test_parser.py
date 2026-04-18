@@ -359,6 +359,7 @@ EXPECTED_NEXT = build_test_cases(
         [
             Identifier(Token("foo", 0, 0, ANY)),
             op.Increment(Token("++", 0, ANY, ANY)),
+            NewLine(Token(";", 0, 5, ANY)),
             Identifier(Token("bar", 0, ANY, ANY)),
             op.Increment(Token("++", 0, ANY, ANY)),
         ],
