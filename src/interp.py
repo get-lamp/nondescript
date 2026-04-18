@@ -6,12 +6,6 @@ from src.lang.grammar import Lang
 from src.parser import Parser
 from dataclasses import dataclass
 
-OPERAND_L = 0
-OPERATOR = 1
-OPERAND_R = 2
-UNARY_OP_L = 0
-UNARY_OP_R = 1
-
 
 class Interpreter:
     lang = Lang
@@ -352,7 +346,11 @@ class Interpreter:
 
     def eval(self, i, ref=False):
 
-        breakpoint()
+        OPERAND_L = 0
+        OPERATOR = 1
+        OPERAND_R = 2
+        UNARY_OP_L = 0
+        UNARY_OP_R = 1
 
         if isinstance(i, data.List):
             for k, v in enumerate(i):
