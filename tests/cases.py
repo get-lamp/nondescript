@@ -45,7 +45,7 @@ FUNCTION_DEF = [
     "def func\nend",
     "def func a\nx=0\nend",
     "def func a,b,c\nx=0\nend",
-    "def func\nx=0;y=1;x=2\nend",
+    "def func\nx=0;y=1;z=2\nend",
 ]
 
 CALLS = [

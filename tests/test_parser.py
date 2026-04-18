@@ -290,14 +290,16 @@ EXPECTED_NEXT = build_test_cases(
             Identifier(Token("x", 1, 0, ANY)),
             op.Assign(Token("=", 1, 1, ANY)),
             Integer(Token("0", 1, 2, ANY)),
-            Identifier(Token("y", 1, 4, ANY)),
-            op.Assign(Token("=", 1, 5, ANY)),
-            Integer(Token("1", 1, 6, ANY)),
-            Identifier(Token("x", 1, 8, ANY)),
-            op.Assign(Token("=", 1, 9, ANY)),
-            Integer(Token("2", 1, 10, ANY)),
-            NewLine(Token("\n", 1, ANY, ANY)),
-            End(Token("end", 2, 0, ANY)),
+            NewLine(Token(";", 1, 3, ANY)),
+            Identifier(Token("y", 2, 0, ANY)),
+            op.Assign(Token("=", 2, 1, ANY)),
+            Integer(Token("1", 2, 2, ANY)),
+            NewLine(Token(";", 2, 3, ANY)),
+            Identifier(Token("z", 3, 0, ANY)),
+            op.Assign(Token("=", 3, 1, ANY)),
+            Integer(Token("2", 3, 2, ANY)),
+            NewLine(Token("\n", 3, 3, ANY)),
+            End(Token("end", 4, 0, ANY)),
         ],
         # CALLS
         [
@@ -358,10 +360,10 @@ EXPECTED_NEXT = build_test_cases(
         # SEQUENCES
         [
             Identifier(Token("foo", 0, 0, ANY)),
-            op.Increment(Token("++", 0, ANY, ANY)),
+            op.Increment(Token("++", 0, 3, ANY)),
             NewLine(Token(";", 0, 5, ANY)),
-            Identifier(Token("bar", 0, ANY, ANY)),
-            op.Increment(Token("++", 0, ANY, ANY)),
+            Identifier(Token("bar", 1, 0, ANY)),
+            op.Increment(Token("++", 1, 3, ANY)),
         ],
         [
             Identifier(Token("foo", 0, 0, ANY)),
