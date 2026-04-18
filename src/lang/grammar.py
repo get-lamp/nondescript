@@ -37,7 +37,8 @@ class Lang:
     delimiters = r"[\"\':!,;+*^&@#$%&\-\\/\|=$()?<>\s\[\]]"
 
     r_space = r"[ ]"
-    r_newline = r"[\n;]"
+    r_semicolon = r"[;]"
+    r_newline = r"[\n]"
     r_tab = r"[\t]"
     r_slash = r"[/]"
     r_asterisk = r"[*]"
@@ -72,6 +73,7 @@ class Lang:
     symbols = {
         r_space: lambda t: Space(t),
         r_newline: lambda t: NewLine(t),
+        r_semicolon: lambda t: NewLine(t),
         r_tab: lambda t: Tab(t),
         r_bracket_l: lambda t: Bracket(t, open=True),
         r_bracket_r: lambda t: Bracket(t, open=False),
