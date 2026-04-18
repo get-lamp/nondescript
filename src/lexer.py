@@ -52,7 +52,7 @@ class Lexer:
 
     def _is_newline(self, char):
         return bool(
-            re.match('|'.join([self.syntax.r_newline, self.syntax.r_semicolon]), char)
+            re.match("|".join([self.syntax.r_newline, self.syntax.r_semicolon]), char)
         )
 
     def _track_line_and_char(self, char, word):

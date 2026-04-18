@@ -352,6 +352,8 @@ class Interpreter:
 
     def eval(self, i, ref=False):
 
+        breakpoint()
+
         if isinstance(i, data.List):
             for k, v in enumerate(i):
                 i[k] = self.eval(v) if ref is True else self.getval(self.eval(v))

@@ -372,14 +372,12 @@ EXPECTED_NEXT = build_test_cases(
             Identifier(Token("bar", 1, 0, ANY)),
             op.Decrement(Token("--", 1, 3, ANY)),
         ],
-    ]
+    ],
 )
 
 
 @pytest.mark.parametrize(
-    ("source", "expected"),
-    EXPECTED_NEXT[:],
-    ids=[src for src, _ in EXPECTED_NEXT[:]]
+    ("source", "expected"), EXPECTED_NEXT[:], ids=[src for src, _ in EXPECTED_NEXT[:]]
 )
 def test_next(source, expected):
 
@@ -816,7 +814,6 @@ def test_build_ast(source, expected):
     for exp in expected:
         p = parser.parse()
         ast = parser.build_ast(p)
-
 
         assert ast == exp
 
