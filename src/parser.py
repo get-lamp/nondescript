@@ -18,7 +18,7 @@ from src.lang.data import Constant
 from src.lang.operator import Operator, UnaryOperator, UnaryPostOperator
 from src.lang import data
 from src.lexer import Lexer, Token
-from src.exc import UnexpectedEOF, UnexpectedSymbol
+from src.exc import UnexpectedEOF, UnexpectedSymbol, UnexpectedToken
 
 
 BLOCK_MAIN = "<main>"
@@ -320,7 +320,7 @@ class Parser:
                     if len(n) > 0:
                         n = self.build_ast(n)
                 else:
-                    raise Exception("Unexpected parentheses at %s" % i.line)
+                    raise UnexpectedToken("Unexpected parentheses at %s" % i.line)
 
             # list without brackets. Like arguments list
             elif isinstance(i, Comma):
@@ -332,7 +332,7 @@ class Parser:
                     n.append(src.lang.data.List(self.list(s)))
                 # closing brackets are disposed by self.list, so they shouldn't come up here
                 else:
-                    raise Exception("Unexpected bracket at %s" % i.line)
+                    raise UnexpectedToken("Unexpected parentheses at %s" % i.line)
 
             # parameter
             elif isinstance(i, self.lang.Parameter):

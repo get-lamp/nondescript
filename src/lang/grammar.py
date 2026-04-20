@@ -1,6 +1,9 @@
 import re
 
 import src.lang.base
+from src.lang import control
+from src.lang import data
+from src.lang import operator as op
 from src.lang.base import (
     Lexeme,
     CLAUSE,
@@ -23,14 +26,21 @@ from src.lang.base import (
     SingleQuote,
 )
 
-from src.lang import control
-from src.lang import data
-from src.lang import operator as op
-
-
 # 	TODO
 # weird delimiter characters behavior
 # check for Evaluable & Callable classes
+
+W_PRINT = 'prnt'
+W_IF = 'if'
+W_ELSE = 'else'
+W_END = 'end'
+W_FOR = 'for'
+W_PROCEDURE = 'procedure'
+W_DEF = 'def'
+W_EXEC = 'exec'
+W_INCLUDE = 'include'
+W_WAIT = 'WAIT'
+W_SPACE = ' '
 
 
 class Lang:
@@ -131,16 +141,16 @@ class Lang:
     }
 
     keywords = {
-        "prnt": lambda t: Lang.Prnt(t),
-        "if": lambda t: control.If(t),
-        "else": lambda t: control.Else(t),
-        "end": lambda t: control.End(t),
-        "for": lambda t: control.For(t),
-        "procedure": lambda t: control.Procedure(t),
-        "def": lambda t: control.Def(t),
-        "exec": lambda t: control.Exec(t),
-        "include": lambda t: Lang.Include(t),
-        "WAIT": lambda t: Lang.Wait(t),
+        W_PRINT: lambda t: Lang.Prnt(t),
+        W_IF: lambda t: control.If(t),
+        W_ELSE: lambda t: control.Else(t),
+        W_END: lambda t: control.End(t),
+        W_FOR: lambda t: control.For(t),
+        W_PROCEDURE: lambda t: control.Procedure(t),
+        W_DEF: lambda t: control.Def(t),
+        W_EXEC: lambda t: control.Exec(t),
+        W_INCLUDE: lambda t: Lang.Include(t),
+        W_WAIT: lambda t: Lang.Wait(t),
     }
 
     parameters = {

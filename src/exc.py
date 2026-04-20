@@ -8,3 +8,7 @@ class UnexpectedEOF(Exception):
 
 class EOF(StopIteration):
     pass
+
+
+class UnexpectedToken(Exception):
+    pass
