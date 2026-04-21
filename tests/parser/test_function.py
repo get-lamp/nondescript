@@ -195,5 +195,6 @@ EXPECTED_PARSE = build_test_cases(
     ("source", "expected"), EXPECTED_PARSE[:], ids=[src for src, _ in EXPECTED_PARSE[:]]
 )
 def test_parse(source, expected):
-
-    assert Parser(Lang, source).parse() == expected
+    parser = Parser(Lang, source)
+    assert parser.parse() == expected
+    assert parser.parse() is False
