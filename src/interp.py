@@ -191,7 +191,9 @@ class Interpreter:
 
         if len(signature) > 0:
             # assign calling args to routine signature
-            for k, v in enumerate(self.getval(signature, ref=True)):
+            args_ = self.getval(signature, ref=True)
+            args_ = args_ if isinstance(args_, list) else [args_]
+            for k, v in enumerate(args_):
                 self.bind(signature[k][0], arguments[k])
 
         # is function. Return last statement eval

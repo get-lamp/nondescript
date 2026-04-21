@@ -104,6 +104,10 @@ class Identifier(Lexeme):
 
     def eval(self, scope, arguments=None, interp=None):
         v = scope.get(self.word, None)
+
+        # TODO: this is implementing pointers to functions, but shouldn't be like this
+        # Rather, the identifier should eval to a function object first, and then, the
+        # result be evaluated with the arguments
         if arguments is not None and v is not None:
             return v.call(arguments, interp)
         else:
