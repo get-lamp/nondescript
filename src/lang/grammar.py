@@ -30,17 +30,17 @@ from src.lang.base import (
 # weird delimiter characters behavior
 # check for Evaluable & Callable classes
 
-W_PRINT = 'prnt'
-W_IF = 'if'
-W_ELSE = 'else'
-W_END = 'end'
-W_FOR = 'for'
-W_PROCEDURE = 'procedure'
-W_DEF = 'def'
-W_EXEC = 'exec'
-W_INCLUDE = 'include'
-W_WAIT = 'WAIT'
-W_SPACE = ' '
+W_PRINT = "prnt"
+W_IF = "if"
+W_ELSE = "else"
+W_END = "end"
+W_FOR = "for"
+W_PROC = "procedure"
+W_DEF = "def"
+W_EXEC = "exec"
+W_INCLUDE = "include"
+W_WAIT = "WAIT"
+W_ASSIGN = "="
 
 
 class Lang:
@@ -146,7 +146,7 @@ class Lang:
         W_ELSE: lambda t: control.Else(t),
         W_END: lambda t: control.End(t),
         W_FOR: lambda t: control.For(t),
-        W_PROCEDURE: lambda t: control.Procedure(t),
+        W_PROC: lambda t: control.Procedure(t),
         W_DEF: lambda t: control.Def(t),
         W_EXEC: lambda t: control.Exec(t),
         W_INCLUDE: lambda t: Lang.Include(t),

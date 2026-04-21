@@ -11,141 +11,124 @@ from src.lang.base import (
 )
 from src.lang.control import Procedure, Exec, Def, End
 from src.lang.data import Integer
-from src.lang.grammar import (
-    Lang,
-    W_DEF,
-    W_SPACE,
-    W_END
-)
-from src.lexer import Token
+from src.lang.grammar import Lang, W_DEF, W_END, W_ASSIGN, W_EXEC, W_PROC
 from src.parser import Parser
 from tests.cases import FUNCTION_DEF, CALLS, PROCEDURES, build_test_cases
+from tests.tools import lex
 
 ANY_POS = (ANY, ANY)
-
-
-def _lex(cls, word=None, line=ANY, char=ANY, byte=ANY):
-    return cls(Token(word, line, char, byte))
 
 
 EXPECTED_NEXT = build_test_cases(
     FUNCTION_DEF + CALLS + PROCEDURES,
     [
         [
-            _lex(Def, W_DEF, 0, 0),
-            _lex(Space, W_SPACE, 0, 3),
-            _lex(Identifier, 'func', 0, 4),
-            _lex(Space, W_SPACE, 0, 8),
-            _lex(Identifier, 'a', 0, 9),
-            _lex(Comma, ',', 0, 10),
-            _lex(Identifier, 'b', 0, 11),
-            _lex(Comma, ',', 0, 12),
-            _lex(Identifier, 'c', 0, 13),
-            # ignoring delimiter ':'
-            _lex(Space, W_SPACE, 0, 15),
-            _lex(End, W_END, 0, 16),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(Space, " ", 0, 8),
+            lex(Identifier, "a", 0, 9),
+            lex(Comma, ",", 0, 10),
+            lex(Identifier, "b", 0, 11),
+            lex(Comma, ",", 0, 12),
+            lex(Identifier, "c", 0, 13),
+            lex(NewLine, ";", 0, 14),
+            lex(Space, " ", 1, 0),
+            lex(End, W_END, 1, 1),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            Space(Token(" ", 0, 8, ANY)),
-            Identifier(Token("a", 0, 9, ANY)),
-            Comma(Token(",", 0, 10, ANY)),
-            Identifier(Token("b", 0, 11, ANY)),
-            Comma(Token(",", 0, 12, ANY)),
-            Identifier(Token("c", 0, 13, ANY)),
-            NewLine(Token("\n", 0, 14, ANY)),
-            End(Token("end", 1, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(Space, " ", 0, 8),
+            lex(Identifier, "a", 0, 9),
+            lex(Comma, ",", 0, 10),
+            lex(Identifier, "b", 0, 11),
+            lex(Comma, ",", 0, 12),
+            lex(Identifier, "c", 0, 13),
+            lex(NewLine, "\n", 0, 14),
+            lex(End, W_END, 1, 0),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            Space(Token(" ", 0, 8, ANY)),
-            Identifier(Token("a", 0, 9, ANY)),
-            NewLine(Token("\n", 0, 10, ANY)),
-            End(Token("end", 1, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(Space, " ", 0, 8),
+            lex(Identifier, "a", 0, 9),
+            lex(NewLine, "\n", 0, 10),
+            lex(End, W_END, 1, 0),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            NewLine(Token("\n", 0, ANY, ANY)),
-            End(Token("end", 1, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(NewLine, "\n", 0, 8),
+            lex(End, W_END, 1, 0),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            Space(Token(" ", 0, 8, ANY)),
-            Identifier(Token("a", 0, 9, ANY)),
-            NewLine(Token("\n", 0, ANY, ANY)),
-            Identifier(Token("x", 1, 0, ANY)),
-            op.Assign(Token("=", 1, 1, ANY)),
-            Integer(Token("0", 1, 2, ANY)),
-            NewLine(Token("\n", 1, ANY, ANY)),
-            End(Token("end", 2, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(Space, " ", 0, 8),
+            lex(Identifier, "a", 0, 9),
+            lex(NewLine, "\n", 0, 10),
+            lex(Identifier, "x", 1, 0),
+            lex(op.Assign, W_ASSIGN, 1, 1),
+            lex(Integer, "0", 1, 2),
+            lex(NewLine, "\n", 1, 3),
+            lex(End, W_END, 2, 0),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            Space(Token(" ", 0, 8, ANY)),
-            Identifier(Token("a", 0, 9, ANY)),
-            Comma(Token(",", 0, 10, ANY)),
-            Identifier(Token("b", 0, 11, ANY)),
-            Comma(Token(",", 0, 12, ANY)),
-            Identifier(Token("c", 0, 13, ANY)),
-            NewLine(Token("\n", 0, ANY, ANY)),
-            Identifier(Token("x", 1, 0, ANY)),
-            op.Assign(Token("=", 1, 1, ANY)),
-            Integer(Token("0", 1, 2, ANY)),
-            NewLine(Token("\n", 1, ANY, ANY)),
-            End(Token("end", 2, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(Space, " ", 0, 8),
+            lex(Identifier, "a", 0, 9),
+            lex(Comma, ",", 0, 10),
+            lex(Identifier, "b", 0, 11),
+            lex(Comma, ",", 0, 12),
+            lex(Identifier, "c", 0, 13),
+            lex(NewLine, "\n", 0, 14),
+            lex(Identifier, "x", 1, 0),
+            lex(op.Assign, W_ASSIGN, 1, 1),
+            lex(Integer, "0", 1, 2),
+            lex(NewLine, "\n", 1, 3),
+            lex(End, W_END, 2, 0),
         ],
         [
-            Def(Token("def", 0, 0, ANY)),
-            Space(Token(" ", 0, 3, ANY)),
-            Identifier(Token("func", 0, 4, ANY)),
-            NewLine(Token("\n", 0, ANY, ANY)),
-            Identifier(Token("x", 1, 0, ANY)),
-            op.Assign(Token("=", 1, 1, ANY)),
-            Integer(Token("0", 1, 2, ANY)),
-            NewLine(Token(";", 1, 3, ANY)),
-            Identifier(Token("y", 2, 0, ANY)),
-            op.Assign(Token("=", 2, 1, ANY)),
-            Integer(Token("1", 2, 2, ANY)),
-            NewLine(Token(";", 2, 3, ANY)),
-            Identifier(Token("z", 3, 0, ANY)),
-            op.Assign(Token("=", 3, 1, ANY)),
-            Integer(Token("2", 3, 2, ANY)),
-            NewLine(Token("\n", 3, 3, ANY)),
-            End(Token("end", 4, 0, ANY)),
+            lex(Def, W_DEF, 0, 0),
+            lex(Space, " ", 0, 3),
+            lex(Identifier, "func", 0, 4),
+            lex(NewLine, "\n", 0, 8),
+            lex(Identifier, "x", 1, 0),
+            lex(op.Assign, W_ASSIGN, 1, 1),
+            lex(Integer, "0", 1, 2),
+            lex(NewLine, ";", 1, 3),
+            lex(Identifier, "y", 2, 0),
+            lex(op.Assign, W_ASSIGN, 2, 1),
+            lex(Integer, "1", 2, 2),
+            lex(NewLine, ";", 2, 3),
+            lex(Identifier, "z", 3, 0),
+            lex(op.Assign, W_ASSIGN, 3, 1),
+            lex(Integer, "2", 3, 2),
+            lex(NewLine, "\n", 3, 3),
+            lex(End, W_END, 4, 0),
         ],
         # CALLS
         [
-            Exec(Token("exec", 0, 0, 4)),
-            Space(Token(" ", 0, 4, 5)),
-            Identifier(Token("my_proc", 0, 5, 12)),
+            lex(Exec, W_EXEC, 0, 0, 4),
+            lex(Space, " ", 0, 4, 5),
+            lex(Identifier, "my_proc", 0, 5, 12),
         ],
         # PROCEDURES
         [
-            Procedure(Token("procedure", 0, 0, 9)),
-            Space(Token(" ", 0, 9, 10)),
-            Identifier(Token("my_proc", 0, 10, 17)),
+            lex(Procedure, W_PROC, 0, 0, 9),
+            lex(Space, " ", 0, 9, 10),
+            lex(Identifier, "my_proc", 0, 10, 17),
         ],
     ],
 )
 
-"""
-EXPECTED_PARSE = build_test_cases(
-    FUNCTION_DEF,
-    [
-        [Def(Token("def", ANY, ANY, ANY)),[]]
-    ]
-)
-"""
 
 @pytest.mark.parametrize(
     ("source", "expected"), EXPECTED_NEXT[:], ids=[src for src, _ in EXPECTED_NEXT[:]]
@@ -168,11 +151,49 @@ def test_next(source, expected):
 
     assert parser.next() is False
 
-"""
+
+EXPECTED_PARSE_BLOCKS = [
+    (
+        "def f a\na\nend",
+        [lex(Def, W_DEF), [lex(Identifier, "f")], [lex(Identifier, "a")]],
+    ),
+    (
+        "def func a,b,c; end",
+        [
+            lex(Def, W_DEF),
+            [lex(Identifier, "func")],
+            [[lex(Identifier, "a")], [lex(Identifier, "b")], [lex(Identifier, "c")]],
+        ],
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    EXPECTED_PARSE_BLOCKS[1:],
+    ids=[src for src, _ in EXPECTED_PARSE_BLOCKS[1:0]],
+)
+def test_end_pulls_block(source, expected):
+    parser = Parser(Lang, source)
+    assert parser.parse() == expected
+    assert parser.parse() is False
+
+
+EXPECTED_PARSE = build_test_cases(
+    FUNCTION_DEF[0:1],
+    [
+        [
+            lex(Def, W_DEF),
+            [lex(Identifier, "func")],
+            [[lex(Identifier, "a")], [lex(Identifier, "b")], [lex(Identifier, "c")]],
+        ]
+    ],
+)
+
+
 @pytest.mark.parametrize(
     ("source", "expected"), EXPECTED_PARSE[:], ids=[src for src, _ in EXPECTED_PARSE[:]]
 )
 def test_parse(source, expected):
-    assert Parser(Lang, source).parse() == expected
 
-"""
+    assert Parser(Lang, source).parse() == expected

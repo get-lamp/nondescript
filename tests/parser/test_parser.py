@@ -220,8 +220,9 @@ EXPECTED_NEXT = build_test_cases(
             Identifier(Token("b", 0, 11, ANY)),
             Comma(Token(",", 0, 12, ANY)),
             Identifier(Token("c", 0, 13, ANY)),
-            Space(Token(" ", 0, 15, ANY)),
-            End(Token("end", 0, 16, ANY)),
+            NewLine(Token(";", 0, 14, ANY)),
+            Space(Token(" ", 1, 0, ANY)),
+            End(Token("end", 1, 1, ANY)),
         ],
         [
             Def(Token("def", 0, 0, ANY)),

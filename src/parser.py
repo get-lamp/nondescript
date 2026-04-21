@@ -42,10 +42,13 @@ class Parser:
         self.lexer = Lexer(self.lang, source, is_file)
 
     def _EOF(self):
-        if len(self.blocks) > 1:
-            pass
-            # print self.blocks
-            # raise Exception('Missing end statement')
+        try:
+            if len(self.blocks) > 1:
+                raise UnexpectedEOF()
+                # print self.blocks
+                # raise Exception('Missing end statement')
+        except Exception:
+            raise
 
         return False
 

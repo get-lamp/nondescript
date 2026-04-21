@@ -12,7 +12,6 @@ from unittest.mock import ANY
 from tests.cases import ASSIGNMENT, build_test_cases
 
 
-
 ANY_POS = (ANY, ANY)
 
 

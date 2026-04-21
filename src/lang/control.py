@@ -180,6 +180,7 @@ class Def(Procedure):
 
         # get function block
         self.block = parser.parse_block(until=End)
+        parser.pull_block()
 
         return [self, self.identifier, self.signature]
 

@@ -39,7 +39,7 @@ CONTROL_FLOW = [
 ]
 
 FUNCTION_DEF = [
-    "def func a,b,c: end",
+    "def func a,b,c; end",
     "def func a,b,c\nend",
     "def func a\nend",
     "def func\nend",
